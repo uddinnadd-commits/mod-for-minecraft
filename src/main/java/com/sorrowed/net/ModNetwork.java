@@ -9,7 +9,7 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 public class ModNetwork {
-    private static final String PROTOCOL = "3";
+    private static final String PROTOCOL = "4";
 
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(Sorrowed.MODID, "main"),
@@ -22,6 +22,18 @@ public class ModNetwork {
                 SorrowPacket::encode, SorrowPacket::decode, SorrowPacket::handle);
         CHANNEL.registerMessage(2, CutscenePacket.class,
                 CutscenePacket::encode, CutscenePacket::decode, CutscenePacket::handle);
+        CHANNEL.registerMessage(3, ScribblePacket.class,
+                ScribblePacket::encode, ScribblePacket::decode, ScribblePacket::handle);
+        CHANNEL.registerMessage(4, StaticPacket.class,
+                StaticPacket::encode, StaticPacket::decode, StaticPacket::handle);
+    }
+
+    public static void scribble(ServerPlayer player, int in, int hold, int out) {
+        CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new ScribblePacket(in, hold, out));
+    }
+
+    public static void statik(ServerPlayer player, float strength) {
+        CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new StaticPacket(strength));
     }
 
     public static void thought(ServerPlayer player, String text) {

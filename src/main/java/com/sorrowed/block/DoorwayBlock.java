@@ -1,5 +1,6 @@
 package com.sorrowed.block;
 
+import com.sorrowed.mind.Transition;
 import com.sorrowed.worldgen.HubBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -75,6 +76,7 @@ public class DoorwayBlock extends Block {
         if (!(level instanceof ServerLevel from)) return;
         if (!(entity instanceof ServerPlayer player)) return;
         if (player.isPassenger() || player.isVehicle()) return;
+        if (Transition.inTransit(player)) return;
         if (player.isOnPortalCooldown()) {
             player.setPortalCooldown();
             return;
@@ -129,8 +131,6 @@ public class DoorwayBlock extends Block {
             dest = HubBuilder.arrival(destLevel, target);
         }
 
-        player.setPortalCooldown();
-        player.changeDimension(destLevel, new DoorTeleporter(dest, yaw));
-        player.setPortalCooldown();
+        Transition.go(player, destLevel, dest, yaw);
     }
 }

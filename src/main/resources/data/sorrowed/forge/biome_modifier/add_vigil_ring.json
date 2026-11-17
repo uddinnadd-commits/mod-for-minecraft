@@ -1,6 +1,6 @@
 {
   "type": "forge:add_features",
-  "biomes": "#minecraft:is_overworld",
+  "biomes": "sorrowed:hush",
   "features": "sorrowed:vigil_ring",
   "step": "surface_structures"
 }

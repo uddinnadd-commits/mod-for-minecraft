@@ -23,5 +23,6 @@
   "item.sorrowed.carrier_spawn_egg": "The Carrier Spawn Egg",
   "entity.sorrowed.archivist": "The Archivist",
   "entity.sorrowed.neighbour": "The Neighbour",
-  "entity.sorrowed.carrier": "The Carrier"
+  "entity.sorrowed.carrier": "The Carrier",
+  "item.sorrowed.papers": "Papers"
 }

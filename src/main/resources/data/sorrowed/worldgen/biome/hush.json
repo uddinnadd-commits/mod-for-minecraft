@@ -24,20 +24,7 @@
     }
   },
   "spawners": {
-    "monster": [
-      {
-        "type": "sorrowed:hollow",
-        "weight": 8,
-        "minCount": 1,
-        "maxCount": 2
-      },
-      {
-        "type": "sorrowed:listener",
-        "weight": 3,
-        "minCount": 1,
-        "maxCount": 1
-      }
-    ],
+    "monster": [],
     "creature": [],
     "ambient": [],
     "axolotls": [],

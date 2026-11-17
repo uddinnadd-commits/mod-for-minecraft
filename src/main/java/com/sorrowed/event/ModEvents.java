@@ -58,6 +58,7 @@ public class ModEvents {
     public static void creativeTabs(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
             event.accept(ModItems.RAIN_TEAR.get());
+            event.accept(ModItems.PAPERS.get());
         }
         if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
             event.accept(ModItems.UNFINISHED_DOOR.get());

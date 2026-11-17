@@ -20,14 +20,8 @@ public final class HubBuilder {
     /** Where a player arrives in 'key'. Builds the hub the first time. */
     public static Vec3 arrival(ServerLevel dest, ResourceKey<Level> key) {
         if (key.equals(Dimensions.UNFINISHED)) {
+            // Only the way home stands at the hub. The other gates are out along the walkways.
             BlockPos gate = ensureGate(dest, 0, 0, ModBlocks.UNFINISHED_DOOR.get());
-            ensureGate(dest, 40, 0, ModBlocks.HUSH_DOOR.get());
-            ensureGate(dest, -36, 0, ModBlocks.DROWNED_DOOR.get());
-            ensureGate(dest, 0, -24, ModBlocks.HALLWAY_DOOR.get());
-            ensureGate(dest, 0, 30, ModBlocks.BACKUP_DOOR.get());
-            ensureGate(dest, 40, -24, ModBlocks.ARCHIVE_DOOR.get());
-            ensureGate(dest, 40, 30, ModBlocks.STREET_DOOR.get());
-            ensureGate(dest, -36, -24, ModBlocks.STATIC_DOOR.get());
             ensureHouse(dest, -18, 10, true, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES);
             return front(gate);
         }

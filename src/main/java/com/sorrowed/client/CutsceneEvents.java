@@ -22,6 +22,11 @@ public class CutsceneEvents {
     }
 
     @SubscribeEvent
+    public static void onRenderTick(TickEvent.RenderTickEvent event) {
+        if (event.phase == TickEvent.Phase.START) CutsceneClient.frame(event.renderTickTime);
+    }
+
+    @SubscribeEvent
     public static void onInput(MovementInputUpdateEvent event) {
         if (!CutsceneClient.isActive()) return;
         Input in = event.getInput();

@@ -6,9 +6,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LecternBlock;
+import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.LecternBlockEntity;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 /** The Chapel of Quiet: pews that face a lectern, a black carpet, and a book of apologies. */
@@ -66,13 +66,12 @@ public final class ChapelBuilder {
             }
         }
         BlockPos altar = o.offset(0, 0, -4);
-        BuildUtil.set(level, altar, Blocks.LECTERN.defaultBlockState()
-                .setValue(LecternBlock.FACING, Direction.SOUTH).setValue(LecternBlock.HAS_BOOK, true));
+        BuildUtil.set(level, altar, Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, Direction.SOUTH));
         BuildUtil.set(level, o.offset(-1, 0, -4), Blocks.SOUL_LANTERN.defaultBlockState());
         BuildUtil.set(level, o.offset(1, 0, -4), Blocks.SOUL_LANTERN.defaultBlockState());
         BlockEntity be = level.getBlockEntity(altar);
-        if (be instanceof LecternBlockEntity lectern) {
-            lectern.setBook(Letters.unsaid());
+        if (be instanceof ChestBlockEntity chest) {
+            chest.setItem(0, Letters.unsaid());
         }
     }
 }

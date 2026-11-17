@@ -1,6 +1,8 @@
 package com.sorrowed.entity;
 
 import com.sorrowed.mind.Sorrow;
+import com.sorrowed.registry.ModItems;
+import net.minecraft.world.item.ItemStack;
 import com.sorrowed.net.ModNetwork;
 import com.sorrowed.story.Thoughts;
 import net.minecraft.core.particles.ParticleTypes;
@@ -88,6 +90,7 @@ public class EchoEntity extends PathfinderMob {
         }
         ModNetwork.thought(player, Thoughts.f(Thoughts.ECHO_VANISH));
         Sorrow.add(player, 10.0F);
+        this.spawnAtLocation(new ItemStack(ModItems.RAIN_TEAR.get()));
         this.discard();
     }
 

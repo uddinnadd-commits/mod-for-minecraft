@@ -21,6 +21,7 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -49,7 +50,8 @@ public class CarrierEntity extends Monster {
                                      MobSpawnType reason, BlockPos pos, RandomSource random) {
         return level.getDifficulty() != Difficulty.PEACEFUL
                 && Mob.checkMobSpawnRules(type, level, reason, pos, random)
-                && random.nextInt(3) == 0;
+                && random.nextInt(14) == 0
+                && level.getEntitiesOfClass(CarrierEntity.class, new AABB(pos).inflate(64.0D)).isEmpty();
     }
 
     @Override
@@ -76,6 +78,9 @@ public class CarrierEntity extends Monster {
         }
 
         stare++;
+        if (stare % 5 == 0 && p instanceof ServerPlayer sp) {
+            ModNetwork.statik(sp, Math.min(1.0F, 0.15F + stare / 100.0F));
+        }
         if (stare % 40 == 1) {
             this.level().playSound(null, this.blockPosition(), SoundEvents.CONDUIT_AMBIENT_SHORT, SoundSource.HOSTILE, 1.2F, 0.5F);
         }

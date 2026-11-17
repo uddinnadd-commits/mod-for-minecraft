@@ -33,4 +33,18 @@ public class ModBlocks {
 
     public static final RegistryObject<Block> GRAVE_MARKER = BLOCKS.register("grave_marker",
             GraveMarkerBlock::new);
+
+    /** The doorway that leads to the dimension with this path, or the hub door if unknown. */
+    public static Block doorFor(String dimensionPath) {
+        switch (dimensionPath) {
+            case "the_hush": return HUSH_DOOR.get();
+            case "the_drowned": return DROWNED_DOOR.get();
+            case "the_hallway": return HALLWAY_DOOR.get();
+            case "the_backup": return BACKUP_DOOR.get();
+            case "the_archive": return ARCHIVE_DOOR.get();
+            case "the_street": return STREET_DOOR.get();
+            case "the_static": return STATIC_DOOR.get();
+            default: return UNFINISHED_DOOR.get();
+        }
+    }
 }

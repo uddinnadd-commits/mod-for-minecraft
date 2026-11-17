@@ -5,11 +5,13 @@ import com.sorrowed.SorrowedConfig;
 import com.sorrowed.SorrowedData;
 import com.sorrowed.cutscene.CutsceneServer;
 import com.sorrowed.entity.EchoEntity;
+import com.sorrowed.entity.ListenerEntity;
 import com.sorrowed.mind.PathHistory;
 import com.sorrowed.mind.Scheduler;
 import com.sorrowed.mind.Sorrow;
 import com.sorrowed.mind.SorrowEvents;
 import com.sorrowed.mind.SorrowSystem;
+import com.sorrowed.mind.Transition;
 import com.sorrowed.mind.WeatherControl;
 import com.sorrowed.net.ModNetwork;
 import com.sorrowed.registry.Dimensions;
@@ -26,11 +28,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -68,11 +73,12 @@ public class ServerEvents {
 
         if (first) {
             if (SorrowedConfig.GIVE_BOOK.get()) {
-                player.getInventory().add(Letters.welcomeBook());
+                for (ItemStack sheet : Letters.welcome()) player.getInventory().add(sheet);
             }
             placeGrave(player);
+            // The rain, the papers, and then the pencil takes the whole screen and you are somewhere dry.
+            int taken;
             if (SorrowedConfig.CUTSCENES.get()) {
-                // The first three lines are the cutscene's captions; the last two are plain thoughts after it.
                 Scheduler.after(server, 40, () -> {
                     if (player.isRemoved()) return;
                     boolean played = CutsceneServer.play(player, "awakening", null, () -> {
@@ -83,14 +89,29 @@ public class ServerEvents {
                         for (String line : Thoughts.INTRO) ModNetwork.thought(player, Thoughts.f(line));
                     }
                 });
+                taken = 40 + 230 + 160;
             } else {
                 for (String line : Thoughts.INTRO) {
                     ModNetwork.thought(player, Thoughts.f(line));
                 }
+                taken = 200;
             }
+            Scheduler.after(server, taken, () -> {
+                if (player.isRemoved()) return;
+                ModNetwork.thought(player, Thoughts.TAKEN);
+                Transition.toUnfinished(player);
+            });
         } else if (player.serverLevel().random.nextInt(3) == 0) {
             ModNetwork.thought(player, Thoughts.pick(Thoughts.RETURNING, player.serverLevel().random));
         }
+    }
+
+    /** Breaking a block is a noise, and Hark hears noises. */
+    @SubscribeEvent
+    public static void onBreak(BlockEvent.BreakEvent event) {
+        if (!(event.getLevel() instanceof ServerLevel level)) return;
+        AABB box = new AABB(event.getPos()).inflate(32.0D);
+        for (ListenerEntity l : level.getEntitiesOfClass(ListenerEntity.class, box)) l.hear();
     }
 
     @SubscribeEvent
@@ -234,7 +255,7 @@ public class ServerEvents {
             SorrowEvents.roll(player);
             if (SorrowedConfig.ECHOES.get()
                     && (dim.equals(Level.OVERWORLD) || dim.equals(Dimensions.HUSH))
-                    && random.nextInt(12) == 0) {
+                    && random.nextInt(30) == 0) {
                 trySpawnEcho(player, level, random);
             }
         }

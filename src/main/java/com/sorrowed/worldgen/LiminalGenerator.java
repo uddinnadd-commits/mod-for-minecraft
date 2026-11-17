@@ -10,6 +10,8 @@ import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
+import com.sorrowed.registry.ModBlocks;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.DoorBlock;
@@ -39,6 +41,8 @@ import java.util.concurrent.Executor;
  * "unfinished": chunk-aligned pieces floating in nothing. A big hub platform around the origin,
  * tall 16x16 monoliths with half-built walls on top, flat slabs, scaffold frames, and very long
  * 16-wide ribbons running along X and Z at different heights. Everything between them is void.
+ * Seven plank walkways leave the hub and go out into nothing; at the end of each stands one
+ * gate. You have to walk them to find out where they go.
  *
  * "hallway": a sealed, carpeted, yellow-walled maze of rooms. Every 16x16 chunk is a room with
  * walls on its west/north edges that may or may not have a doorway. Some rooms are furnished:
@@ -141,6 +145,7 @@ public class LiminalGenerator extends ChunkGenerator {
             case STREET: return STREET_GROUND + 14;
             case STATIC: return STATIC_GROUND + 90;
             default: {
+                if (onWay(x, z)) return PLATFORM_TOP + 6;
                 Span span = unfinishedSpan(x, z);
                 return span == null ? MIN_Y - 1 : span.top() + 6;
             }
@@ -164,8 +169,9 @@ public class LiminalGenerator extends ChunkGenerator {
                 int hi = columnTop(x, z);
                 if (kind == Mode.UNFINISHED) {
                     Span span = unfinishedSpan(x, z);
-                    if (span == null) continue;
-                    lo = span.bottom();
+                    if (span != null) lo = span.bottom();
+                    else if (onWay(x, z)) lo = PLATFORM_TOP - 3;
+                    else continue;
                 }
                 for (int y = lo; y <= hi; y++) {
                     BlockState state = stateAt(x, y, z);
@@ -189,6 +195,7 @@ public class LiminalGenerator extends ChunkGenerator {
             case STREET: return STREET_GROUND;
             case STATIC: return STATIC_GROUND;
             default: {
+                if (onWay(x, z)) return PLATFORM_TOP;
                 Span span = unfinishedSpan(x, z);
                 return span == null ? MIN_Y - 1 : span.top();
             }
@@ -230,6 +237,116 @@ public class LiminalGenerator extends ChunkGenerator {
 
     private record Span(int bottom, int top, int palette, boolean monolith, boolean slab) {}
 
+    // ------------------------------------------------------------- the gates
+
+    /** Where each gate stands in the Unfinished, and which walkway leg reaches it. */
+    public record Gate(String dimension, int x, int z) {
+        /** The walkway leaves the hub along z at this x, then turns along x to the gate. */
+        int legX() {
+            return Math.max(-40, Math.min(56, x));
+        }
+
+        int hubEdgeZ() {
+            return z < 0 ? -33 : 48;
+        }
+
+        public Block door() {
+            return ModBlocks.doorFor(dimension);
+        }
+    }
+
+    public static final List<Gate> GATES = List.of(
+            new Gate("the_hush", 300, -40),
+            new Gate("the_drowned", -280, 60),
+            new Gate("the_hallway", 40, -330),
+            new Gate("the_backup", -60, 310),
+            new Gate("the_archive", 240, 230),
+            new Gate("the_street", -250, -240),
+            new Gate("the_static", -20, -470));
+
+    private static final int WALK_HALF = 1;
+    private static final int PLATFORM_HALF = 4;
+
+    /** Distance along the walkway to gate g at (x, z), or -1 when (x, z) is not on it. */
+    private static int walkwayDistance(Gate g, int x, int z) {
+        int lx = g.legX();
+        int z0 = Math.min(g.hubEdgeZ(), g.z);
+        int z1 = Math.max(g.hubEdgeZ(), g.z);
+        if (Math.abs(x - lx) <= WALK_HALF && z >= z0 && z <= z1) {
+            return Math.abs(z - g.hubEdgeZ());
+        }
+        int x0 = Math.min(lx, g.x);
+        int x1 = Math.max(lx, g.x);
+        if (Math.abs(z - g.z) <= WALK_HALF && x >= x0 && x <= x1) {
+            return Math.abs(g.z - g.hubEdgeZ()) + Math.abs(x - lx);
+        }
+        return -1;
+    }
+
+    private static boolean onPlatform(Gate g, int x, int z) {
+        return Math.abs(x - g.x) <= PLATFORM_HALF && Math.abs(z - g.z) <= PLATFORM_HALF;
+    }
+
+    /** True when the chunk holds any walkway or platform, so nothing else may grow there. */
+    private static boolean reserved(int cx, int cz) {
+        int bx0 = cx << 4;
+        int bz0 = cz << 4;
+        int bx1 = bx0 + 15;
+        int bz1 = bz0 + 15;
+        for (Gate g : GATES) {
+            int lx = g.legX();
+            if (overlaps(bx0, bz0, bx1, bz1, lx - WALK_HALF, Math.min(g.hubEdgeZ(), g.z), lx + WALK_HALF, Math.max(g.hubEdgeZ(), g.z))) return true;
+            if (overlaps(bx0, bz0, bx1, bz1, Math.min(lx, g.x), g.z - WALK_HALF, Math.max(lx, g.x), g.z + WALK_HALF)) return true;
+            if (overlaps(bx0, bz0, bx1, bz1, g.x - PLATFORM_HALF, g.z - PLATFORM_HALF, g.x + PLATFORM_HALF, g.z + PLATFORM_HALF)) return true;
+        }
+        return false;
+    }
+
+    private static boolean overlaps(int ax0, int az0, int ax1, int az1, int bx0, int bz0, int bx1, int bz1) {
+        return ax0 <= bx1 && ax1 >= bx0 && az0 <= bz1 && az1 >= bz0;
+    }
+
+    /** The planks, the railings, the lanterns, and the gate at the end. Null if (x, y, z) is none of those. */
+    private static BlockState wayState(int x, int y, int z) {
+        int up = y - PLATFORM_TOP;
+        for (Gate g : GATES) {
+            if (onPlatform(g, x, z)) {
+                int dx = x - g.x;
+                int dz = z - g.z;
+                if (up < -3) return null;
+                if (up < 0) return Blocks.STONE.defaultBlockState();
+                if (up == 0) {
+                    return ((dx + dz) % 2 == 0 ? Blocks.MOSSY_COBBLESTONE : Blocks.STONE_BRICKS).defaultBlockState();
+                }
+                if (dz != 0) return null;
+                // The gate: two posts, a lintel, the doorway between, a lantern on top.
+                if (Math.abs(dx) == 2 && up <= 4) return (up == 4 ? Blocks.CHISELED_STONE_BRICKS : Blocks.STONE_BRICKS).defaultBlockState();
+                if (Math.abs(dx) <= 1 && up == 4) return Blocks.STONE_BRICKS.defaultBlockState();
+                if (Math.abs(dx) <= 1 && up <= 3) return g.door().defaultBlockState();
+                if (dx == 0 && up == 5) return Blocks.LANTERN.defaultBlockState();
+                return null;
+            }
+            int d = walkwayDistance(g, x, z);
+            if (d < 0) continue;
+            int lane = Math.abs(x - g.legX()) <= WALK_HALF && z != g.z ? x - g.legX() : z - g.z;
+            boolean gap = d % 29 == 13 || d % 29 == 14;   // a plank missing here and there; you can jump it
+            if (up == 0) return gap ? null : Blocks.SPRUCE_PLANKS.defaultBlockState();
+            if (Math.abs(lane) == WALK_HALF && d % 8 == 0 && !gap) {
+                if (up == 1) return Blocks.OAK_FENCE.defaultBlockState();
+                if (up == 2 && d % 32 == 0) return Blocks.LANTERN.defaultBlockState();
+            }
+            return null;
+        }
+        return null;
+    }
+
+    private static boolean onWay(int x, int z) {
+        for (Gate g : GATES) {
+            if (onPlatform(g, x, z) || walkwayDistance(g, x, z) >= 0) return true;
+        }
+        return false;
+    }
+
     private static long mix(long a, long b, long c) {
         long h = a * 0x9E3779B97F4A7C15L ^ b * 0xC2B2AE3D27D4EB4FL ^ c * 0x165667B19E3779F9L;
         h ^= h >>> 32;
@@ -249,10 +366,12 @@ public class LiminalGenerator extends ChunkGenerator {
         int cx = x >> 4;
         int cz = z >> 4;
 
-        // The hub: a 7x5 chunk platform around the origin. The gates stand here.
+        // The hub: a 7x5 chunk platform around the origin. Only the way home stands here.
         if (cx >= -3 && cx <= 3 && cz >= -2 && cz <= 2) {
             return new Span(PLATFORM_TOP - 8, PLATFORM_TOP, 0, false, false);
         }
+        // Chunks the walkways and gates pass through stay empty around them.
+        if (reserved(cx, cz)) return null;
 
         long h = mix(cx, cz, 1);
         int palette = (int) ((h >>> 40) % 3);
@@ -294,6 +413,7 @@ public class LiminalGenerator extends ChunkGenerator {
     }
 
     private static BlockState unfinishedState(int x, int y, int z) {
+        if (onWay(x, z)) return wayState(x, y, z);
         Span span = unfinishedSpan(x, z);
         if (span == null || y < span.bottom()) return null;
         if (y > span.top()) return unfinishedDecoration(span, x, y, z);
@@ -686,6 +806,8 @@ public class LiminalGenerator extends ChunkGenerator {
             }
             return null;
         }
+        // Books knocked off the shelves, lying open in the aisles.
+        if (up == 1 && (lx == 4 || lx == 10) && chance(x, z, 58, 31)) return Blocks.BOOKSHELF.defaultBlockState();
         // Ladders leaning on the shelves. None of them reach anything.
         if ((lx == 4 || lx == 12) && lz % 8 == 4 && up <= 6 && chance(cx, cz * 16L + lz, 56, 3)) {
             return Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING, Direction.EAST);
@@ -709,6 +831,8 @@ public class LiminalGenerator extends ChunkGenerator {
         // The road runs east-west, with a dashed line and a kerb either side.
         if (pz <= 6) {
             if (up > 0) return null;
+            // Puddles: a still source block sunk into the road, holding the streetlight.
+            if (pz >= 1 && pz <= 5 && chance(x >> 2, z >> 1, 63, 9) && chance(x, z, 64, 2)) return Blocks.WATER.defaultBlockState();
             if (pz == 3 && (x & 7) < 4) return Blocks.LIGHT_GRAY_CONCRETE.defaultBlockState();
             return Blocks.GRAY_CONCRETE.defaultBlockState();
         }
@@ -838,6 +962,15 @@ public class LiminalGenerator extends ChunkGenerator {
             return Blocks.IRON_BARS.defaultBlockState();
         }
 
+        // Ghost houses: the outline of a house that is not loaded in, one chunk in forty.
+        if (chance(cx, cz, 77, 40) && lx >= 4 && lx <= 11 && lz >= 4 && lz <= 11 && up >= 1 && up <= 5) {
+            boolean edge = lx == 4 || lx == 11 || lz == 4 || lz == 11;
+            boolean roof = up == 5;
+            if ((edge || roof) && chance(x, z * 7L + up, 78, 3)) {
+                return (roof ? Blocks.LIGHT_GRAY_STAINED_GLASS : Blocks.WHITE_STAINED_GLASS).defaultBlockState();
+            }
+            return null;
+        }
         // Dead pixels: lone columns of black standing out of the plain.
         if (chance(x, z, 74, 240)) {
             int tall = 2 + (int) (mix(x, z, 75) & 3);

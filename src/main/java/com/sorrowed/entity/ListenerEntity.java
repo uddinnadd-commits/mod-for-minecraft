@@ -45,10 +45,17 @@ public class ListenerEntity extends Monster {
     }
 
     private static boolean makesNoise(Player p) {
+        if (p.isCrouching()) return p.getHealth() < 6.0F;   // it can hear your heart from here
         return p.isSprinting()
                 || p.swinging
                 || p.isUsingItem()
+                || p.getHealth() < 6.0F
                 || (!p.onGround() && !p.isInWater() && p.getDeltaMovement().y > 0.1D);
+    }
+
+    /** Something made a noise nearby: a block broke, a door swung. */
+    public void hear() {
+        heard = Math.max(heard, 60);
     }
 
     @Override

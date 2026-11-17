@@ -1,6 +1,12 @@
 package com.sorrowed.entity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
@@ -50,7 +56,26 @@ public class HollowEntity extends Monster {
         return level.getDifficulty() != Difficulty.PEACEFUL
                 && Mob.checkMobSpawnRules(type, level, reason, pos, random)
                 && level.getLevel().isRaining()
-                && level.canSeeSky(pos);
+                && level.canSeeSky(pos)
+                && random.nextInt(4) == 0;
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (this.level().isClientSide || this.tickCount % 10 != 0) return;
+        if (this.level() instanceof ServerLevel sl) {
+            BlockPos at = this.blockPosition();
+            for (BlockPos pos : BlockPos.betweenClosed(at.offset(-2, -1, -2), at.offset(2, 2, 2))) {
+                BlockState state = sl.getBlockState(pos);
+                if (state.is(Blocks.TORCH) || state.is(Blocks.WALL_TORCH) || state.is(Blocks.LANTERN)) {
+                    sl.removeBlock(pos, false);
+                    sl.playSound(null, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.HOSTILE, 0.8F, 0.6F);
+                    sl.sendParticles(ParticleTypes.SMOKE, pos.getX() + 0.5D, pos.getY() + 0.6D, pos.getZ() + 0.5D, 8, 0.1D, 0.2D, 0.1D, 0.01D);
+                    return;
+                }
+            }
+        }
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.sorrowed.entity;
 
+import com.sorrowed.item.PapersItem;
 import com.sorrowed.mind.Sorrow;
 import com.sorrowed.net.ModNetwork;
 import com.sorrowed.story.Thoughts;
@@ -19,6 +20,7 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -29,6 +31,9 @@ import net.minecraft.world.phys.Vec3;
 public class NeighbourEntity extends Monster {
     private int idle;
     private boolean warned;
+    private int stillTicks;
+    private Vec3 lastPlayerPos = Vec3.ZERO;
+    private boolean coming;
 
     public NeighbourEntity(EntityType<? extends NeighbourEntity> type, Level level) {
         super(type, level);
@@ -48,7 +53,8 @@ public class NeighbourEntity extends Monster {
         return level.getDifficulty() != Difficulty.PEACEFUL
                 && Mob.checkMobSpawnRules(type, level, reason, pos, random)
                 && level.canSeeSky(pos)
-                && random.nextInt(4) == 0;
+                && random.nextInt(16) == 0
+                && level.getEntitiesOfClass(NeighbourEntity.class, new AABB(pos).inflate(80.0D)).isEmpty();
     }
 
     @Override
@@ -81,6 +87,28 @@ public class NeighbourEntity extends Monster {
             if (p instanceof ServerPlayer sp) {
                 Sorrow.add(sp, 8.0F);
                 ModNetwork.thought(sp, Thoughts.f(Thoughts.NEIGHBOUR_GONE));
+            }
+            this.discard();
+            return;
+        }
+
+        // Stand perfectly still for eight seconds and it stops keeping its distance.
+        if (p.position().distanceToSqr(lastPlayerPos) < 1.0E-4D) stillTicks++;
+        else stillTicks = 0;
+        lastPlayerPos = p.position();
+        if (stillTicks > 160 && d < 24.0D) coming = true;
+        if (stillTicks == 0) coming = false;
+        if (coming) {
+            if (d > 3.5D) {
+                if (this.tickCount % 10 == 0) this.getNavigation().moveTo(p, 0.7D);
+                return;
+            }
+            // A knock on nothing, a note on the ground, and it is gone.
+            this.level().playSound(null, this.blockPosition(), SoundEvents.ZOMBIE_ATTACK_WOODEN_DOOR, SoundSource.HOSTILE, 0.8F, 0.9F);
+            this.spawnAtLocation(PapersItem.of("neighbour"));
+            if (p instanceof ServerPlayer sp) {
+                Sorrow.add(sp, 6.0F);
+                ModNetwork.thought(sp, Thoughts.f(Thoughts.NEIGHBOUR_KNOCK));
             }
             this.discard();
             return;

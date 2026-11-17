@@ -48,13 +48,15 @@ public class ClientSetup {
 
     @SubscribeEvent
     public static void overlays(RegisterGuiOverlaysEvent event) {
-        // Order matters: the vignette, then letterbox/fades, then the typewriter text on top.
-        event.registerAboveAll("sorrow", (gui, graphics, partialTick, width, height) ->
-                SorrowOverlay.render(graphics, width, height));
+        // Order matters: static, then letterbox/fades, then the typewriter text, then the scribble over all of it.
+        event.registerAboveAll("static", (gui, graphics, partialTick, width, height) ->
+                StaticOverlay.render(graphics, width, height));
         event.registerAboveAll("cutscene", (gui, graphics, partialTick, width, height) ->
                 CutsceneOverlay.render(graphics, width, height));
         event.registerAboveAll("thoughts", (gui, graphics, partialTick, width, height) ->
                 ThoughtOverlay.render(graphics, width, height));
+        event.registerAboveAll("scribble", (gui, graphics, partialTick, width, height) ->
+                ScribbleOverlay.render(graphics, width, height));
     }
 
     @SubscribeEvent

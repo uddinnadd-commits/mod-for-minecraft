@@ -7,9 +7,9 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CandleBlock;
-import net.minecraft.world.level.block.LecternBlock;
+import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.LecternBlockEntity;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 /** A ring of lit candles around a lectern holding a book of names. The last name is yours. */
@@ -42,12 +42,10 @@ public final class VigilRingBuilder {
                     .setValue(CandleBlock.CANDLES, 1 + rand.nextInt(4)));
         }
 
-        BuildUtil.set(level, o, Blocks.LECTERN.defaultBlockState()
-                .setValue(LecternBlock.FACING, Direction.NORTH)
-                .setValue(LecternBlock.HAS_BOOK, true));
+        BuildUtil.set(level, o, Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, Direction.NORTH));
         BlockEntity be = level.getBlockEntity(o);
-        if (be instanceof LecternBlockEntity lectern) {
-            lectern.setBook(Letters.names());
+        if (be instanceof ChestBlockEntity chest) {
+            chest.setItem(0, Letters.names());
         }
     }
 }

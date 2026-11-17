@@ -45,6 +45,8 @@ public final class Thoughts {
             "The rain is louder at night. Or I'm quieter."
     };
     public static final String[] AMBIENT_UNFINISHED = {
+            "The planks go out into nothing. He was going somewhere with every one of them.",
+            "There's a lantern out there on the walkway. Then another. Then the dark.",
             "It's so bright. It's so empty.",
             "No rain here. I thought that would feel better.",
             "He never filled this in. Of course he didn't.",
@@ -149,6 +151,7 @@ public final class Thoughts {
     public static final String ENTER_STATIC_1 = "It's not fog. It's noise.";
     public static final String ENTER_STATIC_2 = "A channel nobody is broadcasting on. And I'm standing in it.";
     public static final String ENTER_OVERWORLD = "Back in the rain.";
+    public static final String TAKEN = "Something is drawing over everything. Pencil. It's not stopping.";
     public static final String FALL = "I fell. I kept falling. And then I was back.";
 
     // ---- entities and events ----------------------------------------------------------
@@ -165,6 +168,7 @@ public final class Thoughts {
     public static final String ARCHIVIST_SEEN = "It's reading. It hasn't turned the page since I got here.";
     public static final String ARCHIVIST_TOUCH = "It put something in my hand. A page. I can't read it.";
     public static final String NEIGHBOUR_SEEN = "Someone's under the streetlight. They're not looking at the house. They're looking at me.";
+    public static final String NEIGHBOUR_KNOCK = "It knocked. There's no door. It knocked anyway, and left me something.";
     public static final String NEIGHBOUR_GONE = "A door closed. Somewhere down the street. Then nobody.";
     public static final String CARRIER_MOVED = "The screen was in front of me a second ago.";
     public static final String CARRIER_GONE = "The screen went dark. I think it was showing me.";

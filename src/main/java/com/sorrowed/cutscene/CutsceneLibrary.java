@@ -115,11 +115,8 @@ public final class CutsceneLibrary {
 
         // The Static: the horizon hisses. The camera shakes a little and cannot settle.
         add(Cutscene.builder("arrive_the_static", 250).blendOut(24).fade(10, 0, 0)
-                .key(0, 0, 0, 1.62, 0, 0, 70, 0)
-                .key(40, 0.2, 0, 1.7, 2, -1, 71, 1)
-                .key(80, -0.2, 0, 1.55, -2, 1, 69, -1)
-                .key(120, 0.1, -3, 1.6, 1, -8, 50, 0.5F)
-                .key(160, -0.1, -3, 1.6, -1, -8, 50, -0.5F)
+                .key(0, 0, 0.5, 1.62, 0, 6, 70, 0)
+                .key(110, 0, -4, 2.2, 0, -4, 52, 0)
                 .key(225, 0, 0, 1.62, 0, P, 70, 0)
                 .caption(15, "It's not fog. It's noise.")
                 .caption(95, "Snow. That's what he used to call it.")

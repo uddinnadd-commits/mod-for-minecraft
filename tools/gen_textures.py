@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Generates the placeholder textures (pure Python, no dependencies). Run from the project root."""
-import random, struct, zlib, os
+import math, random, struct, zlib, os
 
 OUT = "src/main/resources/assets/sorrowed/textures"
 
@@ -75,107 +75,161 @@ door(f"{OUT}/block/archive_door.png", (62, 40, 22), (190, 150, 80), 16)
 door(f"{OUT}/block/street_door.png", (10, 12, 30), (255, 170, 60), 17)
 door(f"{OUT}/block/static_door.png", (120, 120, 124), (240, 240, 240), 18)
 
-def zones(path, alpha, rects, dots=()):
-    """Paint rectangles (x0,y0,w,h,(r,g,b)) onto a transparent 64x64 sheet, with light noise, then single pixels."""
-    rnd = random.Random(path)
-    w = h = 64
-    px = [(0, 0, 0, 0)] * (w * h)
-    for (x0, y0, rw, rh, col) in rects:
-        for y in range(y0, min(h, y0 + rh)):
-            for x in range(x0, min(w, x0 + rw)):
-                n = rnd.randint(-6, 6)
-                px[y*w+x] = (max(0, min(255, col[0]+n)), max(0, min(255, col[1]+n)), max(0, min(255, col[2]+n)), alpha)
-    for (x, y, col, a) in dots:
-        px[y*w+x] = (*col, a)
-    write_png(path, w, h, px)
+# Entity textures are generated with the geometry by tools/gen_models.py.
 
-# These zones mirror the texOffs/box sizes in client/ModModels.java. Keep them in step.
-# Vigil: pale and see-through, head bowed, one tear.
-zones(f"{OUT}/entity/echo.png", 170, [
-    (0, 0, 24, 13, (205, 218, 230)),      # head
-    (0, 16, 20, 19, (150, 172, 192)),     # body
-    (24, 16, 12, 21, (150, 172, 192)),    # arms
-    (40, 16, 12, 18, (112, 128, 152)),    # legs
-], dots=[(7, 8, (40, 48, 66), 230), (7, 9, (40, 48, 66), 230), (10, 8, (40, 48, 66), 230), (10, 9, (40, 48, 66), 230),
-         (7, 11, (150, 200, 240), 255), (7, 12, (150, 200, 240), 255)])
+# ---------------------------------------------------------------- papers
 
-# The Unsaid: dark and faceless. Nothing where the face should be.
-zones(f"{OUT}/entity/hollow.png", 255, [
-    (0, 0, 28, 16, (26, 26, 33)),
-    (0, 18, 28, 21, (18, 18, 24)),
-    (36, 0, 12, 27, (14, 14, 20)),
-    (0, 40, 16, 21, (12, 12, 16)),
-])
+def paper(path, w=200, h=250, sheet=256, seed=5):
+    """A wrinkled cream sheet with soft creases, a torn edge and a faint stain, on a transparent sheet."""
+    rnd = random.Random(seed)
+    base = (236, 226, 198)
+    px = [(0, 0, 0, 0)] * (sheet * sheet)
+    # Creases: a few long folds, each a bright ridge beside a dark trough.
+    creases = []
+    for _ in range(9):
+        x0, y0 = rnd.uniform(0, w), rnd.uniform(0, h)
+        ang = rnd.uniform(0, math.pi)
+        creases.append((x0, y0, math.cos(ang), math.sin(ang), rnd.uniform(0.6, 1.0)))
+    for y in range(h):
+        for x in range(w):
+            # Torn, uneven border.
+            edge = min(x, y, w - 1 - x, h - 1 - y)
+            tear = 1.5 + 1.5 * math.sin(x * 0.7 + y * 0.3) + rnd.random() * 1.2
+            if edge < tear:
+                continue
+            shade = 1.0 - 0.04 * ((x / w) ** 2 + (y / h) ** 2)       # gentle vignette
+            for (cx, cy, dx, dy, strength) in creases:
+                d = (x - cx) * dy - (y - cy) * dx                       # signed distance to the fold line
+                if -3 < d < 3:
+                    shade += (0.09 if d > 0 else -0.11) * strength * (1 - abs(d) / 3)
+            n = rnd.randint(-4, 4)
+            col = tuple(max(0, min(255, int(c * shade) + n)) for c in base)
+            # A ring of something spilled, long ago.
+            r = math.hypot(x - 150, y - 200)
+            if 22 < r < 25:
+                col = tuple(max(0, c - 18) for c in col)
+            px[y * sheet + x] = (*col, 255)
+    write_png(path, sheet, sheet, px)
 
-# Hark: grey, eyes sewn shut, mouth a straight line, ears like pale leather.
-face = []
-for x in (11, 12, 13, 16, 17, 18):
-    face.append((x, 14, (24, 24, 28), 255))
-for x in (11, 13, 16, 18):
-    face.append((x, 13, (24, 24, 28), 255))
-    face.append((x, 15, (24, 24, 28), 255))
-for x in range(12, 18):
-    face.append((x, 18, (24, 24, 28), 255))
-zones(f"{OUT}/entity/listener.png", 255, [
-    (0, 0, 40, 20, (170, 170, 176)),
-    (44, 0, 12, 13, (150, 140, 146)),
-    (0, 22, 20, 20, (146, 146, 154)),
-    (24, 22, 12, 25, (130, 130, 138)),
-    (40, 22, 12, 20, (110, 110, 120)),
-], dots=face)
+def pencil(px, size, x0, y0, x1, y1, rnd, col=(52, 50, 60), width=1, alpha=220):
+    """A hand-drawn line: a straight segment with a little tremor along it."""
+    steps = int(max(abs(x1 - x0), abs(y1 - y0))) + 1
+    for i in range(steps + 1):
+        t = i / max(1, steps)
+        x = x0 + (x1 - x0) * t + rnd.uniform(-0.6, 0.6)
+        y = y0 + (y1 - y0) * t + rnd.uniform(-0.6, 0.6)
+        for dx in range(width):
+            for dy in range(width):
+                X, Y = int(x) + dx, int(y) + dy
+                if 0 <= X < size and 0 <= Y < size:
+                    a = alpha - rnd.randint(0, 60)
+                    px[Y * size + X] = (*col, max(0, a))
 
-# The Finisher: faceless, yellow hard hat, brown vest, a wooden hammer.
-zones(f"{OUT}/entity/mason.png", 255, [
-    (0, 0, 32, 16, (200, 160, 130)),
-    (0, 16, 40, 12, (240, 200, 40)),
-    (0, 28, 32, 11, (240, 200, 40)),
-    (0, 40, 40, 20, (112, 78, 46)),
-    (40, 0, 16, 17, (150, 120, 90)),
-    (40, 18, 16, 16, (70, 70, 84)),
-    (40, 40, 20, 10, (110, 80, 50)),
-    (40, 50, 16, 8, (130, 130, 140)),
-])
+def poly(px, size, pts, rnd, **kw):
+    for (a, b) in zip(pts, pts[1:]):
+        pencil(px, size, a[0], a[1], b[0], b[1], rnd, **kw)
 
-# The Archivist: a pale, bowed head on a long neck, a robe the colour of old ink, a book with cream pages.
-zones(f"{OUT}/entity/archivist.png", 255, [
-    (0, 0, 24, 12, (214, 206, 186)),      # head
-    (24, 0, 8, 8, (200, 192, 172)),       # neck
-    (0, 14, 20, 18, (30, 42, 34)),        # body
-    (24, 14, 8, 20, (30, 42, 34)),        # arms
-    (36, 14, 8, 20, (22, 30, 26)),        # legs
-    (44, 0, 10, 6, (120, 80, 40)),        # book cover
-], dots=[(x, y, (236, 230, 210), 255) for x in range(45, 49) for y in range(1, 5)]
-        + [(8, 8, (60, 60, 70), 255), (9, 8, (60, 60, 70), 255)])   # eyes shut, reading
+def circle(px, size, cx, cy, r, rnd, **kw):
+    pts = [(cx + r * math.cos(t * math.pi / 8), cy + r * math.sin(t * math.pi / 8)) for t in range(17)]
+    poly(px, size, pts, rnd, **kw)
 
-# The Neighbour: a face in shadow under a wide hat, a long tan coat, dark trousers.
-rnd_face = []
-for x in range(8, 16):
-    for y in range(8, 16):
-        rnd_face.append((x, y, (54, 46, 44), 255))
-zones(f"{OUT}/entity/neighbour.png", 255, [
-    (0, 0, 32, 16, (120, 100, 90)),       # head
-    (0, 16, 40, 11, (40, 40, 46)),        # hat brim
-    (0, 28, 24, 9, (40, 40, 46)),         # hat crown
-    (0, 38, 24, 16, (116, 96, 64)),       # body (coat)
-    (24, 38, 32, 12, (108, 88, 58)),      # coat skirt
-    (40, 0, 16, 16, (116, 96, 64)),       # arms
-    (40, 16, 16, 18, (38, 36, 40)),       # legs
-], dots=rnd_face)
+def stick(px, size, x, y, rnd, h=40, **kw):
+    circle(px, size, x, y - h, 6, rnd, **kw)
+    pencil(px, size, x, y - h + 6, x, y - h * 0.35, rnd, **kw)                # body
+    pencil(px, size, x, y - h * 0.35, x - 9, y, rnd, **kw)                  # legs
+    pencil(px, size, x, y - h * 0.35, x + 9, y, rnd, **kw)
+    pencil(px, size, x, y - h * 0.75, x - 12, y - h * 0.5, rnd, **kw)       # arms
+    pencil(px, size, x, y - h * 0.75, x + 12, y - h * 0.5, rnd, **kw)
 
-# The Carrier: a wood-veneer television for a head, the screen a field of static, a grey suit below.
-rnd = random.Random("carrier")
-screen = []
-for x in range(10, 20):
-    for y in range(10, 18):
-        v = rnd.choice((20, 90, 170, 235))
-        screen.append((x, y, (v, v, v), 255))
-zones(f"{OUT}/entity/carrier.png", 255, [
-    (0, 0, 40, 18, (96, 66, 40)),         # tv casing
-    (40, 0, 4, 7, (190, 190, 200)),       # antenna
-    (0, 18, 24, 16, (58, 58, 64)),        # body
-    (24, 18, 12, 17, (58, 58, 64)),       # arms
-    (36, 18, 12, 23, (40, 40, 46)),       # legs
-], dots=screen)
+def drawing(path, draw, size=160, seed=1):
+    rnd = random.Random(seed)
+    px = [(0, 0, 0, 0)] * (size * size)
+    draw(px, size, rnd)
+    write_png(path, size, size, px)
+
+def draw_first_night(px, size, rnd):
+    # A crooked dirt house, two figures holding hands, rain.
+    poly(px, size, [(20, 120), (20, 70), (60, 45), (100, 70), (100, 120), (20, 120)], rnd, width=2)
+    poly(px, size, [(50, 120), (50, 95), (65, 95), (65, 120)], rnd)
+    poly(px, size, [(75, 85), (88, 85), (88, 97), (75, 97), (75, 85)], rnd)
+    stick(px, size, 120, 125, rnd)
+    stick(px, size, 142, 125, rnd, h=34)
+    pencil(px, size, 132, 95, 130, 100, rnd)   # joined hands
+    for _ in range(60):
+        x, y = rnd.uniform(5, 155), rnd.uniform(5, 60)
+        pencil(px, size, x, y, x - 2, y + 7, rnd, col=(70, 90, 130), alpha=150)
+    poly(px, size, [(5, 128), (155, 126)], rnd)
+
+def draw_scribble(px, size, rnd):
+    # Nothing you can read: a page of loops and crossings that get denser toward the middle.
+    for _ in range(45):
+        x, y = rnd.uniform(10, 150), rnd.uniform(10, 150)
+        pts = [(x, y)]
+        for _ in range(rnd.randint(4, 12)):
+            x += rnd.uniform(-28, 28) * (0.5 + abs(x - 80) / 160)
+            y += rnd.uniform(-22, 22)
+            pts.append((max(4, min(156, x)), max(4, min(156, y))))
+        poly(px, size, pts, rnd, width=rnd.choice((1, 1, 2)), alpha=rnd.randint(120, 230))
+    for yy in range(30, 140, 11):   # ruled lines, ignored by the hand that wrote this
+        pencil(px, size, 12, yy, 148, yy, rnd, col=(120, 130, 160), alpha=70)
+
+def draw_gate(px, size, rnd):
+    # Planks running off to a gate, drawn in one-point perspective.
+    poly(px, size, [(10, 150), (74, 60)], rnd, width=2)
+    poly(px, size, [(150, 150), (86, 60)], rnd, width=2)
+    for i in range(12):
+        t = i / 12
+        y = 150 - 90 * (1 - (1 - t) ** 2)
+        hw = 70 * (1 - t) + 6
+        pencil(px, size, 80 - hw, y, 80 + hw, y, rnd, alpha=170)
+    poly(px, size, [(70, 62), (70, 36), (90, 36), (90, 62)], rnd, width=2)
+    pencil(px, size, 66, 36, 94, 36, rnd, width=2)
+    pencil(px, size, 80, 30, 80, 36, rnd)
+    circle(px, size, 80, 27, 2, rnd)
+    for _ in range(8):   # the nothing on either side, drawn as scribbled dark
+        x, y = rnd.uniform(5, 45), rnd.uniform(40, 120)
+        poly(px, size, [(x, y), (x + 10, y + 3), (x + 2, y + 8)], rnd, alpha=90)
+        x, y = rnd.uniform(115, 155), rnd.uniform(40, 120)
+        poly(px, size, [(x, y), (x + 10, y + 3), (x + 2, y + 8)], rnd, alpha=90)
+
+def draw_street(px, size, rnd):
+    # A row of identical houses, a streetlight, one window shaded yellow.
+    for i, x in enumerate((8, 58, 108)):
+        poly(px, size, [(x, 110), (x, 70), (x + 20, 50), (x + 40, 70), (x + 40, 110), (x, 110)], rnd)
+        poly(px, size, [(x + 16, 110), (x + 16, 92), (x + 24, 92), (x + 24, 110)], rnd)
+        wx, wy = x + 28, 78
+        poly(px, size, [(wx, wy), (wx + 8, wy), (wx + 8, wy + 8), (wx, wy + 8), (wx, wy)], rnd)
+        if i == 1:
+            for yy in range(wy + 1, wy + 8):
+                pencil(px, size, wx + 1, yy, wx + 7, yy, rnd, col=(230, 190, 60), alpha=200)
+    pencil(px, size, 80, 135, 80, 95, rnd, width=2)
+    circle(px, size, 80, 92, 4, rnd, col=(230, 190, 60))
+    poly(px, size, [(2, 135), (158, 135)], rnd, width=2)
+    for _ in range(50):
+        x, y = rnd.uniform(5, 155), rnd.uniform(5, 50)
+        pencil(px, size, x, y, x - 1, y + 6, rnd, col=(70, 90, 130), alpha=120)
+
+def papers_icon(path):
+    px = [(0, 0, 0, 0)] * 256
+    rnd = random.Random(9)
+    for (ox, oy, shade) in ((3, 4, 0.82), (2, 2, 0.92), (1, 0, 1.0)):
+        for y in range(2 + oy, 14 + oy):
+            for x in range(2 + ox, 11 + ox):
+                if x < 16 and y < 16:
+                    c = tuple(int(v * shade) for v in (236, 226, 198))
+                    px[y * 16 + x] = (*c, 255)
+    for yy in (4, 6, 8, 10):
+        for x in range(4, 10):
+            if (x + yy) % 3:
+                px[yy * 16 + x] = (90, 86, 100, 255)
+    write_png(path, 16, 16, px)
+
+paper(f"{OUT}/gui/paper.png")
+drawing(f"{OUT}/gui/drawing_first_night.png", draw_first_night, seed=11)
+drawing(f"{OUT}/gui/drawing_scribble.png", draw_scribble, seed=12)
+drawing(f"{OUT}/gui/drawing_gate.png", draw_gate, seed=13)
+drawing(f"{OUT}/gui/drawing_street.png", draw_street, seed=14)
+papers_icon(f"{OUT}/item/papers.png")
 
 tear(f"{OUT}/item/rain_tear.png")
 print("textures written")

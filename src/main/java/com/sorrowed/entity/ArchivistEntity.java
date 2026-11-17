@@ -1,5 +1,6 @@
 package com.sorrowed.entity;
 
+import com.sorrowed.item.PapersItem;
 import com.sorrowed.mind.Sorrow;
 import com.sorrowed.net.ModNetwork;
 import com.sorrowed.story.Thoughts;
@@ -20,6 +21,7 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -49,7 +51,8 @@ public class ArchivistEntity extends Monster {
                                      MobSpawnType reason, BlockPos pos, RandomSource random) {
         return level.getDifficulty() != Difficulty.PEACEFUL
                 && Mob.checkMobSpawnRules(type, level, reason, pos, random)
-                && random.nextInt(3) == 0;
+                && random.nextInt(14) == 0
+                && level.getEntitiesOfClass(ArchivistEntity.class, new AABB(pos).inflate(64.0D)).isEmpty();
     }
 
     @Override
@@ -96,6 +99,7 @@ public class ArchivistEntity extends Monster {
             this.level().playSound(null, this.blockPosition(), SoundEvents.BOOK_PAGE_TURN, SoundSource.HOSTILE, 1.0F, 0.6F);
             Sorrow.add(sp, 14.0F);
             ModNetwork.thought(sp, Thoughts.f(Thoughts.ARCHIVIST_TOUCH));
+            if (!sp.getInventory().add(PapersItem.of("archivist"))) this.spawnAtLocation(PapersItem.of("archivist"));
             this.discard();
         }
     }

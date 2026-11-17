@@ -1,6 +1,7 @@
 package com.sorrowed.registry;
 
 import com.sorrowed.Sorrowed;
+import com.sorrowed.item.PapersItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.ForgeSpawnEggItem;
@@ -14,6 +15,8 @@ public class ModItems {
 
     public static final RegistryObject<Item> RAIN_TEAR = ITEMS.register("rain_tear",
             () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> PAPERS = ITEMS.register("papers",
+            () -> new PapersItem(new Item.Properties().stacksTo(16)));
 
     public static final RegistryObject<Item> UNFINISHED_DOOR = ITEMS.register("unfinished_door",
             () -> new BlockItem(ModBlocks.UNFINISHED_DOOR.get(), new Item.Properties()));

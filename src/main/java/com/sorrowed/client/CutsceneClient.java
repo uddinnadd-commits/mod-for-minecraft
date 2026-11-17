@@ -76,8 +76,20 @@ public final class CutsceneClient {
         savedCamera = mc.getCameraEntity();
         savedType = mc.options.getCameraType();
         mc.options.setCameraType(CameraType.FIRST_PERSON);
-        place(pose(mc, 0), true);
+        place(pose(mc, 0.0F), true);
         mc.setCameraEntity(cam);
+    }
+
+    /**
+     * Called every frame before the world renders. The camera is moved to the pose at the
+     * fractional time (tick + partial) and its "previous" position is set to the same spot,
+     * so the renderer never interpolates between two tick positions and nothing judders.
+     */
+    public static void frame(float partialTick) {
+        Minecraft mc = Minecraft.getInstance();
+        if (active == null || cam == null || mc.level == null || mc.player == null) return;
+        if (mc.isPaused()) partialTick = 0.0F;
+        place(pose(mc, Math.min(tick + partialTick, active.duration())), true);
     }
 
     public static void tick() {
@@ -98,7 +110,6 @@ public final class CutsceneClient {
             finish(mc, true);
             return;
         }
-        place(pose(mc, tick), false);
     }
 
     public static void abort() {
@@ -155,40 +166,57 @@ public final class CutsceneClient {
         return a + (b - a) * f;
     }
 
-    private static Pose pose(Minecraft mc, int t) {
+    /** Cubic Hermite with Catmull-Rom tangents, non-uniform in time; still at both ends. */
+    private static double spline(List<Cutscene.Key> keys, int i, float s, java.util.function.ToDoubleFunction<Cutscene.Key> v) {
+        int n = keys.size();
+        Cutscene.Key k1 = keys.get(i);
+        Cutscene.Key k2 = keys.get(Math.min(i + 1, n - 1));
+        double t1 = k1.tick();
+        double t2 = k2.tick();
+        double span = Math.max(1.0D, t2 - t1);
+        double p1 = v.applyAsDouble(k1);
+        double p2 = v.applyAsDouble(k2);
+        double m1 = 0.0D;
+        double m2 = 0.0D;
+        if (i > 0) {
+            Cutscene.Key k0 = keys.get(i - 1);
+            m1 = (p2 - v.applyAsDouble(k0)) / Math.max(1.0D, t2 - k0.tick()) * span;
+        }
+        if (i + 2 < n) {
+            Cutscene.Key k3 = keys.get(i + 2);
+            m2 = (v.applyAsDouble(k3) - p1) / Math.max(1.0D, k3.tick() - t1) * span;
+        }
+        double s2 = s * s;
+        double s3 = s2 * s;
+        double h00 = 2.0D * s3 - 3.0D * s2 + 1.0D;
+        double h10 = s3 - 2.0D * s2 + s;
+        double h01 = -2.0D * s3 + 3.0D * s2;
+        double h11 = s3 - s2;
+        return h00 * p1 + h10 * m1 + h01 * p2 + h11 * m2;
+    }
+
+    private static Pose pose(Minecraft mc, float t) {
         List<Cutscene.Key> keys = active.keys();
-        Cutscene.Key a = keys.get(0);
-        Cutscene.Key b = a;
-        Cutscene.Key last = keys.get(keys.size() - 1);
-        if (t >= last.tick()) {
-            a = last;
-            b = last;
-        } else if (t > a.tick()) {
-            for (int i = 0; i < keys.size() - 1; i++) {
-                if (t >= keys.get(i).tick() && t < keys.get(i + 1).tick()) {
-                    a = keys.get(i);
-                    b = keys.get(i + 1);
-                    break;
-                }
-            }
-        }
-
-        float f = 0.0F;
+        int n = keys.size();
+        int i = 0;
+        while (i < n - 2 && t >= keys.get(i + 1).tick()) i++;
+        Cutscene.Key a = keys.get(i);
+        Cutscene.Key b = keys.get(Math.min(i + 1, n - 1));
+        float s = 0.0F;
         int span = b.tick() - a.tick();
-        if (span > 0) {
-            f = (t - a.tick()) / (float) span;
-            if (span > 30) f = f * f * (3.0F - 2.0F * f);
+        if (span > 0) s = Mth.clamp((t - a.tick()) / (float) span, 0.0F, 1.0F);
+        if (t >= keys.get(n - 1).tick()) {
+            i = n - 1;
+            s = 0.0F;
         }
 
-        double right = lerp(a.right(), b.right(), f);
-        double fwd = lerp(a.fwd(), b.fwd(), f);
-        double up = lerp(a.up(), b.up(), f);
-        float pa = Float.isNaN(a.pitch()) ? startPitch : a.pitch();
-        float pb = Float.isNaN(b.pitch()) ? startPitch : b.pitch();
-        float yaw = ayaw + (float) lerp(a.yaw(), b.yaw(), f);
-        float pitch = (float) lerp(pa, pb, f);
-        float fov = (float) lerp(a.fov(), b.fov(), f);
-        float roll = (float) lerp(a.roll(), b.roll(), f);
+        double right = spline(keys, i, s, Cutscene.Key::right);
+        double fwd = spline(keys, i, s, Cutscene.Key::fwd);
+        double up = spline(keys, i, s, Cutscene.Key::up);
+        float yaw = ayaw + (float) spline(keys, i, s, Cutscene.Key::yaw);
+        float pitch = (float) spline(keys, i, s, k -> Float.isNaN(k.pitch()) ? startPitch : k.pitch());
+        float fov = (float) spline(keys, i, s, Cutscene.Key::fov);
+        float roll = (float) spline(keys, i, s, Cutscene.Key::roll);
 
         double rad = Math.toRadians(ayaw);
         double fx = -Math.sin(rad);

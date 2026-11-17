@@ -21,7 +21,7 @@ public class SorrowedConfig {
                 .define("eternalRain", true);
         PROGRAMMER_ART = b.comment("Switch the Programmer Art resource pack on when you join (client side).")
                 .define("programmerArt", true);
-        GIVE_BOOK = b.comment("Give the book and quill the first time a player joins.")
+        GIVE_BOOK = b.comment("Give the papers (his letter and drawing) the first time a player joins.")
                 .define("giveBook", true);
         ECHOES = b.comment("Let Echoes appear in the rain now and then.")
                 .define("echoes", true);
