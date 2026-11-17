@@ -1,0 +1,11 @@
+{
+  "type": "sorrowed:the_static",
+  "generator": {
+    "type": "sorrowed:liminal",
+    "mode": "static",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "sorrowed:static"
+    }
+  }
+}

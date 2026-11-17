@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "axis=x": { "model": "sorrowed:block/hallway_door" },
+    "axis=z": { "model": "sorrowed:block/hallway_door", "y": 90 }
+  }
+}

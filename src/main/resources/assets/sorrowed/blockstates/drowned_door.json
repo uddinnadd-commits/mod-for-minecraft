@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "axis=x": { "model": "sorrowed:block/drowned_door" },
+    "axis=z": { "model": "sorrowed:block/drowned_door", "y": 90 }
+  }
+}

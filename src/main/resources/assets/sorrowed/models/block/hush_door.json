@@ -1,0 +1,5 @@
+{
+  "parent": "sorrowed:block/doorway_pane",
+  "render_type": "minecraft:translucent",
+  "textures": { "pane": "sorrowed:block/hush_door" }
+}
