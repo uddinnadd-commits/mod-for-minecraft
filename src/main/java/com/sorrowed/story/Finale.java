@@ -190,18 +190,39 @@ public final class Finale {
         MinecraftServer server = p.getServer();
         if (server == null) return;
         ServerLevel home = server.overworld();
-        Vec3 where = wakeSpot(home);
-        p.teleportTo(home, where.x, where.y, where.z, 180.0F, 0.0F);
+        BlockPos grave = MemorySites.grave(home);
+        Vec3 where = wakeSpot(home, grave);
+        float yaw = grave == null ? 180.0F
+                : (float) Math.toDegrees(Math.atan2(grave.getZ() + 0.5D - where.z, grave.getX() + 0.5D - where.x)) - 90.0F;
+        p.teleportTo(home, where.x, where.y, where.z, yaw, 0.0F);
         p.getInventory().add(PapersItem.of("goodbye"));
         Progress.sync(p);
     }
 
-    /** By his grave, if there is one; otherwise the world spawn. Facing the grave. */
-    private static Vec3 wakeSpot(ServerLevel home) {
-        BlockPos grave = MemorySites.grave(home);
-        BlockPos base = grave != null ? grave.offset(0, 0, 3) : home.getSharedSpawnPos();
-        BlockPos top = home.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, base);
-        return Vec3.atBottomCenterOf(top);
+    /** Where to stand around the grave, nearest first; the first one with dry ground wins. */
+    private static final int[][] AROUND = {
+            {0, 3}, {3, 0}, {-3, 0}, {0, -3}, {2, 2}, {-2, 2}, {2, -2}, {-2, -2},
+            {0, 5}, {5, 0}, {-5, 0}, {0, -5}, {4, 4}, {-4, 4}, {4, -4}, {-4, -4}, {0, 0},
+    };
+
+    /** On dry ground by his grave, if there is one; otherwise the world spawn. Never in water. */
+    private static Vec3 wakeSpot(ServerLevel home, BlockPos grave) {
+        if (grave != null) {
+            for (int[] o : AROUND) {
+                BlockPos top = dryTop(home, grave.offset(o[0], 0, o[1]));
+                if (top != null) return Vec3.atBottomCenterOf(top);
+            }
+        }
+        BlockPos spawn = home.getSharedSpawnPos();
+        BlockPos top = dryTop(home, spawn);
+        return Vec3.atBottomCenterOf(top != null ? top : home.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, spawn));
+    }
+
+    /** The open block above solid ground in this column, or null if the ground there is water or lava. */
+    private static BlockPos dryTop(ServerLevel level, BlockPos at) {
+        level.getChunkAt(at);   // an unloaded chunk reports the bottom of the world as its height
+        BlockPos top = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, at);
+        return level.getFluidState(top.below()).isEmpty() && level.getFluidState(top).isEmpty() ? top : null;
     }
 
     public static void forget(UUID id) {

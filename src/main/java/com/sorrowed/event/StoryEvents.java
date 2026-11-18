@@ -76,7 +76,14 @@ public class StoryEvents {
         if (Progress.stage(p) == Progress.FIGHTING) Progress.setStage(p, Progress.READY);
         arrived(p);
         if (Progress.allDone(p) && Progress.stage(p) == Progress.PLAYING) Finale.ready(p);
-        if (Progress.stage(p) == Progress.FAREWELL) Finale.end(p);
+        finishCutOffGoodbye(p);
+    }
+
+    /** A goodbye cut off by death or a lost connection: take the sword back and go straight to the ending. */
+    private static void finishCutOffGoodbye(ServerPlayer p) {
+        if (Progress.stage(p) != Progress.FAREWELL) return;
+        BossFight.takeSword(p);
+        Finale.end(p);
     }
 
     @SubscribeEvent
@@ -92,6 +99,12 @@ public class StoryEvents {
         arrived(p);
         if (FELL.remove(p.getUUID())) {
             ModNetwork.thought(p, "It's still there. He's still there, at the pond. I can try again.");
+        }
+        // Dying after the win cancels the goodbye scheduled for the old player object, so finish it here.
+        if (Progress.stage(p) == Progress.FAREWELL && p.getServer() != null) {
+            Scheduler.after(p.getServer(), 20, () -> {
+                if (!p.isRemoved()) finishCutOffGoodbye(p);
+            });
         }
     }
 

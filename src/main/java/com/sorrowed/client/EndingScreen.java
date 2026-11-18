@@ -101,6 +101,14 @@ public class EndingScreen extends Screen {
             int lineH = 16;
             int total = LETTER.length * lineH;
             int y = (h - total) / 2;
+            // The long lines would run off narrow or tall windows: shrink the whole letter to fit.
+            int widest = 1;
+            for (String l : LETTER) widest = Math.max(widest, f.width(Thoughts.f(l)));
+            float fit = Math.min(1.0F, (w - 16) / (float) widest);
+            g.pose().pushPose();
+            g.pose().translate(w / 2.0F, h / 2.0F, 0.0F);
+            g.pose().scale(fit, fit, 1.0F);
+            g.pose().translate(-w / 2.0F, -h / 2.0F, 0.0F);
             for (int i = 0; i < LETTER.length; i++) {
                 float start = FIRST + i * EACH;
                 if (t < start) break;
@@ -116,6 +124,7 @@ public class EndingScreen extends Screen {
                     g.drawString(f, shown, (w - lw) / 2 + wobble, y + i * lineH, ((int) (a * 255.0F) << 24) | INK, false);
                 }
             }
+            g.pose().popPose();
             return;
         }
 
