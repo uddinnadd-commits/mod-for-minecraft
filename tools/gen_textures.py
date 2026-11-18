@@ -241,6 +241,139 @@ def papers_icon(path):
     write_png(path, 16, 16, px)
 
 paper(f"{OUT}/gui/paper.png")
+
+# ---------------------------------------------------------------- the title screen
+
+def title_bg(path, W=480, H=270):
+    """His house across a field at night, in the rain. One window is lit."""
+    rnd = random.Random(42)
+    px = [(0, 0, 0, 255)] * (W * H)
+    def put(x, y, c, a=255):
+        if 0 <= x < W and 0 <= y < H:
+            px[y * W + x] = (*c, a)
+    horizon = 176
+    for y in range(H):
+        for x in range(W):
+            if y < horizon:
+                f = y / horizon
+                c = (int(6 + 22 * f), int(8 + 24 * f), int(14 + 30 * f))
+                # a faint glow behind the clouds, where the moon would be
+                g = max(0.0, 1.0 - math.hypot(x - 120, y - 46) / 90.0)
+                c = tuple(min(255, int(v + 26 * g * g)) for v in c)
+                # clouds: slow banding
+                band = math.sin(x * 0.013 + y * 0.09) * math.sin(x * 0.004 - y * 0.05)
+                c = tuple(max(0, min(255, int(v + 6 * band))) for v in c)
+            else:
+                n = rnd.randint(-3, 3)
+                c = (max(0, 13 + n), max(0, 19 + n), max(0, 15 + n))
+            put(x, y, c)
+    # Hills on the horizon.
+    for x in range(W):
+        top = int(horizon - 10 - 9 * math.sin(x * 0.011) - 5 * math.sin(x * 0.037 + 1.3))
+        for y in range(top, horizon + 2):
+            put(x, y, (11, 13, 18))
+    # Mist along the horizon.
+    for y in range(horizon - 8, horizon + 14):
+        for x in range(W):
+            r, g, b, _ = px[y * W + x]
+            m = 1.0 - abs(y - horizon - 3) / 11.0
+            put(x, y, (min(255, int(r + 14 * m)), min(255, int(g + 16 * m)), min(255, int(b + 20 * m))))
+    # The field: grass strokes.
+    for _ in range(2600):
+        x = rnd.randint(0, W - 1)
+        y = rnd.randint(horizon + 4, H - 1)
+        h = 1 + int((y - horizon) / 28)
+        for k in range(h):
+            put(x, y - k, (20, 30, 22))
+    # The path from the house toward you.
+    for y in range(192, H):
+        f = (y - 192) / (H - 192)
+        cx = int(309 - f * 120)
+        half = int(2 + f * 16)
+        for x in range(cx - half, cx + half):
+            put(x, y, (26, 26, 26))
+    # The house: walls, gable roof, chimney, door, two windows.
+    for y in range(150, 191):
+        for x in range(280, 341):
+            put(x, y, (21, 19, 23))
+    for y in range(118, 151):
+        half = int((y - 118) * 36 / 32)
+        for x in range(310 - half, 311 + half):
+            put(x, y, (16, 14, 18))
+    for y in range(124, 141):
+        for x in range(326, 333):
+            put(x, y, (18, 16, 20))
+    for y in range(172, 191):
+        for x in range(305, 314):
+            put(x, y, (10, 9, 12))
+    for y in range(158, 165):
+        for x in range(288, 295):
+            put(x, y, (26, 30, 42))
+        for x in range(311, 318):
+            put(x, y, (205, 150, 70))
+    # Window light falling on the grass.
+    for y in range(191, 205):
+        for x in range(300, 330):
+            r, g, b, _ = px[y * W + x]
+            f = max(0.0, 1.0 - math.hypot(x - 314, (y - 191) * 1.6) / 18.0)
+            put(x, y, (min(255, int(r + 50 * f)), min(255, int(g + 36 * f)), min(255, int(b + 14 * f))))
+    # A dead tree to the right of the house.
+    for y in range(120, 192):
+        put(392, y, (12, 11, 13)); put(393, y, (12, 11, 13))
+    for (x0, y0, dx, dy, n) in ((392, 140, -1, -1, 18), (393, 132, 1, -1, 16), (392, 155, -1, -1, 12), (393, 150, 1, -1, 22), (392, 126, -1, -2, 10)):
+        x, y = x0, y0
+        for i in range(n):
+            put(x, y, (12, 11, 13))
+            x += dx
+            if i % abs(dy) == 0:
+                y -= 1
+    # The fence along the field.
+    for x in range(220, 470, 11):
+        for y in range(186, 197):
+            put(x, y, (14, 13, 15))
+    for x in range(220, 470):
+        put(x, 189, (14, 13, 15))
+    write_png(path, W, H, px)
+
+def title_figure(path):
+    """Someone standing in the field. Arms at their sides."""
+    W, H = 16, 32
+    px = [(0, 0, 0, 0)] * (W * H)
+    c = (6, 6, 9, 235)
+    for y in range(1, 8):
+        for x in range(5, 11):
+            if (x - 7.5) ** 2 + (y - 4) ** 2 <= 9:
+                px[y * W + x] = c
+    for y in range(8, 21):
+        for x in range(5, 11):
+            px[y * W + x] = c
+        if y < 19:
+            px[y * W + 4] = c
+            px[y * W + 11] = c
+    for y in range(21, 32):
+        for x in (5, 6, 9, 10):
+            px[y * W + x] = c
+    write_png(path, W, H, px)
+
+def loose_papers(path):
+    """A few sheets lying on the floor, overlapping, one with writing on it."""
+    rnd = random.Random(31)
+    px = [(0, 0, 0, 0)] * 256
+    sheets = ((1, 2, 9, 11, 0.86), (6, 5, 14, 14, 0.94), (3, 7, 11, 15, 1.0))
+    for (x0, y0, x1, y1, shade) in sheets:
+        for y in range(y0, y1):
+            for x in range(x0, x1):
+                n = rnd.randint(-6, 6)
+                px[y * 16 + x] = (int(236 * shade) + n, int(226 * shade) + n, int(198 * shade) + n, 255)
+    for yy in (9, 11, 13):
+        for x in range(4, 10):
+            if (x + yy) % 3:
+                px[yy * 16 + x] = (80, 76, 90, 255)
+    write_png(path, 16, 16, px)
+
+title_bg(f"{OUT}/gui/title_bg.png")
+title_figure(f"{OUT}/gui/title_figure.png")
+loose_papers(f"{OUT}/block/loose_papers.png")
 drawing(f"{OUT}/gui/drawing_first_night.png", draw_first_night, seed=11)
 drawing(f"{OUT}/gui/drawing_scribble.png", draw_scribble, seed=12)
 drawing(f"{OUT}/gui/drawing_gate.png", draw_gate, seed=13)

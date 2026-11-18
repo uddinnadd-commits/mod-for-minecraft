@@ -6,6 +6,7 @@ import com.sorrowed.worldgen.GateFeature;
 import com.sorrowed.worldgen.GraveFeature;
 import com.sorrowed.worldgen.HouseFeature;
 import com.sorrowed.worldgen.LighthouseFeature;
+import com.sorrowed.worldgen.PapersFeature;
 import com.sorrowed.worldgen.StandingStonesFeature;
 import com.sorrowed.worldgen.VigilRingFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -24,4 +25,5 @@ public class ModFeatures {
     public static final RegistryObject<Feature<?>> VIGIL_RING = FEATURES.register("vigil_ring", VigilRingFeature::new);
     public static final RegistryObject<Feature<?>> BUS_STOP = FEATURES.register("bus_stop", BusStopFeature::new);
     public static final RegistryObject<Feature<?>> STANDING_STONES = FEATURES.register("standing_stones", StandingStonesFeature::new);
+    public static final RegistryObject<Feature<?>> PAPERS = FEATURES.register("papers", PapersFeature::new);
 }

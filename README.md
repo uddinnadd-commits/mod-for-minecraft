@@ -10,6 +10,9 @@ It is raining the moment you join. It never stops. This was your friend's world,
 - **Taken**: a little after the opening, the picture you are looking at comes apart (the frame is sliced into bands that slide and smear, the colours split, the edges draw in, it goes dark) and when it settles you are standing in Alex's world. Every doorway works the same way from then on.
 - **A grave** a few steps from the first player on first join.
 
+## The title screen
+The main menu is his house across a field at night, in the rain, one window lit and flickering (`client/SorrowedTitleScreen.java`). The painting pans slowly, rain falls across it, lightning whites it out now and then with thunder behind. Somebody is standing in the field. **Every time you come back to the menu they are standing a little closer.** The title is written crooked, letters slipping now and then, and one of his lines types itself out at the bottom. The buttons are just words: singleplayer, multiplayer, mods, options, quit. Turn it off with `titleScreen = false`.
+
 ## The psychological layer: Sorrow
 Every player has a hidden **Sorrow** value (0-100). There is no meter and no vignette on screen; you only ever see its effects. Rain on open sky, night, the Hush, the Hallway, the Drowned Hall and nearby Hollows/Listeners raise it. Shelter, graves, Alex's world, sleeping and the Mason lower it.
 
@@ -69,6 +72,21 @@ All of them except the Hush come from one chunk generator (`worldgen/LiminalGene
 | The orchard fence, two dead trees, a stone apple | (-58, -18) | through the gap: **The Orchard** |
 | A concrete box half sunk in the grass, a vent humming on the roof | (-36, 60) | inside: **The Server** |
 | A small white building with a red cross | (22, 66) | past the bed: **The Ward** |
+
+**Things to find.** Every world has places worth coming across, rare enough that finding one feels like a find (`worldgen/Landmarks.java`), and **pages lie on the floors** everywhere between them: right-click a few loose sheets to pick them up as Papers. Each world has its own pages (`story/Findings.java`) in Alex's voice and others': his grandad, the nurses, a neighbour, the server's own logs. The same spot always gives the same page; walking further finds more.
+
+| World | Places to find |
+|---|---|
+| Alex's world | the pond with its dock, the dirt house from the first night (rebuilt, no door), the treehouse you can see every door from, the campfire that will not go out; pages in his house, the shed and the bus shelter |
+| The Hush | pages on the forest floor |
+| The Drowned Hall | rafts with a lantern, drifting nowhere; the school bus on the seabed; a graveyard in rows under the sea |
+| The Hallway | an office with every screen on; a child's room nobody remembers, crayon on the walls; stairs that climb into the ceiling and stop |
+| The Archive | the catalogue (a drawer for every day); the map room; where the stacks came down |
+| The Street | the corner shop, lit, nobody at the till; the school (the clock says ten to three); the park with bread floating on the pond |
+| The Static | the hole where the picture did not load; a wall of screens; a hut at the foot of a mast with a radio and a chair |
+| The Orchard | grandad's farmhouse; the pumpkin patch where every face is the same; the dry well |
+| The Ward | the waiting room with the television on; the chapel; the cold room |
+| The Server | the operations room and its wall of screens; the tape library; the core in its cage |
 
 **Ways out.** Every world except Alex's has an exit in each 96 by 96 region (`worldgen/Exits.java`), so wherever you wander there is one within a minute's walk: that world's own doorway in a frame of its own materials with a light on top (a red-signed frame in the Hallway, a pillar out of the sea in the Drowned, a red phone box on the Street, a black frame on a white square in the Static, a gate with no fence in the Orchard, the fire door under a green light in the Ward, a steel frame in the Server). Stepping through takes you back to where you came in. **The nearest exit hums**: every few seconds it makes a low sound you can follow. In the Hush, the stone gates in the forest are the ways out.
 

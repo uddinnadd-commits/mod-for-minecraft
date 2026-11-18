@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.world.level.block.LanternBlock;
+import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.RedstoneLampBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
@@ -56,7 +57,11 @@ public final class Sites {
             new Site("mast", 62, 4, 6),
             new Site("orchard", -58, -18, 8),
             new Site("clinic", 22, 66, 6),
-            new Site("server", -36, 60, 5));
+            new Site("server", -36, 60, 5),
+            new Site("pond", -22, -34, 6),
+            new Site("dirthouse", 18, -46, 4),
+            new Site("treehouse", -20, 40, 5),
+            new Site("campfire", 54, 38, 4));
 
     private static final Map<Long, BlockState> BLOCKS = new HashMap<>();
     private static boolean built;
@@ -158,6 +163,10 @@ public final class Sites {
                 case "orchard": orchard(); break;
                 case "clinic": clinic(); break;
                 case "server": server(); break;
+                case "pond": pond(); break;
+                case "dirthouse": dirthouse(); break;
+                case "treehouse": treehouse(); break;
+                case "campfire": campfire(); break;
                 default: break;
             }
         }
@@ -201,6 +210,7 @@ public final class Sites {
         set(3, 0, 1, stairs(Blocks.OAK_STAIRS, Direction.EAST));            // the chair
         set(3, 0, -2, Blocks.CHEST);
         set(-3, 0, -2, Blocks.CRAFTING_TABLE);
+        set(1, 0, 1, papers());
         set(0, 3, 0, lantern(true));
         box(-2, -1, -2, 2, -1, 2, Blocks.SPRUCE_PLANKS);
         // Outside: the path to the gate, a fence, and the grave he dug himself.
@@ -275,6 +285,7 @@ public final class Sites {
         box(2, 0, -1, 2, 2, 2, Blocks.BOOKSHELF);
         set(0, 2, 0, lantern(true));
         set(0, 0, 0, Blocks.LECTERN);
+        set(1, 0, 1, papers());
         doorway(0, -2, ModBlocks.ARCHIVE_DOOR.get(), true);
     }
 
@@ -289,6 +300,7 @@ public final class Sites {
         box(-3, 3, 3, 3, 3, 5, Blocks.SMOOTH_STONE_SLAB);
         set(0, 2, 4, lantern(true));
         set(4, 0, 3, Blocks.OAK_FENCE); set(4, 1, 3, Blocks.OAK_SIGN);
+        set(-1, 1, 4, papers());
         doorway(0, 5, ModBlocks.STREET_DOOR.get(), true);
     }
 
@@ -339,6 +351,83 @@ public final class Sites {
         set(0, 2, 0, Blocks.SEA_LANTERN);
         frame(0, 3, true, Blocks.IRON_BLOCK);
         doorway(0, 3, ModBlocks.SERVER_DOOR.get(), true);
+    }
+
+    private static BlockState papers() {
+        return ModBlocks.LOOSE_PAPERS.get().defaultBlockState();
+    }
+
+    /** The pond where you used to fish. The float does not bob. */
+    private static void pond() {
+        for (int x = -6; x <= 6; x++) {
+            for (int z = -6; z <= 6; z++) {
+                double r = Math.sqrt(x * x + z * z);
+                if (r <= 4.6D) {
+                    set(x, -1, z, Blocks.WATER);
+                    set(x, -2, z, r <= 3.0D ? Blocks.WATER : Blocks.CLAY);
+                    set(x, -3, z, Blocks.CLAY);
+                    if (r <= 3.5D && (x * 7 + z * 3) % 9 == 0) set(x, 0, z, Blocks.LILY_PAD);
+                } else if (r <= 5.6D) {
+                    set(x, -1, z, (x + z) % 3 == 0 ? Blocks.SAND : Blocks.GRASS_BLOCK);
+                    if ((x * 3 + z) % 4 == 0) set(x, 0, z, Blocks.TALL_GRASS);
+                }
+            }
+        }
+        // The dock: planks out over the water, two posts, and a rod left leaning.
+        box(-6, -1, 0, -2, -1, 1, Blocks.OAK_PLANKS);
+        set(-6, 0, -1, Blocks.OAK_FENCE); set(-6, 0, 2, Blocks.OAK_FENCE);
+        set(-2, 0, 1, Blocks.OAK_FENCE);
+        set(-3, 0, 0, papers());
+        set(-4, 0, 1, Blocks.BARREL);
+    }
+
+    /** The first night. The dirt house you dug together, rebuilt exactly. There was never a door. */
+    private static void dirthouse() {
+        box(-2, 0, -2, 2, 2, 2, Blocks.DIRT);
+        air(-1, 0, -1, 1, 1, 1);
+        box(-2, 3, -2, 2, 3, 2, Blocks.DIRT);
+        air(0, 0, -2, 0, 1, -2);
+        set(1, 0, 1, Blocks.CRAFTING_TABLE);
+        set(-1, 0, 1, Blocks.TORCH);
+        set(-1, 0, -1, papers());
+    }
+
+    /** The treehouse: you can see every door in the backup from up here. */
+    private static void treehouse() {
+        box(0, 0, 0, 0, 8, 0, Blocks.OAK_LOG);
+        for (int x = -3; x <= 3; x++) {
+            for (int z = -3; z <= 3; z++) {
+                for (int y = 8; y <= 10; y++) {
+                    int r = Math.abs(x) + Math.abs(z) + (y - 8);
+                    if (r <= 4 && !(x == 0 && z == 0 && y == 8)) {
+                        set(x, y, z, Blocks.OAK_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true));
+                    }
+                }
+            }
+        }
+        box(-2, 5, -2, 2, 5, 2, Blocks.OAK_PLANKS);
+        set(0, 5, 0, Blocks.OAK_LOG);
+        for (int i = -2; i <= 2; i++) {
+            set(i, 6, -2, Blocks.OAK_FENCE); set(i, 6, 2, Blocks.OAK_FENCE);
+            set(-2, 6, i, Blocks.OAK_FENCE); set(2, 6, i, Blocks.OAK_FENCE);
+        }
+        air(0, 6, 2, 0, 6, 2);
+        BlockState ladder = Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING, Direction.SOUTH);
+        for (int y = 0; y <= 5; y++) set(0, y, 1, ladder);
+        set(1, 6, -1, papers());
+        set(-1, 6, -1, lantern(false));
+    }
+
+    /** The campfire where you sat when the server was new. It does not go out. */
+    private static void campfire() {
+        set(0, 0, 0, Blocks.CAMPFIRE);
+        box(-1, -1, -1, 1, -1, 1, Blocks.COBBLESTONE);
+        BlockState alongZ = Blocks.STRIPPED_OAK_LOG.defaultBlockState().setValue(net.minecraft.world.level.block.RotatedPillarBlock.AXIS, Direction.Axis.Z);
+        BlockState alongX = Blocks.STRIPPED_OAK_LOG.defaultBlockState().setValue(net.minecraft.world.level.block.RotatedPillarBlock.AXIS, Direction.Axis.X);
+        box(-3, 0, -1, -3, 0, 1, alongZ);
+        box(3, 0, -1, 3, 0, 1, alongZ);
+        box(-1, 0, 3, 1, 0, 3, alongX);
+        set(0, 0, -3, papers());
     }
 
     /** A small white building with a red cross. He went in. He did not come out. */

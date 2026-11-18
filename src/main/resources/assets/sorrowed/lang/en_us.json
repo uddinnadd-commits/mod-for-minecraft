@@ -32,5 +32,6 @@
   "entity.sorrowed.scarecrow": "The Scarecrow",
   "block.sorrowed.server_door": "Server Doorway",
   "item.sorrowed.copy_spawn_egg": "The Copy Spawn Egg",
-  "entity.sorrowed.copy": "The Copy"
+  "entity.sorrowed.copy": "The Copy",
+  "block.sorrowed.loose_papers": "Loose Papers"
 }

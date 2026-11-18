@@ -144,7 +144,7 @@ public class LiminalGenerator extends ChunkGenerator {
     private int columnTop(int x, int z) {
         switch (kind) {
             case HALLWAY: return HALL_CEIL;
-            case DROWNED: return Math.max(drownedFloor(x, z) + 20, DROWN_SEA);
+            case DROWNED: return Math.max(drownedFloor(x, z) + 20, DROWN_SEA + 3);
             case BACKUP: return backupHeight(x, z) + 7;
             case ARCHIVE: return ARCHIVE_CEIL;
             case STREET: return STREET_GROUND + 14;
@@ -225,22 +225,28 @@ public class LiminalGenerator extends ChunkGenerator {
     // ------------------------------------------------------------------ blocks
 
     private BlockState stateAt(int x, int y, int z) {
-        if (kind != Mode.BACKUP) {
-            BlockState exit = Exits.state(mode, x, y, z);
-            if (exit != null) return exit.isAir() ? null : exit;
-        }
+        if (kind == Mode.BACKUP) return backupState(x, y, z);
+        BlockState exit = Exits.state(mode, x, y, z);
+        if (exit != null) return exit.isAir() ? null : exit;
+        BlockState mark = Landmarks.state(mode, x, y, z);
+        if (mark != null) return mark.isAir() ? null : mark;
+        BlockState base;
         switch (kind) {
-            case HALLWAY: return hallwayState(x, y, z);
-            case DROWNED: return drownedState(x, y, z);
-            case BACKUP: return backupState(x, y, z);
-            case ARCHIVE: return archiveState(x, y, z);
-            case STREET: return streetState(x, y, z);
-            case STATIC: return staticState(x, y, z);
-            case ORCHARD: return orchardState(x, y, z);
-            case WARD: return wardState(x, y, z);
-            case SERVER: return serverState(x, y, z);
-            default: return backupState(x, y, z);
+            case HALLWAY: base = hallwayState(x, y, z); break;
+            case DROWNED: base = drownedState(x, y, z); break;
+            case ARCHIVE: base = archiveState(x, y, z); break;
+            case STREET: base = streetState(x, y, z); break;
+            case STATIC: base = staticState(x, y, z); break;
+            case ORCHARD: base = orchardState(x, y, z); break;
+            case WARD: base = wardState(x, y, z); break;
+            case SERVER: base = serverState(x, y, z); break;
+            default: base = backupState(x, y, z); break;
         }
+        // A page lying on the floor, now and then, wherever there is floor to lie on.
+        if (base == null && kind != Mode.DROWNED && y == 65 && Landmarks.scatter(x, z)) {
+            return ModBlocks.LOOSE_PAPERS.get().defaultBlockState();
+        }
+        return base;
     }
 
     private static long mix(long a, long b, long c) {
@@ -392,7 +398,7 @@ public class LiminalGenerator extends ChunkGenerator {
 
     // ---------------------------------------------------------------- drowned
 
-    private static int drownedFloor(int x, int z) {
+    static int drownedFloor(int x, int z) {
         double h = -12.0D
                 + 12.0D * Math.sin(x * 0.031D) * Math.sin(z * 0.027D)
                 + 6.0D * Math.sin(x * 0.07D + z * 0.05D)

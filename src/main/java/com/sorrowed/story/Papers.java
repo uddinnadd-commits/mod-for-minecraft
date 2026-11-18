@@ -116,4 +116,13 @@ public final class Papers {
     public static Page get(String id) {
         return PAGES.get(id);
     }
+
+    static void add(String id, String title, String text, String drawing) {
+        PAGES.put(id, new Page(id, title, text, drawing));
+    }
+
+    // Last, so PAGES exists: the pages found lying around in each world.
+    static {
+        Findings.registerAll();
+    }
 }

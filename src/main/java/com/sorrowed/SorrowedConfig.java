@@ -12,6 +12,7 @@ public class SorrowedConfig {
     public static final ForgeConfigSpec.BooleanValue EVENTS;
     public static final ForgeConfigSpec.BooleanValue CUTSCENES;
     public static final ForgeConfigSpec.IntValue AMBIENT_MINUTES;
+    public static final ForgeConfigSpec.BooleanValue TITLE_SCREEN;
 
     static {
         ForgeConfigSpec.Builder b = new ForgeConfigSpec.Builder();
@@ -31,6 +32,8 @@ public class SorrowedConfig {
                 .define("cutscenes", true);
         AMBIENT_MINUTES = b.comment("Minimum minutes between idle typewriter thoughts. Thoughts caused by events and entities are not limited by this.")
                 .defineInRange("ambientThoughtMinutes", 8, 1, 120);
+        TITLE_SCREEN = b.comment("Replace the main menu with his house in the rain (client side).")
+                .define("titleScreen", true);
         SPEC = b.build();
     }
 

@@ -40,6 +40,8 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.SERVER_DOOR.get(), new Item.Properties()));
     public static final RegistryObject<Item> GRAVE_MARKER = ITEMS.register("grave_marker",
             () -> new BlockItem(ModBlocks.GRAVE_MARKER.get(), new Item.Properties()));
+    public static final RegistryObject<Item> LOOSE_PAPERS = ITEMS.register("loose_papers",
+            () -> new BlockItem(ModBlocks.LOOSE_PAPERS.get(), new Item.Properties()));
 
     public static final RegistryObject<Item> ECHO_SPAWN_EGG = ITEMS.register("echo_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.ECHO, 0xC9D6E0, 0x4A5668, new Item.Properties()));

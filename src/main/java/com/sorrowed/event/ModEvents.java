@@ -87,6 +87,7 @@ public class ModEvents {
             event.accept(ModItems.WARD_DOOR.get());
             event.accept(ModItems.SERVER_DOOR.get());
             event.accept(ModItems.GRAVE_MARKER.get());
+            event.accept(ModItems.LOOSE_PAPERS.get());
         }
         if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
             event.accept(ModItems.ECHO_SPAWN_EGG.get());

@@ -3,6 +3,7 @@ package com.sorrowed.registry;
 import com.sorrowed.Sorrowed;
 import com.sorrowed.block.DoorwayBlock;
 import com.sorrowed.block.GraveMarkerBlock;
+import com.sorrowed.block.LoosePapersBlock;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.DeferredRegister;
@@ -37,4 +38,6 @@ public class ModBlocks {
 
     public static final RegistryObject<Block> GRAVE_MARKER = BLOCKS.register("grave_marker",
             GraveMarkerBlock::new);
+    public static final RegistryObject<Block> LOOSE_PAPERS = BLOCKS.register("loose_papers",
+            LoosePapersBlock::new);
 }

@@ -1,0 +1,21 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "sorrowed:block/loose_papers"
+      },
+      {
+        "model": "sorrowed:block/loose_papers",
+        "y": 90
+      },
+      {
+        "model": "sorrowed:block/loose_papers",
+        "y": 180
+      },
+      {
+        "model": "sorrowed:block/loose_papers",
+        "y": 270
+      }
+    ]
+  }
+}
