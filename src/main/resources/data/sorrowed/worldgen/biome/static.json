@@ -15,7 +15,13 @@
       },
       "probability": 0.02
     },
-    "ambient_sound": "minecraft:ambient.basalt_deltas.loop"
+    "ambient_sound": "minecraft:ambient.basalt_deltas.loop",
+    "music": {
+      "sound": "minecraft:music_disc.11",
+      "min_delay": 9000,
+      "max_delay": 24000,
+      "replace_current_music": true
+    }
   },
   "spawners": {
     "monster": [

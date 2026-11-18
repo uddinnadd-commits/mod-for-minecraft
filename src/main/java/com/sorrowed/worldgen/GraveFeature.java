@@ -17,7 +17,7 @@ public class GraveFeature extends Feature<NoneFeatureConfiguration> {
     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> ctx) {
         WorldGenLevel level = ctx.level();
         BlockPos origin = ctx.origin();
-        if (level.getLevel().dimension().equals(Dimensions.UNFINISHED)) return false;
+        if (level.getLevel().dimension().equals(Dimensions.BACKUP)) return false;
         if (!level.getBlockState(origin.below()).getFluidState().isEmpty()) return false;
 
         GraveBuilder.build(level, origin, ctx.random());

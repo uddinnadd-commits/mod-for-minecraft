@@ -18,8 +18,6 @@ public class ModItems {
     public static final RegistryObject<Item> PAPERS = ITEMS.register("papers",
             () -> new PapersItem(new Item.Properties().stacksTo(16)));
 
-    public static final RegistryObject<Item> UNFINISHED_DOOR = ITEMS.register("unfinished_door",
-            () -> new BlockItem(ModBlocks.UNFINISHED_DOOR.get(), new Item.Properties()));
     public static final RegistryObject<Item> HUSH_DOOR = ITEMS.register("hush_door",
             () -> new BlockItem(ModBlocks.HUSH_DOOR.get(), new Item.Properties()));
     public static final RegistryObject<Item> DROWNED_DOOR = ITEMS.register("drowned_door",
@@ -34,6 +32,10 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.STREET_DOOR.get(), new Item.Properties()));
     public static final RegistryObject<Item> STATIC_DOOR = ITEMS.register("static_door",
             () -> new BlockItem(ModBlocks.STATIC_DOOR.get(), new Item.Properties()));
+    public static final RegistryObject<Item> ORCHARD_DOOR = ITEMS.register("orchard_door",
+            () -> new BlockItem(ModBlocks.ORCHARD_DOOR.get(), new Item.Properties()));
+    public static final RegistryObject<Item> WARD_DOOR = ITEMS.register("ward_door",
+            () -> new BlockItem(ModBlocks.WARD_DOOR.get(), new Item.Properties()));
     public static final RegistryObject<Item> GRAVE_MARKER = ITEMS.register("grave_marker",
             () -> new BlockItem(ModBlocks.GRAVE_MARKER.get(), new Item.Properties()));
 
@@ -51,4 +53,8 @@ public class ModItems {
             () -> new ForgeSpawnEggItem(ModEntities.NEIGHBOUR, 0x6B5A3E, 0x2A2A30, new Item.Properties()));
     public static final RegistryObject<Item> CARRIER_SPAWN_EGG = ITEMS.register("carrier_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.CARRIER, 0x3A3A3E, 0xDCDCDC, new Item.Properties()));
+    public static final RegistryObject<Item> ORDERLY_SPAWN_EGG = ITEMS.register("orderly_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntities.ORDERLY, 0xF0F0F0, 0x5A8A7A, new Item.Properties()));
+    public static final RegistryObject<Item> SCARECROW_SPAWN_EGG = ITEMS.register("scarecrow_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntities.SCARECROW, 0x8A6A3A, 0x2A2A2A, new Item.Properties()));
 }

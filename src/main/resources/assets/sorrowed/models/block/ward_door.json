@@ -1,5 +1,7 @@
 {
   "parent": "sorrowed:block/doorway_pane",
   "render_type": "minecraft:translucent",
-  "textures": { "pane": "sorrowed:block/unfinished_door" }
+  "textures": {
+    "pane": "sorrowed:block/ward_door"
+  }
 }

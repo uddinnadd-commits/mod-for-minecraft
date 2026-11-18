@@ -25,6 +25,8 @@ public class ClientSetup {
         event.registerLayerDefinition(ModModels.ARCHIVIST, ModModels::archivistLayer);
         event.registerLayerDefinition(ModModels.NEIGHBOUR, ModModels::neighbourLayer);
         event.registerLayerDefinition(ModModels.CARRIER, ModModels::carrierLayer);
+        event.registerLayerDefinition(ModModels.ORDERLY, ModModels::orderlyLayer);
+        event.registerLayerDefinition(ModModels.SCARECROW, ModModels::scarecrowLayer);
     }
 
     @SubscribeEvent
@@ -43,20 +45,24 @@ public class ClientSetup {
                 ctx -> new SorrowMobRenderer<>(ctx, ModModels.NEIGHBOUR, tex("neighbour"), 0.5F, ModModels.NEIGHBOUR_STYLE, false));
         event.registerEntityRenderer(ModEntities.CARRIER.get(),
                 ctx -> new SorrowMobRenderer<>(ctx, ModModels.CARRIER, tex("carrier"), 0.5F, ModModels.CARRIER_STYLE, false));
+        event.registerEntityRenderer(ModEntities.ORDERLY.get(),
+                ctx -> new SorrowMobRenderer<>(ctx, ModModels.ORDERLY, tex("orderly"), 0.6F, ModModels.ORDERLY_STYLE, false));
+        event.registerEntityRenderer(ModEntities.SCARECROW.get(),
+                ctx -> new SorrowMobRenderer<>(ctx, ModModels.SCARECROW, tex("scarecrow"), 0.4F, ModModels.SCARECROW_STYLE, false));
         event.registerEntityRenderer(ModEntities.REFLECTION.get(), ReflectionRenderer::new);
     }
 
     @SubscribeEvent
     public static void overlays(RegisterGuiOverlaysEvent event) {
-        // Order matters: static, then letterbox/fades, then the typewriter text, then the scribble over all of it.
+        // Order matters: static, then letterbox/fades, then the typewriter text, then the distortion over all of it.
         event.registerAboveAll("static", (gui, graphics, partialTick, width, height) ->
                 StaticOverlay.render(graphics, width, height));
         event.registerAboveAll("cutscene", (gui, graphics, partialTick, width, height) ->
                 CutsceneOverlay.render(graphics, width, height));
         event.registerAboveAll("thoughts", (gui, graphics, partialTick, width, height) ->
                 ThoughtOverlay.render(graphics, width, height));
-        event.registerAboveAll("scribble", (gui, graphics, partialTick, width, height) ->
-                ScribbleOverlay.render(graphics, width, height));
+        event.registerAboveAll("distortion", (gui, graphics, partialTick, width, height) ->
+                DistortionOverlay.render(graphics, width, height));
     }
 
     @SubscribeEvent
@@ -65,5 +71,6 @@ public class ClientSetup {
         event.register(new ResourceLocation(Sorrowed.MODID, "hallway"), new SorrowEffects(false));
         event.register(new ResourceLocation(Sorrowed.MODID, "archive"), new SorrowEffects(false));
         event.register(new ResourceLocation(Sorrowed.MODID, "static"), new SorrowEffects(true));
+        event.register(new ResourceLocation(Sorrowed.MODID, "ward"), new SorrowEffects(false));
     }
 }

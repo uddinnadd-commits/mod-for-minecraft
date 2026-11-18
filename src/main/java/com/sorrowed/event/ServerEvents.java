@@ -99,7 +99,7 @@ public class ServerEvents {
             Scheduler.after(server, taken, () -> {
                 if (player.isRemoved()) return;
                 ModNetwork.thought(player, Thoughts.TAKEN);
-                Transition.toUnfinished(player);
+                Transition.toBackup(player);
             });
         } else if (player.serverLevel().random.nextInt(3) == 0) {
             ModNetwork.thought(player, Thoughts.pick(Thoughts.RETURNING, player.serverLevel().random));
@@ -192,10 +192,7 @@ public class ServerEvents {
     }
 
     private static void sendArrivalThoughts(ServerPlayer player, ResourceKey<Level> to) {
-        if (to.equals(Dimensions.UNFINISHED)) {
-            ModNetwork.thought(player, Thoughts.ENTER_UNFINISHED_1);
-            ModNetwork.thought(player, Thoughts.ENTER_UNFINISHED_2);
-        } else if (to.equals(Dimensions.HUSH)) {
+        if (to.equals(Dimensions.HUSH)) {
             ModNetwork.thought(player, Thoughts.ENTER_HUSH_1);
             ModNetwork.thought(player, Thoughts.ENTER_HUSH_2);
         } else if (to.equals(Dimensions.DROWNED)) {
@@ -216,6 +213,12 @@ public class ServerEvents {
         } else if (to.equals(Dimensions.STATIC)) {
             ModNetwork.thought(player, Thoughts.ENTER_STATIC_1);
             ModNetwork.thought(player, Thoughts.ENTER_STATIC_2);
+        } else if (to.equals(Dimensions.ORCHARD)) {
+            ModNetwork.thought(player, Thoughts.ENTER_ORCHARD_1);
+            ModNetwork.thought(player, Thoughts.ENTER_ORCHARD_2);
+        } else if (to.equals(Dimensions.WARD)) {
+            ModNetwork.thought(player, Thoughts.ENTER_WARD_1);
+            ModNetwork.thought(player, Thoughts.ENTER_WARD_2);
         }
     }
 
@@ -228,15 +231,6 @@ public class ServerEvents {
         int t = player.tickCount;
         ServerLevel level = player.serverLevel();
         ResourceKey<Level> dim = level.dimension();
-
-        // Falling off the floating chunks never kills you. You just land back at the start.
-        if (t % 10 == 0 && dim.equals(Dimensions.UNFINISHED) && player.getY() < -20.0D) {
-            Vec3 hub = HubBuilder.arrival(level, Dimensions.UNFINISHED);
-            player.fallDistance = 0.0F;
-            player.connection.teleport(hub.x, hub.y, hub.z, 180.0F, 0.0F);
-            ModNetwork.thought(player, Thoughts.FALL);
-            Sorrow.add(player, 6.0F);
-        }
 
         if (t % 20 == 0) {
             SorrowSystem.tick(player);
@@ -270,14 +264,15 @@ public class ServerEvents {
         }
         ResourceKey<Level> dim = level.dimension();
         String[] pool;
-        if (dim.equals(Dimensions.UNFINISHED)) pool = Thoughts.AMBIENT_UNFINISHED;
-        else if (dim.equals(Dimensions.HUSH)) pool = Thoughts.AMBIENT_HUSH;
+        if (dim.equals(Dimensions.HUSH)) pool = Thoughts.AMBIENT_HUSH;
         else if (dim.equals(Dimensions.DROWNED)) pool = Thoughts.AMBIENT_DROWNED;
         else if (dim.equals(Dimensions.HALLWAY)) pool = Thoughts.AMBIENT_HALLWAY;
         else if (dim.equals(Dimensions.BACKUP)) pool = Thoughts.AMBIENT_BACKUP;
         else if (dim.equals(Dimensions.ARCHIVE)) pool = Thoughts.AMBIENT_ARCHIVE;
         else if (dim.equals(Dimensions.STREET)) pool = Thoughts.AMBIENT_STREET;
         else if (dim.equals(Dimensions.STATIC)) pool = Thoughts.AMBIENT_STATIC;
+        else if (dim.equals(Dimensions.ORCHARD)) pool = Thoughts.AMBIENT_ORCHARD;
+        else if (dim.equals(Dimensions.WARD)) pool = Thoughts.AMBIENT_WARD;
         else if (level.isNight() && random.nextBoolean()) pool = Thoughts.AMBIENT_NIGHT;
         else pool = Thoughts.AMBIENT_OVERWORLD;
         return pool[random.nextInt(pool.length)];

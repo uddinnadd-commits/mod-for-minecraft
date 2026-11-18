@@ -35,6 +35,22 @@ public final class Letters {
         return PapersItem.of("last");
     }
 
+    public static ItemStack gateDrawing() {
+        return PapersItem.of("gate");
+    }
+
+    public static ItemStack orchardNote() {
+        return PapersItem.of("orchard");
+    }
+
+    public static ItemStack wardNote() {
+        return PapersItem.of("ward");
+    }
+
+    public static ItemStack wardLast() {
+        return PapersItem.of("ward_2");
+    }
+
     /** The sheets given on first join, in reading order, plus the drawing folded in with them. */
     public static ItemStack[] welcome() {
         return new ItemStack[] {

@@ -67,7 +67,11 @@ public class CutsceneEvents {
 
     @SubscribeEvent
     public static void onAngles(ViewportEvent.ComputeCameraAngles event) {
-        if (CutsceneClient.isActive()) event.setRoll(CutsceneClient.roll());
+        if (!CutsceneClient.isActive()) return;
+        // Exact angles every frame: nothing left for the renderer to interpolate.
+        event.setYaw(CutsceneClient.yaw());
+        event.setPitch(CutsceneClient.pitch());
+        event.setRoll(CutsceneClient.roll());
     }
 
     @SubscribeEvent

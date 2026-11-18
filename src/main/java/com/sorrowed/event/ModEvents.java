@@ -8,6 +8,8 @@ import com.sorrowed.entity.HollowEntity;
 import com.sorrowed.entity.ListenerEntity;
 import com.sorrowed.entity.MasonEntity;
 import com.sorrowed.entity.NeighbourEntity;
+import com.sorrowed.entity.OrderlyEntity;
+import com.sorrowed.entity.ScarecrowEntity;
 import com.sorrowed.entity.ReflectionEntity;
 import com.sorrowed.registry.ModEntities;
 import com.sorrowed.registry.ModItems;
@@ -33,6 +35,8 @@ public class ModEvents {
         event.put(ModEntities.ARCHIVIST.get(), ArchivistEntity.createAttributes().build());
         event.put(ModEntities.NEIGHBOUR.get(), NeighbourEntity.createAttributes().build());
         event.put(ModEntities.CARRIER.get(), CarrierEntity.createAttributes().build());
+        event.put(ModEntities.ORDERLY.get(), OrderlyEntity.createAttributes().build());
+        event.put(ModEntities.SCARECROW.get(), ScarecrowEntity.createAttributes().build());
     }
 
     @SubscribeEvent
@@ -52,6 +56,12 @@ public class ModEvents {
         event.register(ModEntities.CARRIER.get(), SpawnPlacements.Type.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, CarrierEntity::checkSpawn,
                 SpawnPlacementRegisterEvent.Operation.OR);
+        event.register(ModEntities.ORDERLY.get(), SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, OrderlyEntity::checkSpawn,
+                SpawnPlacementRegisterEvent.Operation.OR);
+        event.register(ModEntities.SCARECROW.get(), SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, ScarecrowEntity::checkSpawn,
+                SpawnPlacementRegisterEvent.Operation.OR);
     }
 
     @SubscribeEvent
@@ -61,7 +71,6 @@ public class ModEvents {
             event.accept(ModItems.PAPERS.get());
         }
         if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
-            event.accept(ModItems.UNFINISHED_DOOR.get());
             event.accept(ModItems.HUSH_DOOR.get());
             event.accept(ModItems.DROWNED_DOOR.get());
             event.accept(ModItems.HALLWAY_DOOR.get());
@@ -69,6 +78,8 @@ public class ModEvents {
             event.accept(ModItems.ARCHIVE_DOOR.get());
             event.accept(ModItems.STREET_DOOR.get());
             event.accept(ModItems.STATIC_DOOR.get());
+            event.accept(ModItems.ORCHARD_DOOR.get());
+            event.accept(ModItems.WARD_DOOR.get());
             event.accept(ModItems.GRAVE_MARKER.get());
         }
         if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
@@ -79,6 +90,8 @@ public class ModEvents {
             event.accept(ModItems.ARCHIVIST_SPAWN_EGG.get());
             event.accept(ModItems.NEIGHBOUR_SPAWN_EGG.get());
             event.accept(ModItems.CARRIER_SPAWN_EGG.get());
+            event.accept(ModItems.ORDERLY_SPAWN_EGG.get());
+            event.accept(ModItems.SCARECROW_SPAWN_EGG.get());
         }
     }
 }

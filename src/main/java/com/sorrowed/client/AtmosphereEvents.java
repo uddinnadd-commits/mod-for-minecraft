@@ -47,6 +47,14 @@ public class AtmosphereEvents {
             event.setNearPlaneDistance(12.0F);
             event.setFarPlaneDistance(90.0F);
             event.setCanceled(true);
+        } else if (dim.equals(Dimensions.ORCHARD) && type == FogType.NONE) {
+            event.setNearPlaneDistance(8.0F);
+            event.setFarPlaneDistance(44.0F);
+            event.setCanceled(true);
+        } else if (dim.equals(Dimensions.WARD) && type == FogType.NONE) {
+            event.setNearPlaneDistance(10.0F);
+            event.setFarPlaneDistance(56.0F);
+            event.setCanceled(true);
         } else if (dim.equals(Dimensions.STATIC) && type == FogType.NONE) {
             // The static breathes: the fog edge crawls in and out a little every second.
             float t = (mc.level.getGameTime() + (float) event.getPartialTick()) * 0.35F;
@@ -74,6 +82,10 @@ public class AtmosphereEvents {
             set(event, 0.16F, 0.12F, 0.07F);
         } else if (dim.equals(Dimensions.STREET)) {
             set(event, 0.05F, 0.05F, 0.09F);
+        } else if (dim.equals(Dimensions.ORCHARD)) {
+            set(event, 0.56F, 0.57F, 0.55F);
+        } else if (dim.equals(Dimensions.WARD)) {
+            set(event, 0.80F, 0.86F, 0.82F);
         } else if (dim.equals(Dimensions.STATIC)) {
             // Flicker between greys, never quite the same twice.
             long t = mc.level.getGameTime();

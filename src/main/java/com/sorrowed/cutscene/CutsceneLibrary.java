@@ -31,19 +31,6 @@ public final class CutsceneLibrary {
                 .cue(0, "minecraft:weather.rain", 1.0F, 1.0F)
                 .build());
 
-        // The Unfinished: pull up and away to see how little is holding it together.
-        add(Cutscene.builder("arrive_the_unfinished", 290).blendOut(30).fade(10, 0, 0)
-                .key(0, 0, 0, 1.62, 0, P, 70)
-                .key(55, 0, -3, 9, 0, 12, 80)
-                .key(125, 0, -10, 30, 25, 25, 92)
-                .key(195, 0, -10, 34, -30, 28, 92)
-                .key(255, 0, -3, 8, 0, 8, 75)
-                .caption(25, "No rain.")
-                .caption(100, "Just... nothing. All of it hanging in the light.")
-                .caption(195, "Every piece is one chunk wide. He measured it, then he stopped.")
-                .cue(120, "minecraft:block.beacon.ambient", 0.5F, 0.6F)
-                .build());
-
         // The Hush: a slow circle around you that ends with the camera standing behind you.
         add(Cutscene.builder("arrive_the_hush", 250).blendOut(25).fade(15, 0, 0)
                 .orbit(0, 145, 3.6, 2.2, 0, 180, 1.0, 62, 14)
@@ -80,7 +67,7 @@ public final class CutsceneLibrary {
                 .cue(0, "minecraft:block.conduit.ambient", 0.7F, 0.8F)
                 .build());
 
-        // The Backup: sunlight, a lazy orbit, and one thing wrong.
+        // The Backup, Alex's world: sunlight, a lazy orbit around his house, and one thing wrong.
         add(Cutscene.builder("arrive_the_backup", 270).blendOut(30).fade(20, 0, 0)
                 .orbit(0, 205, 5.0, 2.6, 0, 360, 1.0, 58, 20)
                 .key(245, 0, 0, 1.62, 360, P, 70)
@@ -123,6 +110,31 @@ public final class CutsceneLibrary {
                 .caption(170, "A channel nobody is broadcasting on. And I'm standing in it.")
                 .cue(0, "minecraft:block.conduit.ambient.short", 1.0F, 0.5F)
                 .cue(120, "minecraft:block.conduit.ambient.short", 1.0F, 0.45F)
+                .build());
+
+        // The Orchard: low through the rows, and the scarecrow turns its head as the camera passes.
+        add(Cutscene.builder("arrive_the_orchard", 270).blendOut(30).fade(16, 0, 0)
+                .key(0, 2, 2, 0.9, 20, 4, 62, 0)
+                .key(130, -2, -6, 1.3, -15, 2, 56, 0)
+                .key(235, 0, 0, 1.62, 0, P, 70, 0)
+                .caption(20, "The orchard. Grandad's orchard.")
+                .caption(105, "Every tree is dead. Every apple is stone.")
+                .caption(185, "The scarecrow is facing me. It was facing the other way.")
+                .cue(0, "minecraft:entity.phantom.ambient", 0.4F, 0.4F)
+                .build());
+
+        // The Ward: a slow dolly down the corridor under the lamps that are still working.
+        add(Cutscene.builder("arrive_the_ward", 290).blendOut(30).fade(18, 0, 0)
+                .key(0, 0, 0.5, 1.5, 0, 2, 64, 0)
+                .key(150, 0, -10, 1.5, 0, 0, 46, 0)
+                .key(255, 0, 0, 1.62, 0, P, 70, 0)
+                .caption(20, "A hospital. Why is there a hospital.")
+                .caption(110, "Half the lights are out. Something is beeping.")
+                .caption(200, "There's a bed by the window. It's been made.")
+                .cue(0, "minecraft:block.note_block.bit", 0.5F, 1.9F)
+                .cue(60, "minecraft:block.note_block.bit", 0.5F, 1.9F)
+                .cue(120, "minecraft:block.note_block.bit", 0.5F, 1.9F)
+                .cue(180, "minecraft:block.note_block.bit", 0.5F, 1.9F)
                 .build());
 
         // The grave (anchored on the stone): circle it once.

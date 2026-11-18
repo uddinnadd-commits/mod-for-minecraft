@@ -10,6 +10,8 @@ import com.sorrowed.entity.HollowEntity;
 import com.sorrowed.entity.ListenerEntity;
 import com.sorrowed.entity.MasonEntity;
 import com.sorrowed.entity.NeighbourEntity;
+import com.sorrowed.entity.OrderlyEntity;
+import com.sorrowed.entity.ScarecrowEntity;
 import com.sorrowed.registry.Dimensions;
 import com.sorrowed.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
@@ -46,10 +48,12 @@ public final class SorrowSystem {
             d += 0.4F;
         } else if (dim.equals(Dimensions.HALLWAY)) {
             d += 0.6F;
-        } else if (dim.equals(Dimensions.UNFINISHED)) {
-            d -= 0.3F;
         } else if (dim.equals(Dimensions.BACKUP)) {
             d -= 0.8F;
+        } else if (dim.equals(Dimensions.ORCHARD)) {
+            d += 0.5F;
+        } else if (dim.equals(Dimensions.WARD)) {
+            d += 0.9F;
         } else if (dim.equals(Dimensions.ARCHIVE)) {
             d += 0.5F;
         } else if (dim.equals(Dimensions.STREET)) {
@@ -66,6 +70,8 @@ public final class SorrowSystem {
         if (!level.getEntitiesOfClass(ArchivistEntity.class, box).isEmpty()) d += 0.8F;
         if (!level.getEntitiesOfClass(NeighbourEntity.class, box).isEmpty()) d += 0.5F;
         if (!level.getEntitiesOfClass(CarrierEntity.class, box).isEmpty()) d += 0.6F;
+        if (!level.getEntitiesOfClass(OrderlyEntity.class, box).isEmpty()) d += 1.0F;
+        if (!level.getEntitiesOfClass(ScarecrowEntity.class, box).isEmpty()) d += 0.7F;
         if (nearGrave(level, p.blockPosition())) d -= 1.5F;
         if (p.isSleeping()) d -= 1.5F;
 

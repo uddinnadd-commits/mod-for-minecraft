@@ -1,9 +1,8 @@
 {
-  "block.sorrowed.unfinished_door": "Unfinished Doorway",
   "block.sorrowed.hush_door": "Hush Doorway",
   "block.sorrowed.drowned_door": "Drowned Doorway",
   "block.sorrowed.hallway_door": "Hallway Doorway",
-  "block.sorrowed.backup_door": "Backup Doorway",
+  "block.sorrowed.backup_door": "The Way Home",
   "block.sorrowed.grave_marker": "Grave Marker",
   "item.sorrowed.rain_tear": "Rain Tear",
   "item.sorrowed.echo_spawn_egg": "Vigil Spawn Egg",
@@ -24,5 +23,11 @@
   "entity.sorrowed.archivist": "The Archivist",
   "entity.sorrowed.neighbour": "The Neighbour",
   "entity.sorrowed.carrier": "The Carrier",
-  "item.sorrowed.papers": "Papers"
+  "item.sorrowed.papers": "Papers",
+  "block.sorrowed.orchard_door": "Orchard Doorway",
+  "block.sorrowed.ward_door": "Ward Doorway",
+  "item.sorrowed.orderly_spawn_egg": "The Orderly Spawn Egg",
+  "item.sorrowed.scarecrow_spawn_egg": "The Scarecrow Spawn Egg",
+  "entity.sorrowed.orderly": "The Orderly",
+  "entity.sorrowed.scarecrow": "The Scarecrow"
 }

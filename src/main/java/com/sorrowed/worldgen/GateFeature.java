@@ -24,7 +24,7 @@ public class GateFeature extends Feature<NoneFeatureConfiguration> {
         if (!level.getBlockState(origin.below()).getFluidState().isEmpty()) return false;
 
         Direction.Axis axis = ctx.random().nextBoolean() ? Direction.Axis.X : Direction.Axis.Z;
-        GateBuilder.build(level, origin, axis, ModBlocks.UNFINISHED_DOOR.get(), ctx.random());
+        GateBuilder.build(level, origin, axis, ModBlocks.BACKUP_DOOR.get(), ctx.random());
         return true;
     }
 }

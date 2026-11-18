@@ -12,6 +12,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
@@ -64,10 +66,23 @@ public class DoorwayBlock extends Block {
 
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
-        if (random.nextInt(8) == 0) {
-            level.addParticle(ParticleTypes.ASH,
-                    pos.getX() + random.nextDouble(), pos.getY() + random.nextDouble(), pos.getZ() + random.nextDouble(),
-                    0.0D, 0.02D, 0.0D);
+        boolean x = state.getValue(AXIS) == Direction.Axis.X;
+        for (int i = 0; i < 2; i++) {
+            // Drawn in toward the plane of the door, from both sides.
+            double side = random.nextBoolean() ? 1.0D : -1.0D;
+            double off = (0.6D + random.nextDouble() * 0.6D) * side;
+            double px = pos.getX() + 0.5D + (x ? (random.nextDouble() - 0.5D) * 0.9D : off);
+            double pz = pos.getZ() + 0.5D + (x ? off : (random.nextDouble() - 0.5D) * 0.9D);
+            double py = pos.getY() + random.nextDouble();
+            level.addParticle(ParticleTypes.PORTAL, px, py, pz, x ? 0.0D : -off * 0.3D, -0.02D, x ? -off * 0.3D : 0.0D);
+        }
+        if (random.nextInt(6) == 0) {
+            level.addParticle(ParticleTypes.ASH, pos.getX() + random.nextDouble(), pos.getY() + random.nextDouble(),
+                    pos.getZ() + random.nextDouble(), 0.0D, 0.02D, 0.0D);
+        }
+        if (random.nextInt(90) == 0) {
+            level.playLocalSound(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D,
+                    SoundEvents.PORTAL_AMBIENT, SoundSource.BLOCKS, 0.25F, 0.4F + random.nextFloat() * 0.2F, false);
         }
     }
 

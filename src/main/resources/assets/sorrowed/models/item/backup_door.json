@@ -1,1 +1,3 @@
-{ "parent": "sorrowed:block/backup_door" }
+{
+  "parent": "sorrowed:block/backup_door"
+}

@@ -1,6 +1,0 @@
-{
-  "variants": {
-    "axis=x": { "model": "sorrowed:block/unfinished_door" },
-    "axis=z": { "model": "sorrowed:block/unfinished_door", "y": 90 }
-  }
-}

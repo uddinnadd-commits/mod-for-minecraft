@@ -1,0 +1,11 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "sorrowed:block/orchard_door"
+    },
+    "axis=z": {
+      "model": "sorrowed:block/orchard_door",
+      "y": 90
+    }
+  }
+}

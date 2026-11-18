@@ -38,11 +38,10 @@ import java.util.concurrent.Executor;
  * One generator, many worlds. Everything is a pure function of (x, y, z) and a few hashes, so
  * every chunk is the same every time and nothing needs to know about its neighbours.
  *
- * "unfinished": chunk-aligned pieces floating in nothing. A big hub platform around the origin,
- * tall 16x16 monoliths with half-built walls on top, flat slabs, scaffold frames, and very long
- * 16-wide ribbons running along X and Z at different heights. Everything between them is void.
- * Seven plank walkways leave the hub and go out into nothing; at the end of each stands one
- * gate. You have to walk them to find out where they go.
+ * "backup": Alex's world, the day before. A perfect meadow with the same tree in every chunk,
+ * flowers on a grid, lamp posts nobody lit, and the places he built (Sites): his house, the
+ * well, the hollow oak, the shed, the bus stop, the mast, the orchard fence, the clinic. Each
+ * holds one doorway. This is the hub; everything else is reached from here.
  *
  * "hallway": a sealed, carpeted, yellow-walled maze of rooms. Every 16x16 chunk is a room with
  * walls on its west/north edges that may or may not have a doorway. Some rooms are furnished:
@@ -52,9 +51,6 @@ import java.util.concurrent.Executor;
  * "drowned": a sea 100 blocks deep with a rolling seabed, kelp forests, sea pickles, and the
  * occasional rock spire breaking the surface. The streetlights from his road are down here too.
  *
- * "backup": rolling, perfectly smooth meadow. Every chunk has the same single tree at its
- * centre and flowers on a rigid grid, with a gravel path grid and lamp posts that nobody lit.
- *
  * "archive": an endless library. Aisles of bookshelves under a low beamed ceiling, candles that
  * never burn down, ladders to nowhere, and reading rooms where the chairs are pulled out.
  *
@@ -63,6 +59,12 @@ import java.util.concurrent.Executor;
  *
  * "static": a flat plain of black, white and grey that goes on forever, like a television tuned
  * to nothing. Antenna masts with one red light each. Dead pixels standing up out of the ground.
+ *
+ * "orchard": his grandfather's orchard, dead. Rows of bare trees in grey fog, apples gone to
+ * stone, a scarecrow every few rows, and the rows never end.
+ *
+ * "ward": the hospital. One corridor, white, lit by lamps that are half burnt out, rooms off it
+ * with the beds made and the curtains drawn. A monitor is beeping somewhere. It never stops.
  */
 public class LiminalGenerator extends ChunkGenerator {
     public static final Codec<LiminalGenerator> CODEC = RecordCodecBuilder.create(inst -> inst.group(
@@ -72,24 +74,25 @@ public class LiminalGenerator extends ChunkGenerator {
 
     public static final int MIN_Y = -64;
     public static final int HEIGHT = 384;
-    /** Top block of the hub platform in the Unfinished; you stand at 65. */
-    public static final int PLATFORM_TOP = 64;
     public static final int HALL_FLOOR = 64;
     public static final int HALL_CEIL = 73;
     public static final int ARCHIVE_FLOOR = 64;
     public static final int ARCHIVE_CEIL = 76;
     public static final int STREET_GROUND = 64;
     public static final int STATIC_GROUND = 64;
+    public static final int ORCHARD_GROUND = 64;
+    public static final int WARD_FLOOR = 64;
+    public static final int WARD_CEIL = 70;
     public static final int DROWN_SEA = 40;
 
     private enum Mode {
-        UNFINISHED, HALLWAY, DROWNED, BACKUP, ARCHIVE, STREET, STATIC;
+        BACKUP, HALLWAY, DROWNED, ARCHIVE, STREET, STATIC, ORCHARD, WARD;
 
         static Mode of(String name) {
             for (Mode m : values()) {
                 if (m.name().equalsIgnoreCase(name)) return m;
             }
-            return UNFINISHED;
+            return BACKUP;
         }
     }
 
@@ -144,11 +147,9 @@ public class LiminalGenerator extends ChunkGenerator {
             case ARCHIVE: return ARCHIVE_CEIL;
             case STREET: return STREET_GROUND + 14;
             case STATIC: return STATIC_GROUND + 90;
-            default: {
-                if (onWay(x, z)) return PLATFORM_TOP + 6;
-                Span span = unfinishedSpan(x, z);
-                return span == null ? MIN_Y - 1 : span.top() + 6;
-            }
+            case ORCHARD: return ORCHARD_GROUND + 12;
+            case WARD: return WARD_CEIL;
+            default: return backupHeight(x, z) + 26;
         }
     }
 
@@ -167,12 +168,6 @@ public class LiminalGenerator extends ChunkGenerator {
                 int z = minZ + lz;
                 int lo = MIN_Y;
                 int hi = columnTop(x, z);
-                if (kind == Mode.UNFINISHED) {
-                    Span span = unfinishedSpan(x, z);
-                    if (span != null) lo = span.bottom();
-                    else if (onWay(x, z)) lo = PLATFORM_TOP - 3;
-                    else continue;
-                }
                 for (int y = lo; y <= hi; y++) {
                     BlockState state = stateAt(x, y, z);
                     if (state == null || state.isAir()) continue;
@@ -194,11 +189,9 @@ public class LiminalGenerator extends ChunkGenerator {
             case ARCHIVE: return ARCHIVE_CEIL;
             case STREET: return STREET_GROUND;
             case STATIC: return STATIC_GROUND;
-            default: {
-                if (onWay(x, z)) return PLATFORM_TOP;
-                Span span = unfinishedSpan(x, z);
-                return span == null ? MIN_Y - 1 : span.top();
-            }
+            case ORCHARD: return ORCHARD_GROUND;
+            case WARD: return WARD_CEIL;
+            default: return backupHeight(x, z);
         }
     }
 
@@ -231,120 +224,10 @@ public class LiminalGenerator extends ChunkGenerator {
             case ARCHIVE: return archiveState(x, y, z);
             case STREET: return streetState(x, y, z);
             case STATIC: return staticState(x, y, z);
-            default: return unfinishedState(x, y, z);
+            case ORCHARD: return orchardState(x, y, z);
+            case WARD: return wardState(x, y, z);
+            default: return backupState(x, y, z);
         }
-    }
-
-    private record Span(int bottom, int top, int palette, boolean monolith, boolean slab) {}
-
-    // ------------------------------------------------------------- the gates
-
-    /** Where each gate stands in the Unfinished, and which walkway leg reaches it. */
-    public record Gate(String dimension, int x, int z) {
-        /** The walkway leaves the hub along z at this x, then turns along x to the gate. */
-        int legX() {
-            return Math.max(-40, Math.min(56, x));
-        }
-
-        int hubEdgeZ() {
-            return z < 0 ? -33 : 48;
-        }
-
-        public Block door() {
-            return ModBlocks.doorFor(dimension);
-        }
-    }
-
-    public static final List<Gate> GATES = List.of(
-            new Gate("the_hush", 300, -40),
-            new Gate("the_drowned", -280, 60),
-            new Gate("the_hallway", 40, -330),
-            new Gate("the_backup", -60, 310),
-            new Gate("the_archive", 240, 230),
-            new Gate("the_street", -250, -240),
-            new Gate("the_static", -20, -470));
-
-    private static final int WALK_HALF = 1;
-    private static final int PLATFORM_HALF = 4;
-
-    /** Distance along the walkway to gate g at (x, z), or -1 when (x, z) is not on it. */
-    private static int walkwayDistance(Gate g, int x, int z) {
-        int lx = g.legX();
-        int z0 = Math.min(g.hubEdgeZ(), g.z);
-        int z1 = Math.max(g.hubEdgeZ(), g.z);
-        if (Math.abs(x - lx) <= WALK_HALF && z >= z0 && z <= z1) {
-            return Math.abs(z - g.hubEdgeZ());
-        }
-        int x0 = Math.min(lx, g.x);
-        int x1 = Math.max(lx, g.x);
-        if (Math.abs(z - g.z) <= WALK_HALF && x >= x0 && x <= x1) {
-            return Math.abs(g.z - g.hubEdgeZ()) + Math.abs(x - lx);
-        }
-        return -1;
-    }
-
-    private static boolean onPlatform(Gate g, int x, int z) {
-        return Math.abs(x - g.x) <= PLATFORM_HALF && Math.abs(z - g.z) <= PLATFORM_HALF;
-    }
-
-    /** True when the chunk holds any walkway or platform, so nothing else may grow there. */
-    private static boolean reserved(int cx, int cz) {
-        int bx0 = cx << 4;
-        int bz0 = cz << 4;
-        int bx1 = bx0 + 15;
-        int bz1 = bz0 + 15;
-        for (Gate g : GATES) {
-            int lx = g.legX();
-            if (overlaps(bx0, bz0, bx1, bz1, lx - WALK_HALF, Math.min(g.hubEdgeZ(), g.z), lx + WALK_HALF, Math.max(g.hubEdgeZ(), g.z))) return true;
-            if (overlaps(bx0, bz0, bx1, bz1, Math.min(lx, g.x), g.z - WALK_HALF, Math.max(lx, g.x), g.z + WALK_HALF)) return true;
-            if (overlaps(bx0, bz0, bx1, bz1, g.x - PLATFORM_HALF, g.z - PLATFORM_HALF, g.x + PLATFORM_HALF, g.z + PLATFORM_HALF)) return true;
-        }
-        return false;
-    }
-
-    private static boolean overlaps(int ax0, int az0, int ax1, int az1, int bx0, int bz0, int bx1, int bz1) {
-        return ax0 <= bx1 && ax1 >= bx0 && az0 <= bz1 && az1 >= bz0;
-    }
-
-    /** The planks, the railings, the lanterns, and the gate at the end. Null if (x, y, z) is none of those. */
-    private static BlockState wayState(int x, int y, int z) {
-        int up = y - PLATFORM_TOP;
-        for (Gate g : GATES) {
-            if (onPlatform(g, x, z)) {
-                int dx = x - g.x;
-                int dz = z - g.z;
-                if (up < -3) return null;
-                if (up < 0) return Blocks.STONE.defaultBlockState();
-                if (up == 0) {
-                    return ((dx + dz) % 2 == 0 ? Blocks.MOSSY_COBBLESTONE : Blocks.STONE_BRICKS).defaultBlockState();
-                }
-                if (dz != 0) return null;
-                // The gate: two posts, a lintel, the doorway between, a lantern on top.
-                if (Math.abs(dx) == 2 && up <= 4) return (up == 4 ? Blocks.CHISELED_STONE_BRICKS : Blocks.STONE_BRICKS).defaultBlockState();
-                if (Math.abs(dx) <= 1 && up == 4) return Blocks.STONE_BRICKS.defaultBlockState();
-                if (Math.abs(dx) <= 1 && up <= 3) return g.door().defaultBlockState();
-                if (dx == 0 && up == 5) return Blocks.LANTERN.defaultBlockState();
-                return null;
-            }
-            int d = walkwayDistance(g, x, z);
-            if (d < 0) continue;
-            int lane = Math.abs(x - g.legX()) <= WALK_HALF && z != g.z ? x - g.legX() : z - g.z;
-            boolean gap = d % 29 == 13 || d % 29 == 14;   // a plank missing here and there; you can jump it
-            if (up == 0) return gap ? null : Blocks.SPRUCE_PLANKS.defaultBlockState();
-            if (Math.abs(lane) == WALK_HALF && d % 8 == 0 && !gap) {
-                if (up == 1) return Blocks.OAK_FENCE.defaultBlockState();
-                if (up == 2 && d % 32 == 0) return Blocks.LANTERN.defaultBlockState();
-            }
-            return null;
-        }
-        return null;
-    }
-
-    private static boolean onWay(int x, int z) {
-        for (Gate g : GATES) {
-            if (onPlatform(g, x, z) || walkwayDistance(g, x, z) >= 0) return true;
-        }
-        return false;
     }
 
     private static long mix(long a, long b, long c) {
@@ -358,125 +241,6 @@ public class LiminalGenerator extends ChunkGenerator {
     /** True once in 'n' for this (a, b, salt). */
     private static boolean chance(long a, long b, long salt, int n) {
         return Math.floorMod(mix(a, b, salt), (long) n) == 0L;
-    }
-
-    // ------------------------------------------------------------- unfinished
-
-    private static Span unfinishedSpan(int x, int z) {
-        int cx = x >> 4;
-        int cz = z >> 4;
-
-        // The hub: a 7x5 chunk platform around the origin. Only the way home stands here.
-        if (cx >= -3 && cx <= 3 && cz >= -2 && cz <= 2) {
-            return new Span(PLATFORM_TOP - 8, PLATFORM_TOP, 0, false, false);
-        }
-        // Chunks the walkways and gates pass through stay empty around them.
-        if (reserved(cx, cz)) return null;
-
-        long h = mix(cx, cz, 1);
-        int palette = (int) ((h >>> 40) % 3);
-
-        // Monoliths: a whole chunk standing on end, up to y 220.
-        if ((h & 15) == 0) {
-            int top = 90 + (int) ((h >>> 8) & 127);
-            return new Span(-40, top, palette, true, false);
-        }
-
-        // Long ribbons along X: 16 wide, 160 long, gently waving.
-        long rowH = mix(cz, 77, 2);
-        if ((rowH & 3) == 0) {
-            long segH = mix(Math.floorDiv(cx, 10), cz, 3);
-            if ((segH & 3) != 0) {
-                int base = 30 + (int) ((rowH >>> 8) & 63);
-                int top = base + (int) Math.round(5.0D * Math.sin(x / 37.0D + (rowH & 255)));
-                return new Span(top - 3, top, (int) ((segH >>> 40) % 3), false, false);
-            }
-        }
-
-        // Long ribbons along Z.
-        long colH = mix(cx, 88, 4);
-        if ((colH & 3) == 0) {
-            long segH = mix(cx, Math.floorDiv(cz, 10), 5);
-            if ((segH & 3) != 0) {
-                int base = 50 + (int) ((colH >>> 8) & 63);
-                int top = base + (int) Math.round(5.0D * Math.sin(z / 37.0D + (colH & 255)));
-                return new Span(top - 3, top, (int) ((segH >>> 40) % 3), false, false);
-            }
-        }
-
-        // Single floating slabs.
-        if (((h >>> 4) & 7) == 0) {
-            int top = 20 + (int) ((h >>> 12) & 127);
-            return new Span(top - 4, top, palette, false, true);
-        }
-        return null;
-    }
-
-    private static BlockState unfinishedState(int x, int y, int z) {
-        if (onWay(x, z)) return wayState(x, y, z);
-        Span span = unfinishedSpan(x, z);
-        if (span == null || y < span.bottom()) return null;
-        if (y > span.top()) return unfinishedDecoration(span, x, y, z);
-        int depth = span.top() - y;
-        switch (span.palette()) {
-            case 1: // scaffold: planks over old stone brick
-                return (depth < 2 ? Blocks.SPRUCE_PLANKS : Blocks.STONE_BRICKS).defaultBlockState();
-            case 2: // blueprint: pale and unfinished
-                if (depth < 1) return Blocks.SMOOTH_QUARTZ.defaultBlockState();
-                return (depth < 3 ? Blocks.WHITE_CONCRETE : Blocks.STONE).defaultBlockState();
-            default: // ordinary ground
-                if (depth == 0) return Blocks.GRASS_BLOCK.defaultBlockState();
-                return (depth < 4 ? Blocks.DIRT : Blocks.STONE).defaultBlockState();
-        }
-    }
-
-    /** What he left on top of the pieces: walls he never finished, scaffold, tools still out. */
-    private static BlockState unfinishedDecoration(Span span, int x, int y, int z) {
-        int cx = x >> 4;
-        int cz = z >> 4;
-        int lx = x & 15;
-        int lz = z & 15;
-        int up = y - span.top();
-        boolean edge = lx == 0 || lx == 15 || lz == 0 || lz == 15;
-        boolean corner = (lx == 0 || lx == 15) && (lz == 0 || lz == 15);
-
-        if (span.monolith()) {
-            // A wall ring of uneven height with gaps, as if he stopped mid-row.
-            if (corner) {
-                if (up <= 4) return Blocks.OAK_FENCE.defaultBlockState();
-                if (up == 5) return Blocks.TORCH.defaultBlockState();
-                return null;
-            }
-            if (edge) {
-                int seg = (lx == 0 || lx == 15) ? lz / 4 : lx / 4;
-                int side = lx == 0 ? 0 : lx == 15 ? 1 : lz == 0 ? 2 : 3;
-                long h = mix(cx * 4L + side, cz * 4L + seg, 41);
-                int height = (int) (h & 3);
-                if (chance(cx * 4L + side, cz * 4L + seg, 42, 5)) height = 0;
-                if (up <= height) {
-                    return (span.palette() == 2 ? Blocks.QUARTZ_BRICKS : Blocks.STONE_BRICKS).defaultBlockState();
-                }
-            }
-            return null;
-        }
-
-        if (span.slab()) {
-            // Tools still out on the slabs: a crafting table and a ladder up to nothing.
-            if (up == 1 && lx == 8 && lz == 8 && chance(cx, cz, 43, 3)) {
-                return Blocks.CRAFTING_TABLE.defaultBlockState();
-            }
-            if (lx == 3 && lz == 3 && chance(cx, cz, 44, 4)) {
-                if (up <= 3) return Blocks.OAK_FENCE.defaultBlockState();
-                if (up == 4) return Blocks.OAK_SLAB.defaultBlockState();
-            }
-            return null;
-        }
-
-        // Ribbons: scaffold rails along the edges of the planked ones.
-        if (span.palette() == 1 && edge && up == 1 && (x + z) % 3 == 0) {
-            return Blocks.SPRUCE_FENCE.defaultBlockState();
-        }
-        return null;
     }
 
     // ---------------------------------------------------------------- hallway
@@ -671,9 +435,10 @@ public class LiminalGenerator extends ChunkGenerator {
 
     // ----------------------------------------------------------------- backup
 
-    private static int backupHeight(int x, int z) {
-        return 62 + (int) Math.round(3.0D * Math.sin(x * 0.02D) + 3.0D * Math.cos(z * 0.02D)
+    public static int backupHeight(int x, int z) {
+        int natural = 62 + (int) Math.round(3.0D * Math.sin(x * 0.02D) + 3.0D * Math.cos(z * 0.02D)
                 + 1.5D * Math.sin(x * 0.006D + z * 0.004D));
+        return Sites.ground(x, z, natural);
     }
 
     private static boolean backupPath(int x, int z) {
@@ -685,8 +450,15 @@ public class LiminalGenerator extends ChunkGenerator {
     private static BlockState backupState(int x, int y, int z) {
         if (y == MIN_Y) return Blocks.BEDROCK.defaultBlockState();
         int h = backupHeight(x, z);
+        // The places he built own their columns, above the grass and below it (the well goes down).
+        boolean site = Sites.onSite(x, z);
+        if (site) {
+            BlockState built = Sites.at(x, y, z);
+            if (built != null) return built.isAir() ? null : built;
+        }
         if (y < h - 3) return Blocks.STONE.defaultBlockState();
         if (y < h) return Blocks.DIRT.defaultBlockState();
+        if (site) return y == h ? Blocks.GRASS_BLOCK.defaultBlockState() : null;
         boolean path = backupPath(x, z);
         if (y == h) return (path ? Blocks.DIRT_PATH : Blocks.GRASS_BLOCK).defaultBlockState();
 
@@ -978,6 +750,104 @@ public class LiminalGenerator extends ChunkGenerator {
         }
         // A little white noise lifted off the ground, flickering in the fog.
         if (up == 1 && chance(x, z, 76, 90)) return Blocks.WHITE_CARPET.defaultBlockState();
+        return null;
+    }
+
+    // ---------------------------------------------------------------- orchard
+
+    private static BlockState orchardState(int x, int y, int z) {
+        if (y == MIN_Y) return Blocks.BEDROCK.defaultBlockState();
+        if (y < ORCHARD_GROUND - 2) return Blocks.STONE.defaultBlockState();
+        if (y < ORCHARD_GROUND) return Blocks.COARSE_DIRT.defaultBlockState();
+        if (y == ORCHARD_GROUND) {
+            // Grass gone grey; bare dirt under the trees; a cart track between every other row.
+            int rx = Math.floorMod(x, 8);
+            if (Math.floorMod(x, 16) == 12) return Blocks.DIRT_PATH.defaultBlockState();
+            if (rx <= 1 || rx >= 7) return Blocks.PODZOL.defaultBlockState();
+            return (chance(x, z, 81, 5) ? Blocks.COARSE_DIRT : Blocks.GRASS_BLOCK).defaultBlockState();
+        }
+        int up = y - ORCHARD_GROUND;
+        int rx = Math.floorMod(x, 8);
+        int rz = Math.floorMod(z, 6);
+        int row = Math.floorDiv(x, 8);
+        int col = Math.floorDiv(z, 6);
+
+        // The trees: the same dead tree every 8 by 6, trunk four high, four bare branches, no leaves.
+        if (rx == 0 && rz == 0) {
+            if (up <= 4) return Blocks.STRIPPED_SPRUCE_LOG.defaultBlockState();
+            if (up == 5 && chance(row, col, 82, 3)) return Blocks.STRIPPED_SPRUCE_LOG.defaultBlockState();
+        }
+        if (up == 4 && rz == 0 && (rx == 1 || rx == 7)) return Blocks.SPRUCE_FENCE.defaultBlockState();
+        if (up == 4 && rx == 0 && (rz == 1 || rz == 5)) return Blocks.SPRUCE_FENCE.defaultBlockState();
+        if (up == 5 && ((rz == 0 && (rx == 2 || rx == 6)) || (rx == 0 && (rz == 2 || rz == 4)))) return Blocks.SPRUCE_FENCE.defaultBlockState();
+        // Apples, gone to stone, lying where they fell.
+        if (up == 1 && (rx == 1 || rx == 7 || rz == 1 || rz == 5) && chance(x, z, 83, 7)) return Blocks.COBBLESTONE.defaultBlockState();
+        // The scarecrow, one in every eleven trees' worth of row, standing in the row with its arms out.
+        if (chance(row, col, 84, 11) && rz == 3) {
+            if (rx == 4) {
+                if (up <= 2) return Blocks.OAK_FENCE.defaultBlockState();
+                if (up == 3) return Blocks.HAY_BLOCK.defaultBlockState();
+                if (up == 4) return Blocks.CARVED_PUMPKIN.defaultBlockState();
+            }
+            if (up == 3 && (rx == 3 || rx == 5)) return Blocks.OAK_FENCE.defaultBlockState();
+        }
+        if (up == 1 && chance(x, z, 85, 17)) return Blocks.DEAD_BUSH.defaultBlockState();
+        return null;
+    }
+
+    // ------------------------------------------------------------------- ward
+
+    private static BlockState wardState(int x, int y, int z) {
+        if (y == MIN_Y) return Blocks.BEDROCK.defaultBlockState();
+        if (y < WARD_FLOOR - 1) return Blocks.STONE.defaultBlockState();
+        int pz = Math.floorMod(z, 32);
+        boolean corridor = pz >= 13 && pz <= 18;
+        int lx = x & 15;
+        if (y == WARD_FLOOR - 1) return Blocks.SMOOTH_STONE.defaultBlockState();
+        if (y == WARD_FLOOR) {
+            if (corridor && (pz == 15 || pz == 16)) return Blocks.LIGHT_GRAY_CONCRETE.defaultBlockState();
+            if (corridor) return Blocks.WHITE_CONCRETE.defaultBlockState();
+            return ((lx + pz) % 2 == 0 ? Blocks.WHITE_CONCRETE : Blocks.LIGHT_GRAY_CONCRETE).defaultBlockState();
+        }
+        if (y == WARD_CEIL) {
+            if (corridor && (pz == 15 || pz == 16) && lx % 6 == 2) {
+                boolean dead = chance(x >> 1, z >> 5, 91, 3);
+                return (dead ? Blocks.REDSTONE_LAMP.defaultBlockState()
+                        : Blocks.REDSTONE_LAMP.defaultBlockState().setValue(RedstoneLampBlock.LIT, true));
+            }
+            if (!corridor && lx == 8 && (pz == 6 || pz == 25)) return Blocks.SEA_LANTERN.defaultBlockState();
+            return Blocks.WHITE_CONCRETE.defaultBlockState();
+        }
+        if (y > WARD_CEIL) return null;
+        int up = y - WARD_FLOOR;
+
+        // The corridor walls, with a door into a room every 16 blocks on each side.
+        if (pz == 12 || pz == 19) {
+            boolean door = lx == 8 && up <= 1;
+            if (door) return null;
+            if (up == 1 && lx == 4 && chance(x >> 4, z >> 5, 92, 2)) return Blocks.IRON_BARS.defaultBlockState();   // a window into the room
+            return (up == 2 ? Blocks.QUARTZ_BLOCK : Blocks.WHITE_CONCRETE).defaultBlockState();
+        }
+        if (corridor) {
+            // A gurney left in the corridor, now and then. A trail of something on the floor.
+            if (up == 1 && pz == 14 && lx >= 6 && lx <= 7 && chance(x >> 4, z >> 5, 93, 5)) return Blocks.WHITE_WOOL.defaultBlockState();
+            return null;
+        }
+        // The rooms: walls between every 16 blocks, beds inside, curtains, a chair.
+        if (lx == 0) return Blocks.WHITE_CONCRETE.defaultBlockState();
+        boolean north = pz < 13;
+        int depth = north ? 11 - pz : pz - 20;   // 0 at the corridor wall, 11 at the back
+        if (depth >= 11) return (up == 1 && lx == 8 ? Blocks.IRON_BARS : Blocks.WHITE_CONCRETE).defaultBlockState();   // back wall with a barred window
+        if (depth < 0) return null;
+        if (up == 0) {
+            if (depth == 8 && (lx == 3 || lx == 4)) return Blocks.WHITE_WOOL.defaultBlockState();            // the bed
+            if (depth == 8 && lx == 11 && chance(x >> 4, z >> 5, 94, 2)) return Blocks.WHITE_WOOL.defaultBlockState();
+            if (depth == 6 && lx == 6) return Blocks.SPRUCE_STAIRS.defaultBlockState().setValue(StairBlock.FACING, Direction.WEST);
+            if (depth == 9 && lx == 2) return Blocks.FLOWER_POT.defaultBlockState();
+        }
+        if (up == 1 && depth == 8 && lx == 3) return Blocks.QUARTZ_SLAB.defaultBlockState();                // the pillow
+        if (up <= 2 && depth >= 5 && depth <= 9 && lx == 6 && chance(x >> 4, z >> 5, 95, 2)) return Blocks.LIGHT_GRAY_WOOL.defaultBlockState();   // the curtain
+        if (up == 1 && depth == 9 && lx == 5 && chance(x >> 4, z >> 5, 96, 3)) return Blocks.REDSTONE_TORCH.defaultBlockState();   // the monitor light
         return null;
     }
 }

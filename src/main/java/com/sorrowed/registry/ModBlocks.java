@@ -13,38 +13,26 @@ public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS =
             DeferredRegister.create(ForgeRegistries.BLOCKS, Sorrowed.MODID);
 
-    // Overworld <-> Unfinished hub. Every other doorway returns to the hub.
-    public static final RegistryObject<Block> UNFINISHED_DOOR = BLOCKS.register("unfinished_door",
-            () -> new DoorwayBlock(Dimensions.UNFINISHED, Level.OVERWORLD));
-    public static final RegistryObject<Block> HUSH_DOOR = BLOCKS.register("hush_door",
-            () -> new DoorwayBlock(Dimensions.HUSH, Dimensions.UNFINISHED));
-    public static final RegistryObject<Block> DROWNED_DOOR = BLOCKS.register("drowned_door",
-            () -> new DoorwayBlock(Dimensions.DROWNED, Dimensions.UNFINISHED));
-    public static final RegistryObject<Block> HALLWAY_DOOR = BLOCKS.register("hallway_door",
-            () -> new DoorwayBlock(Dimensions.HALLWAY, Dimensions.UNFINISHED));
+    // Overworld <-> Alex's world (the Backup). Every other doorway returns there.
     public static final RegistryObject<Block> BACKUP_DOOR = BLOCKS.register("backup_door",
-            () -> new DoorwayBlock(Dimensions.BACKUP, Dimensions.UNFINISHED));
+            () -> new DoorwayBlock(Dimensions.BACKUP, Level.OVERWORLD));
+    public static final RegistryObject<Block> HUSH_DOOR = BLOCKS.register("hush_door",
+            () -> new DoorwayBlock(Dimensions.HUSH, Dimensions.BACKUP));
+    public static final RegistryObject<Block> DROWNED_DOOR = BLOCKS.register("drowned_door",
+            () -> new DoorwayBlock(Dimensions.DROWNED, Dimensions.BACKUP));
+    public static final RegistryObject<Block> HALLWAY_DOOR = BLOCKS.register("hallway_door",
+            () -> new DoorwayBlock(Dimensions.HALLWAY, Dimensions.BACKUP));
     public static final RegistryObject<Block> ARCHIVE_DOOR = BLOCKS.register("archive_door",
-            () -> new DoorwayBlock(Dimensions.ARCHIVE, Dimensions.UNFINISHED));
+            () -> new DoorwayBlock(Dimensions.ARCHIVE, Dimensions.BACKUP));
     public static final RegistryObject<Block> STREET_DOOR = BLOCKS.register("street_door",
-            () -> new DoorwayBlock(Dimensions.STREET, Dimensions.UNFINISHED));
+            () -> new DoorwayBlock(Dimensions.STREET, Dimensions.BACKUP));
     public static final RegistryObject<Block> STATIC_DOOR = BLOCKS.register("static_door",
-            () -> new DoorwayBlock(Dimensions.STATIC, Dimensions.UNFINISHED));
+            () -> new DoorwayBlock(Dimensions.STATIC, Dimensions.BACKUP));
+    public static final RegistryObject<Block> ORCHARD_DOOR = BLOCKS.register("orchard_door",
+            () -> new DoorwayBlock(Dimensions.ORCHARD, Dimensions.BACKUP));
+    public static final RegistryObject<Block> WARD_DOOR = BLOCKS.register("ward_door",
+            () -> new DoorwayBlock(Dimensions.WARD, Dimensions.BACKUP));
 
     public static final RegistryObject<Block> GRAVE_MARKER = BLOCKS.register("grave_marker",
             GraveMarkerBlock::new);
-
-    /** The doorway that leads to the dimension with this path, or the hub door if unknown. */
-    public static Block doorFor(String dimensionPath) {
-        switch (dimensionPath) {
-            case "the_hush": return HUSH_DOOR.get();
-            case "the_drowned": return DROWNED_DOOR.get();
-            case "the_hallway": return HALLWAY_DOOR.get();
-            case "the_backup": return BACKUP_DOOR.get();
-            case "the_archive": return ARCHIVE_DOOR.get();
-            case "the_street": return STREET_DOOR.get();
-            case "the_static": return STATIC_DOOR.get();
-            default: return UNFINISHED_DOOR.get();
-        }
-    }
 }

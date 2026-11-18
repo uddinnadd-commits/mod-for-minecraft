@@ -16,6 +16,12 @@
     "additions_sound": {
       "sound": "minecraft:block.conduit.ambient",
       "tick_chance": 0.0008
+    },
+    "music": {
+      "sound": "minecraft:music.nether.soul_sand_valley",
+      "min_delay": 9000,
+      "max_delay": 24000,
+      "replace_current_music": true
     }
   },
   "spawners": {

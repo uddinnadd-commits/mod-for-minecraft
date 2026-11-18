@@ -4,8 +4,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * The papers. Every note in the world is one wrinkled sheet: either a few paragraphs of his
- * handwriting or a pencil drawing. A sheet is identified by id; the item carries only the id.
+ * The papers. Every note in the world is one wrinkled sheet: either his handwriting or a pencil
+ * drawing. He never used capitals. He never used them in chat either.
  */
 public final class Papers {
     private Papers() {}
@@ -25,59 +25,77 @@ public final class Papers {
 
     static {
         text("welcome_1", "for you",
-                "If you're reading this, you got in, and I'm not here to say hi. I'm sorry about the rain. I didn't do that. "
-                + "It started the day I stopped logging in, and it hasn't stopped since.\n\n"
-                + "Everything looks older than it should. That's on purpose. I wanted you to see it the way we first did, "
-                + "before the nice textures. Ugly, crooked, ours.");
+                "hey. if you're reading this you got in. i'm not here to say hi, sorry.\n\n"
+                + "i'm sorry about the rain too. i didn't do that. it started the day i stopped logging in and "
+                + "it hasn't stopped. i think the world is doing it. i think it's doing a lot of things now.\n\n"
+                + "everything looks old on purpose. i wanted you to see it the way we first did. ugly. crooked. ours.");
         text("welcome_2", "for you (2)",
-                "This was our world. The dirt house, the first night, the creeper you swore was a bush. I never deleted it. "
-                + "I left it open. I told myself it was a backup.\n\n"
-                + "Here's why I wanted you here. I never finished anything. Half-built houses, half-written messages. "
-                + "You were always the one who dragged me to the end of a thing.");
+                "this is the backup. the world the day before. i made it so there'd be a version where nothing happened yet.\n\n"
+                + "it's not the same though. nothing moves. i tried to make the grass move and it wouldn't.\n\n"
+                + "everything i built here has a door in it. i didn't put them there. they were just there one morning, "
+                + "in the back of the house, down the well, inside the tree. i think the world made them out of me.");
         text("welcome_3", "for you (3)",
-                "I can't finish this one. So I'm asking. Walk it once more.\n\n"
-                + "You'll be taken somewhere dry. I built that place first, back when I thought there was time. It's empty. "
-                + "Don't be scared of that. Empty isn't the same as abandoned.\n\n"
-                + "The planks go out into nothing. Follow them. I was going somewhere with every one of them.");
+                "don't go in the clinic one first. please. go in the others. the house is fine. the house is the hallway "
+                + "from my old place and it just goes on but it's fine.\n\n"
+                + "the street is my street. the one window that's on is mine. i'm not in it. i've checked.\n\n"
+                + "the orchard was grandads. the scarecrow was his. it didn't used to look at you.");
         text("welcome_4", "for you (4)",
-                "If someone is standing far off in the rain, don't run. It's only an echo of me, or what the world thinks I was. "
-                + "It can't hurt you. It just doesn't know how to leave.\n\n"
-                + "The ones with no faces are different. They're everything I never said. Don't let them hold you. Keep walking.\n\n"
-                + "Thank you for coming back. Finish it, or don't. Just keep it a little loud in here for me.\n\n- {friend}");
-        drawing("first_night", "(a drawing)", "first_night", "us. the first night. it was raining then too.");
+                "if someone is standing far off in the rain it's just an echo of me. it can't hurt you. it doesn't know how to leave.\n\n"
+                + "the ones with no faces are everything i never said. don't let them hold you.\n\n"
+                + "there's a thing in the archive that reads and never turns the page. that's me too, i think. every version of me "
+                + "that didn't say it.\n\n"
+                + "thank you for coming back. keep it a little loud in here. it's so quiet.\n\n- alex");
+        drawing("first_night", "(a drawing)", "first_night", "us. first night. it rained then too. i drew this in the ward.");
 
-        text("notes", "unfinished notes",
-                "TODO\n- finish the roof\n- finish the door\n- finish the tower\n- tell them\n- tell them\n- tell them\n\n"
-                + "The rain started when the server went quiet. I think this place only knows how to wait. It's learning how to miss people.\n\n"
-                + "I'll leave the lantern on. In case you forget the way back.");
+        text("notes", "notes, in the chest",
+                "todo\n- finish the roof\n- finish the door\n- tell them\n- tell them\n- tell them\n\n"
+                + "they let me have the laptop for an hour a day. i spent it here. building you a world where nothing's wrong.\n\n"
+                + "i'll leave the lamp on in case you forget the way back.");
         text("last", "the last page",
-                "I didn't get to finish. You did. That was the whole point.\n\nGo home. Leave the door open for whoever comes next.\n\n- {friend}");
+                "i didn't get to finish. you did. that was the whole point.\n\n"
+                + "go home. leave the door open for whoever comes next. somebody always comes next.\n\n- alex");
         text("keeper", "the keeper's log",
-                "The lamp has never been lit. I keep it dark on purpose. If I light it, someone will see this place from the sea, "
-                + "and then they will come looking for what is in it.\n\n"
-                + "Day 1. Day 2. Day 3. The rain has no day. I stopped counting. {friend} would have kept counting.\n\n"
-                + "The ladder is the only way up. The only way down is the same ladder. I think that is the point.");
+                "the lamp has never been lit. i keep it dark on purpose. if i light it someone will see this place from the sea "
+                + "and come looking for what's in it.\n\n"
+                + "day 1. day 2. day 3. the rain has no day. i stopped counting. you would have kept counting.\n\n"
+                + "the water came up to the house. the house still has air in it. i don't know why. i go down and sit in it.");
         text("names", "names",
-                "{friend}\n(crossed out)\n(crossed out)\n(crossed out)\n\n"
-                + "These are the people who stayed. Most of them did not stay long.\n\n"
-                + "The last name on the page is yours. I wrote it in pencil, in case you wanted out.");
+                "alex\n(crossed out)\n(crossed out)\n(crossed out)\n(crossed out)\n\n"
+                + "these are the people who stayed. none of them stayed long. i don't blame them. i was hard to stay with.\n\n"
+                + "the last name on the page is yours. i wrote it in pencil in case you wanted out.");
         text("ticket", "one way",
-                "ONE WAY\n\nDeparts: never\nArrives: here\nPassenger: you\n\n"
-                + "Please remain seated. The bus is coming. The bus has always been coming.");
-        text("unsaid", "what he never said",
-                "I'm sorry I stopped answering.\n\nI'm sorry I said I was fine.\n\nI'm sorry I made you carry the quiet.\n\n"
-                + "I'm not sorry I let you in.\n\n(The rest of the page is blank. Maybe you can fill it in.)");
+                "ONE WAY\n\ndeparts: never\narrives: here\npassenger: you\n\n"
+                + "please remain seated. the bus is coming. the bus has always been coming. i waited for it every day after school. "
+                + "i was always the last one at the stop.");
+        text("unsaid", "what i never said",
+                "i'm sorry i stopped answering.\n\ni'm sorry i said i was fine.\n\ni'm sorry i made you carry the quiet.\n\n"
+                + "i knew in march. i didn't tell anyone until july. you were the person i most wanted to tell and the person "
+                + "i least could.\n\ni'm not sorry i let you in.");
         text("reply", "the reply",
-                "I knew you'd come. I set the table, just in case.\n\n"
-                + "This place is only what I remember, so it is smaller than it should be. Nothing here can hurt you.\n\n"
-                + "That is how you know it isn't me. I would have found some way to hurt you. I always did.\n\n- {friend}");
+                "i knew you'd come. i set the table just in case. two cakes. i couldn't remember which one you liked.\n\n"
+                + "this place is only what i remember so it's smaller than it should be. nothing here can hurt you.\n\n"
+                + "that's how you know it isn't me. i would have found some way to hurt you. i always did.\n\n- alex");
 
         drawing("archivist", "(a page)", "scribble", "");
-        drawing("gate", "(a drawing)", "gate", "the planks. the gate at the end. he drew it before he built it.");
+        drawing("gate", "(a drawing)", "gate", "the gate at the end of the path. i drew it before it was there.");
         text("neighbour", "(a note, folded twice)",
-                "You're standing where he used to stand.\n\nThe light in that window is on a timer. Nobody set it. "
-                + "Nobody turned it off.\n\nGo inside. You shouldn't be out in this.\n\n- a neighbour");
-        drawing("street", "(a drawing)", "street", "his street. one window on. he said it was always on.");
+                "you're standing where he used to stand.\n\nthe light in that window is on a timer. nobody set it. nobody turned it off.\n\n"
+                + "go inside. you shouldn't be out in this. he shouldn't have been either.\n\n- a neighbour");
+        drawing("street", "(a drawing)", "street", "my street. one window on. it's always on. i used to leave it on so you'd know i was home.");
+        text("orchard", "(a note, pinned to the fence)",
+                "grandad said the scarecrow was there to keep things off the trees. he never said what things.\n\n"
+                + "after he went the apples stopped being apples. they're stone now. i picked one up and it was warm.\n\n"
+                + "don't go in without a light. it doesn't like the light. it's the only thing it doesn't like.");
+        text("ward", "(a note, in a hospital hand)",
+                "visiting hours are 2 till 8. he's in the bed by the window. he asked us to leave the laptop.\n\n"
+                + "he keeps saying someone is coming to visit. nobody has come.\n\n"
+                + "if you are reading this you are the someone. he waited. he waited the whole time.");
+        text("ward_2", "(the last note)",
+                "they moved me to the room at the end. the one with the lamp that doesn't work.\n\n"
+                + "the orderly comes at night and pushes the empty bed past. up the corridor and back. up and back. "
+                + "i asked who it was for. he said it's always for someone.\n\n"
+                + "i built the backup so there'd be a world where i was still in the house. please stay in that one. "
+                + "please don't come looking for me in here.\n\n- alex");
     }
 
     public static Page get(String id) {

@@ -40,17 +40,31 @@ def skin(path, head, shirt, legs, alpha, eyes=None, tear=None, seed=1):
         px[14*w+9] = (*tear, 255)
     write_png(path, w, h, px)
 
-def door(path, base, streak, seed):
+def door(path, base, streak, seed, frames=8):
+    """An animated doorway pane: 8 frames stacked vertically. A dark depth with slow vertical streaks
+    drifting up through it and a faint lit rim, so the thing looks like a hole with light behind it."""
     rnd = random.Random(seed)
     cols = [rnd.random() for _ in range(16)]
+    speeds = [1 + rnd.randint(0, 2) for _ in range(16)]
     px = []
-    for y in range(16):
-        for x in range(16):
-            s = cols[x] > 0.72
-            col = streak if s else base
-            a = 150 if s else 100 + (x * 3 + y) % 20
-            px.append((*col, a))
-    write_png(path, 16, 16, px)
+    for fr in range(frames):
+        for y in range(16):
+            for x in range(16):
+                edge = min(x, y, 15 - x, 15 - y)
+                depth = 1.0 - edge / 7.0 if edge < 7 else 0.0           # darker toward the middle
+                yy = (y + fr * speeds[x]) % 16
+                streaky = cols[x] > 0.68 and (yy * 3 + x) % 7 < 3
+                if edge == 0:
+                    col = tuple(min(255, int(c * 1.3) + 40) for c in streak)
+                    a = 230
+                elif streaky:
+                    col = streak
+                    a = 150 + int(50 * depth)
+                else:
+                    col = tuple(max(0, int(c * (0.25 + 0.45 * (1 - depth)))) for c in base)
+                    a = 120 + int(110 * depth)
+                px.append((*col, a))
+    write_png(path, 16, 16 * frames, px)
 
 def tear(path):
     px = [(0, 0, 0, 0)] * 256
@@ -66,7 +80,6 @@ def tear(path):
                 px[y*16+x] = (*col, 255)
     write_png(path, 16, 16, px)
 
-door(f"{OUT}/block/unfinished_door.png", (236, 226, 170), (255, 250, 214), 11)
 door(f"{OUT}/block/hush_door.png", (16, 24, 52), (84, 112, 186), 12)
 door(f"{OUT}/block/drowned_door.png", (18, 84, 96), (120, 220, 220), 13)
 door(f"{OUT}/block/hallway_door.png", (196, 184, 76), (255, 248, 160), 14)
@@ -74,6 +87,8 @@ door(f"{OUT}/block/backup_door.png", (250, 226, 236), (255, 255, 255), 15)
 door(f"{OUT}/block/archive_door.png", (62, 40, 22), (190, 150, 80), 16)
 door(f"{OUT}/block/street_door.png", (10, 12, 30), (255, 170, 60), 17)
 door(f"{OUT}/block/static_door.png", (120, 120, 124), (240, 240, 240), 18)
+door(f"{OUT}/block/orchard_door.png", (70, 60, 40), (190, 170, 110), 19)
+door(f"{OUT}/block/ward_door.png", (160, 190, 180), (240, 255, 250), 20)
 
 # Entity textures are generated with the geometry by tools/gen_models.py.
 

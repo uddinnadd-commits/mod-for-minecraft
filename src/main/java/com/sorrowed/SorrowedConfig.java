@@ -16,7 +16,7 @@ public class SorrowedConfig {
     static {
         ForgeConfigSpec.Builder b = new ForgeConfigSpec.Builder();
         FRIEND_NAME = b.comment("Name of the friend whose world this used to be. Used in the letter and in your thoughts.")
-                .define("friendName", "Remi");
+                .define("friendName", "Alex");
         ETERNAL_RAIN = b.comment("The overworld rain never stops.")
                 .define("eternalRain", true);
         PROGRAMMER_ART = b.comment("Switch the Programmer Art resource pack on when you join (client side).")

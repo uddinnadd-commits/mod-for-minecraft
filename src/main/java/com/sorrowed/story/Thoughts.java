@@ -20,7 +20,7 @@ public final class Thoughts {
             "That's wrong. It was clear a second ago.",
             "This was {friend}'s world. I'd know it anywhere.",
             "He's gone. And he left it open for me.",
-            "There's a book in my pack. I should read it."
+            "There are papers in my pack. His handwriting. I should read them."
     };
 
     public static final String[] RETURNING = {
@@ -44,14 +44,17 @@ public final class Thoughts {
             "I shouldn't be out here. He wouldn't have minded.",
             "The rain is louder at night. Or I'm quieter."
     };
-    public static final String[] AMBIENT_UNFINISHED = {
-            "The planks go out into nothing. He was going somewhere with every one of them.",
-            "There's a lantern out there on the walkway. Then another. Then the dark.",
-            "It's so bright. It's so empty.",
-            "No rain here. I thought that would feel better.",
-            "He never filled this in. Of course he didn't.",
-            "All of this is held up by nothing.",
-            "Every piece of it is the width of a chunk. Like he measured it, and then stopped."
+    public static final String[] AMBIENT_ORCHARD = {
+            "The rows don't end. I've counted the same tree forty times.",
+            "An apple fell. It made the wrong sound.",
+            "The scarecrow's head is turned. It's turned toward me. It's always turned toward me.",
+            "Grandad's orchard. He said he'd never seen it this quiet."
+    };
+    public static final String[] AMBIENT_WARD = {
+            "Visiting hours are over. They've been over for a long time.",
+            "That beeping. It's slower than it was.",
+            "Wheels on the floor. Up the corridor and back. Up and back.",
+            "He was in here. He was in here the whole time I thought he was just offline."
     };
     public static final String[] AMBIENT_HUSH = {
             "Something is repeating my footsteps, a half-second late.",
@@ -134,8 +137,10 @@ public final class Thoughts {
     };
 
     // ---- places ------------------------------------------------------------------
-    public static final String ENTER_UNFINISHED_1 = "No rain.";
-    public static final String ENTER_UNFINISHED_2 = "Just... nothing. All of it hanging in the light.";
+    public static final String ENTER_ORCHARD_1 = "The orchard. Grandad's orchard.";
+    public static final String ENTER_ORCHARD_2 = "Every tree is dead. Every apple is stone.";
+    public static final String ENTER_WARD_1 = "A hospital. Why is there a hospital.";
+    public static final String ENTER_WARD_2 = "There's a bed by the window. It's been made.";
     public static final String ENTER_HUSH_1 = "Why is it so quiet? The rain should be louder.";
     public static final String ENTER_HUSH_2 = "I don't think this was him. Something else made this.";
     public static final String ENTER_DROWNED_1 = "Everything's heavy. Even the dark is wet.";
@@ -151,7 +156,7 @@ public final class Thoughts {
     public static final String ENTER_STATIC_1 = "It's not fog. It's noise.";
     public static final String ENTER_STATIC_2 = "A channel nobody is broadcasting on. And I'm standing in it.";
     public static final String ENTER_OVERWORLD = "Back in the rain.";
-    public static final String TAKEN = "Something is drawing over everything. Pencil. It's not stopping.";
+    public static final String TAKEN = "Everything's coming apart. The whole picture. It's pulling me through.";
     public static final String FALL = "I fell. I kept falling. And then I was back.";
 
     // ---- entities and events ----------------------------------------------------------
@@ -171,6 +176,12 @@ public final class Thoughts {
     public static final String NEIGHBOUR_KNOCK = "It knocked. There's no door. It knocked anyway, and left me something.";
     public static final String NEIGHBOUR_GONE = "A door closed. Somewhere down the street. Then nobody.";
     public static final String CARRIER_MOVED = "The screen was in front of me a second ago.";
+    public static final String ORDERLY_SEEN = "Someone in white, pushing an empty bed. It's coming this way.";
+    public static final String ORDERLY_TAKEN = "I was in the bed. I don't remember lying down.";
+    public static final String SCARECROW_SEEN = "The scarecrow. Its head is turned to me.";
+    public static final String SCARECROW_DOWN = "It climbed down. It climbed down off the pole.";
+    public static final String SCARECROW_TOOK = "It took what I was holding. It just took it and walked off into the rows.";
+    public static final String SCARECROW_TOUCH = "Straw. Straw and something under the straw.";
     public static final String CARRIER_GONE = "The screen went dark. I think it was showing me.";
     public static final String SILENCE = "It stopped. Why is that worse?";
     public static final String SILENCE_END = "There it is again.";

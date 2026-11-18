@@ -21,7 +21,14 @@
         "type": "minecraft:ash"
       },
       "probability": 0.003
-    }
+    },
+    "music": {
+      "sound": "minecraft:music.overworld.deep_dark",
+      "min_delay": 9000,
+      "max_delay": 24000,
+      "replace_current_music": true
+    },
+    "ambient_sound": "minecraft:ambient.soul_sand_valley.loop"
   },
   "spawners": {
     "monster": [],

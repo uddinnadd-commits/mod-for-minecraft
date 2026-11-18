@@ -21,7 +21,7 @@ public class ClientEvents {
     @SubscribeEvent
     public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
         ThoughtOverlay.clear();
-        ScribbleOverlay.clear();
+        DistortionOverlay.clear();
         StaticOverlay.clear();
         ClientState.sorrow = 0;
     }
@@ -30,7 +30,7 @@ public class ClientEvents {
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             ThoughtOverlay.tick();
-            ScribbleOverlay.tick();
+            DistortionOverlay.tick();
             StaticOverlay.tick();
             AmbienceEvents.tick();
         }

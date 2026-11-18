@@ -4,6 +4,7 @@ import com.sorrowed.cutscene.Cutscene;
 import com.sorrowed.cutscene.CutsceneLibrary;
 import com.sorrowed.story.Thoughts;
 import net.minecraft.client.CameraType;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -36,6 +37,10 @@ public final class CutsceneClient {
     private static int postFadeTotal = 1;
     private static float curFov = 70.0F;
     private static float curRoll;
+    private static float curYaw;
+    private static float curPitch;
+    private static Pose smooth;
+    private static long lastFrameMs;
 
     public static boolean isActive() {
         return active != null;
@@ -47,6 +52,14 @@ public final class CutsceneClient {
 
     public static float roll() {
         return curRoll;
+    }
+
+    public static float yaw() {
+        return curYaw;
+    }
+
+    public static float pitch() {
+        return curPitch;
     }
 
     public static void start(String id, boolean anchored, double x, double y, double z) {
@@ -76,6 +89,8 @@ public final class CutsceneClient {
         savedCamera = mc.getCameraEntity();
         savedType = mc.options.getCameraType();
         mc.options.setCameraType(CameraType.FIRST_PERSON);
+        smooth = null;
+        lastFrameMs = Util.getMillis();
         place(pose(mc, 0.0F), true);
         mc.setCameraEntity(cam);
     }
@@ -89,7 +104,22 @@ public final class CutsceneClient {
         Minecraft mc = Minecraft.getInstance();
         if (active == null || cam == null || mc.level == null || mc.player == null) return;
         if (mc.isPaused()) partialTick = 0.0F;
-        place(pose(mc, Math.min(tick + partialTick, active.duration())), true);
+        Pose target = pose(mc, Math.min(tick + partialTick, active.duration()));
+        // A short, time-based follow on top of the spline soaks up any remaining stepping between
+        // frames (uneven frame times, tick boundaries) without adding visible lag.
+        long now = Util.getMillis();
+        float dt = Math.min(0.1F, (now - lastFrameMs) / 1000.0F);
+        lastFrameMs = now;
+        if (smooth == null) {
+            smooth = target;
+        } else {
+            float k = 1.0F - (float) Math.exp(-dt * 22.0D);
+            smooth = new Pose(lerp(smooth.x(), target.x(), k), lerp(smooth.y(), target.y(), k), lerp(smooth.z(), target.z(), k),
+                    smooth.yaw() + Mth.wrapDegrees(target.yaw() - smooth.yaw()) * k,
+                    (float) lerp(smooth.pitch(), target.pitch(), k), (float) lerp(smooth.fov(), target.fov(), k),
+                    (float) lerp(smooth.roll(), target.roll(), k));
+        }
+        place(smooth, true);
     }
 
     public static void tick() {
@@ -135,31 +165,15 @@ public final class CutsceneClient {
 
     private static void place(Pose p, boolean first) {
         if (cam == null) return;
-        if (!first) {
-            cam.xo = cam.getX();
-            cam.yo = cam.getY();
-            cam.zo = cam.getZ();
-            cam.xOld = cam.getX();
-            cam.yOld = cam.getY();
-            cam.zOld = cam.getZ();
-            cam.xRotO = cam.getXRot();
-            cam.yRotO = cam.getYRot();
-        }
         cam.setPos(p.x(), p.y() - cam.getEyeHeight(), p.z());
         cam.setYRot(p.yaw());
         cam.setXRot(p.pitch());
-        if (first) {
-            cam.xo = cam.getX();
-            cam.yo = cam.getY();
-            cam.zo = cam.getZ();
-            cam.xOld = cam.getX();
-            cam.yOld = cam.getY();
-            cam.zOld = cam.getZ();
-            cam.xRotO = p.pitch();
-            cam.yRotO = p.yaw();
-        }
+        cam.setYHeadRot(p.yaw());
+        cam.setOldPosAndRot();
         curFov = p.fov();
         curRoll = p.roll();
+        curYaw = p.yaw();
+        curPitch = p.pitch();
     }
 
     private static double lerp(double a, double b, float f) {

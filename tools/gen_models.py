@@ -91,40 +91,53 @@ def eyes(hw, hh, color=(20, 20, 26), gap=2, y=None, size=1, shut=False):
                 dots.append((ex + dx, y + dy, color))
     return dots
 
-# ---- The Vigil (echo): thin, pale, see-through, head bowed. A tear that never dries.
+def fingers(parent, side, n=3, length=5, color=(40, 40, 46)):
+    """Too-long fingers hanging from a hand. side -1 right, +1 left."""
+    out = []
+    for i in range(n):
+        x = -1.0 + i * 1.0
+        out.append(Part(f"finger_{parent}_{i}", parent, (x - 0.25, 0, -0.25, 0.5, length, 0.5), color=color, mirror=side > 0))
+    return out
+
+# ---- The Vigil (echo): thin, pale, see-through. Hollow eye sockets. The tear is black.
 C = {"head": (206, 216, 228), "skin": (200, 210, 222), "body": (150, 170, 190), "arm": (150, 170, 190), "leg": (112, 128, 152), "foot": (90, 104, 126)}
-parts, ct, lr = humanoid((6, 6, 6), (2, 2, 2), (6, 7, 3), (5, 5, 3), (2, 7, 2), (2, 7, 2), (2, 2, 2), (3, 8, 3), (3, 8, 3), (3, 1, 4), C)
+parts, ct, lr = humanoid((6, 7, 6), (2, 3, 2), (6, 7, 3), (5, 5, 3), (2, 8, 2), (2, 8, 2), (2, 2, 2), (3, 8, 3), (3, 8, 3), (3, 1, 4), C)
 parts += [
-    Part("hair", "head", (-3, -6, -3, 6, 6, 6), dilate=0.4, color=(170, 182, 198), alpha=200),
+    Part("hair", "head", (-3, -7, -3, 6, 7, 6), dilate=0.4, color=(170, 182, 198), alpha=200),
     Part("collar", "body", (-3, 0, -1.5, 6, 2, 3), dilate=0.3, color=(120, 140, 160)),
-]
-parts[0].face = eyes(6, 6, (40, 48, 66), gap=2) + [(2, 4, (150, 200, 240)), (2, 5, (150, 200, 240))]
+] + fingers("right_hand", -1, length=5, color=(190, 200, 214)) + fingers("left_hand", 1, length=5, color=(190, 200, 214))
+parts[0].face = [(x, y, (14, 16, 24)) for x in (1, 2, 4, 5) for y in (3, 4)] + [(2, 5, (10, 10, 14)), (2, 6, (10, 10, 14))]
 model("echo", (0.25, 0.0, 0.0, 0.0, 0.6, 0.6), parts, translucent=True)
 
-# ---- The Unsaid (hollow): hunched, no face at all, arms long enough to drag.
+# ---- The Unsaid (hollow): hunched under a hood, the head cocked, no face, ribs under the rags, fingers to the ground.
 C = {"head": (24, 24, 31), "skin": (18, 18, 24), "body": (18, 18, 24), "arm": (16, 16, 22), "leg": (12, 12, 16), "foot": (10, 10, 14)}
-parts, ct, lr = humanoid((7, 8, 7), (3, 2, 3), (8, 8, 6), (7, 6, 5), (3, 10, 3), (3, 10, 3), (3, 3, 3), (4, 9, 4), (4, 9, 4), (4, 1, 5), C, head_pose_dz=1.0)
+parts, ct, lr = humanoid((6, 8, 6), (2, 4, 2), (8, 8, 5), (7, 6, 4), (2.5, 11, 2.5), (2.5, 11, 2.5), (2.5, 2, 2.5), (3.5, 9, 3.5), (3.5, 9, 3.5), (3.5, 1, 5), C, head_pose_dz=1.5)
+parts[0].rot = (0.15, 0, 0.35)                                   # the head hangs to one side
 parts += [
-    Part("hood", "head", (-3.5, -8, -3.5, 7, 8, 7), dilate=0.6, color=(14, 14, 19)),
-    Part("shoulders", "body", (-5, 0, -3.5, 10, 3, 7), dilate=0.2, color=(14, 14, 19)),
-    Part("rags", "abdomen", (-4, 10, -3, 8, 6, 6), dilate=0.1, color=(12, 12, 17), shade=0.8),
-]
+    Part("hood", "head", (-3.5, -9, -3.5, 7, 9, 7), dilate=0.5, color=(12, 12, 17)),
+    Part("shoulders", "body", (-5, 0, -3, 10, 3, 6), dilate=0.2, color=(14, 14, 19)),
+    Part("rags", "abdomen", (-4, 10, -2.5, 8, 7, 5), dilate=0.1, color=(12, 12, 17), shade=0.8),
+    Part("rib_1", "body", (-3.5, 3, -2.6, 7, 0.5, 0.3), color=(70, 66, 74)),
+    Part("rib_2", "body", (-3.5, 5, -2.6, 7, 0.5, 0.3), color=(70, 66, 74)),
+    Part("rib_3", "body", (-3, 7, -2.6, 6, 0.5, 0.3), color=(70, 66, 74)),
+] + fingers("right_hand", -1, length=7, color=(14, 14, 19)) + fingers("left_hand", 1, length=7, color=(14, 14, 19))
 model("hollow", (0.2, 0.3, 0.15, 0.15, 1.0, 0.7), parts)
 
-# ---- Hark (listener): a huge round head, eyes sewn shut, ears that twitch, a thin stooped body.
+# ---- Hark (listener): a huge round head, eyes sewn shut, a mouth that is a black slot, torn ears, a thin stooped body.
 C = {"head": (170, 170, 176), "skin": (160, 160, 168), "body": (146, 146, 154), "arm": (130, 130, 138), "leg": (110, 110, 120), "foot": (90, 90, 100)}
-parts, ct, lr = humanoid((10, 10, 10), (3, 2, 3), (6, 8, 4), (5, 6, 4), (3, 8, 3), (3, 8, 3), (3, 3, 3), (3, 9, 3), (3, 8, 3), (3, 1, 4), C)
+parts, ct, lr = humanoid((11, 11, 11), (3, 2, 3), (6, 8, 4), (5, 6, 4), (2.5, 9, 2.5), (2.5, 9, 2.5), (2.5, 3, 2.5), (3, 9, 3), (3, 8, 3), (3, 1, 4), C)
 parts += [
-    Part("right_ear", "head", (-1, -4, -2.5, 1, 8, 5), pose=(-5, -5, 0), color=(150, 140, 146)),
-    Part("left_ear", "head", (0, -4, -2.5, 1, 8, 5), pose=(5, -5, 0), color=(150, 140, 146), mirror=True),
-    Part("brow", "head", (-5, -10, -5, 10, 3, 10), dilate=0.3, color=(158, 158, 166)),
-]
+    Part("right_ear", "head", (-1, -6, -3, 1, 11, 6), pose=(-5.5, -5, 0), color=(150, 140, 146)),
+    Part("left_ear", "head", (0, -6, -3, 1, 11, 6), pose=(5.5, -5, 0), color=(150, 140, 146), mirror=True),
+    Part("brow", "head", (-5.5, -11, -5.5, 11, 3, 11), dilate=0.3, color=(158, 158, 166)),
+    Part("jaw", "head", (-4, -2.5, -5.6, 8, 2.5, 1), color=(140, 136, 146)),
+] + fingers("right_hand", -1, length=6, color=(120, 120, 130)) + fingers("left_hand", 1, length=6, color=(120, 120, 130))
 stitch = [(x, 5, (24, 24, 28)) for x in (2, 3, 4, 6, 7, 8)] + [(x, y, (24, 24, 28)) for x in (2, 4, 6, 8) for y in (4, 6)]
-mouth = [(x, 8, (24, 24, 28)) for x in range(3, 8)]
+mouth = [(x, y, (8, 8, 10)) for x in range(2, 9) for y in (8, 9)]
 parts[0].face = stitch + mouth
 model("listener", (0.1, 0.15, 0.05, 0.05, 0.3, 0.9), parts)
 
-# ---- The Finisher (mason): broad and stocky, hard hat, tool belt, hammer held out in front.
+# ---- The Finisher (mason): broad and stocky, hard hat, tool belt, hammer held out in front. The only kind face here.
 C = {"head": (200, 160, 130), "skin": (200, 160, 130), "body": (112, 78, 46), "arm": (150, 120, 90), "leg": (70, 70, 84), "foot": (50, 44, 40)}
 parts, ct, lr = humanoid((8, 8, 8), (4, 2, 4), (10, 7, 6), (9, 5, 5), (4, 6, 4), (4, 6, 4), (4, 3, 4), (4, 6, 4), (4, 6, 4), (4, 1, 5), C)
 parts += [
@@ -141,9 +154,9 @@ parts += [
 parts[0].face = eyes(8, 8, (40, 30, 24), gap=2) + [(x, 6, (120, 80, 60)) for x in range(3, 5)]
 model("mason", (0.0, 0.0, -0.8, 0.0, 0.2, 1.0), parts)
 
-# ---- The Archivist: 2.8 blocks of ink-dark robe, a long neck, a small bowed head, a book held up.
+# ---- The Archivist: 3 blocks of ink-dark robe, a neck far too long, a small bowed head with no eyes and a thin wide smile, the book held up.
 C = {"head": (214, 206, 186), "skin": (204, 196, 176), "body": (30, 42, 34), "arm": (30, 42, 34), "leg": (22, 30, 26), "foot": (18, 24, 20)}
-parts, ct, lr = humanoid((6, 6, 6), (2, 6, 2), (6, 7, 4), (5, 7, 3), (2, 8, 2), (2, 8, 2), (2, 2, 2), (2, 9, 2), (2, 9, 2), (2, 1, 3), C)
+parts, ct, lr = humanoid((6, 6, 6), (2, 9, 2), (6, 7, 4), (5, 7, 3), (2, 9, 2), (2, 9, 2), (2, 2, 2), (2, 9, 2), (2, 9, 2), (2, 1, 3), C)
 parts += [
     Part("robe", "abdomen", (-4, 7, -3, 8, 10, 6), dilate=0.2, color=(26, 36, 30), shade=0.9),
     Part("mantle", "body", (-4, 0, -3, 8, 4, 6), dilate=0.3, color=(36, 50, 40)),
@@ -151,11 +164,11 @@ parts += [
     Part("sleeve_l", "left_forearm", (-1, 0, -1, 2, 6, 2), dilate=0.8, color=(26, 36, 30), mirror=True),
     Part("book", "left_hand", (-3, -1, -3, 5, 6, 1), color=(120, 80, 40)),
     Part("pages", "left_hand", (-2.5, -0.5, -2.2, 4, 5, 0.4), color=(236, 230, 210)),
-]
-parts[0].face = eyes(6, 6, (60, 60, 70), gap=2, shut=True)
+] + fingers("right_hand", -1, length=6, color=(196, 188, 170))
+parts[0].face = [(x, 4, (60, 50, 50)) for x in range(1, 5)] + [(0, 3, (60, 50, 50)), (5, 3, (60, 50, 50))]   # the smile, and nothing above it
 model("archivist", (0.45, 0.08, 0.0, -1.3, 0.15, 0.35), parts)
 
-# ---- The Neighbour: an ordinary person in a long coat and a wide hat, face in shadow.
+# ---- The Neighbour: an ordinary person in a long coat and a wide hat. Under the brim, two pale points where the eyes would be.
 C = {"head": (96, 80, 72), "skin": (120, 100, 90), "body": (116, 96, 64), "arm": (116, 96, 64), "leg": (38, 36, 40), "foot": (30, 28, 30)}
 parts, ct, lr = humanoid((8, 8, 8), (4, 2, 4), (8, 7, 4), (8, 5, 4), (4, 6, 4), (4, 6, 4), (4, 3, 4), (4, 6, 4), (4, 6, 4), (4, 1, 5), C)
 parts += [
@@ -168,10 +181,10 @@ parts += [
     Part("cuff_r", "right_forearm", (-2, 4, -2, 4, 2, 4), dilate=0.4, color=(96, 78, 50)),
     Part("cuff_l", "left_forearm", (-2, 4, -2, 4, 2, 4), dilate=0.4, color=(96, 78, 50), mirror=True),
 ]
-parts[0].face = [(x, y, (54, 46, 44)) for x in range(1, 7) for y in range(3, 8)]
+parts[0].face = [(x, y, (28, 24, 24)) for x in range(0, 8) for y in range(2, 8)] + [(2, 4, (220, 220, 200)), (5, 4, (220, 220, 200))]
 model("neighbour", (0.0, 0.0, 0.0, 0.0, 0.1, 1.0), parts)
 
-# ---- The Carrier: a wood-veneer television for a head, antennae, a thin grey suit.
+# ---- The Carrier: a wood-veneer television for a head, wires hanging from the neck, a face forming in the static.
 C = {"head": (96, 66, 40), "skin": (170, 150, 140), "body": (58, 58, 64), "arm": (58, 58, 64), "leg": (40, 40, 46), "foot": (28, 28, 32)}
 parts, ct, lr = humanoid((10, 8, 10), (3, 2, 3), (8, 7, 4), (7, 5, 3), (3, 7, 3), (3, 7, 3), (3, 3, 3), (3, 8, 3), (3, 8, 3), (3, 1, 4), C)
 parts += [
@@ -180,12 +193,64 @@ parts += [
     Part("dial_b", "head", (3.2, -5, -5.4, 1, 1, 0.4), color=(200, 200, 210)),
     Part("right_antenna", "head", (-0.5, -6, -0.5, 1, 6, 1), pose=(-2, -8, 0), rot=(0, 0, 0.5), color=(190, 190, 200)),
     Part("left_antenna", "head", (-0.5, -6, -0.5, 1, 6, 1), pose=(2, -8, 0), rot=(0, 0, -0.5), color=(190, 190, 200)),
+    Part("wire_a", "neck", (-1.5, -2, -1.5, 0.5, 6, 0.5), color=(20, 20, 24)),
+    Part("wire_b", "neck", (1.0, -2, 1.0, 0.5, 7, 0.5), color=(120, 30, 30)),
     Part("tie", "body", (-0.5, 0, -2.4, 1, 6, 0.4), color=(120, 30, 30)),
     Part("jacket", "body", (-4, 0, -2, 8, 7, 4), dilate=0.4, color=(50, 50, 56)),
 ]
 rnd = random.Random("carrier-screen")
-parts[0].face = [(x, y, (v, v, v)) for x in range(1, 9) for y in range(1, 7) for v in (rnd.choice((20, 90, 170, 235)),)]
+face = []
+for x in range(1, 9):
+    for y in range(1, 7):
+        v = rnd.choice((20, 90, 170, 235))
+        if (x in (3, 6) and y == 3) or (y == 5 and 3 <= x <= 6):   # eyes and a mouth, in the noise
+            v = 6
+        face.append((x, y, (v, v, v)))
+parts[0].face = face
 model("carrier", (0.0, 0.05, 0.0, 0.0, 0.5, 0.8), parts)
+
+# ---- The Orderly: three blocks tall, a white coat, a mask, bent forward over the empty bed it pushes.
+C = {"head": (210, 200, 190), "skin": (210, 200, 190), "body": (236, 236, 240), "arm": (236, 236, 240), "leg": (90, 110, 120), "foot": (40, 40, 44)}
+parts, ct, lr = humanoid((7, 8, 7), (3, 4, 3), (8, 9, 4), (7, 6, 4), (3, 9, 3), (3, 9, 3), (3, 2, 3), (3, 10, 3), (3, 10, 3), (3, 1, 4), C)
+parts += [
+    Part("mask", "head", (-3.5, -4, -3.8, 7, 3.5, 0.6), color=(170, 200, 190)),
+    Part("cap", "head", (-3.5, -9, -3.5, 7, 2, 7), dilate=0.2, color=(170, 200, 190)),
+    Part("coat", "body", (-4, 0, -2, 8, 9, 4), dilate=0.6, color=(232, 232, 236)),
+    Part("coat_skirt", "abdomen", (-4.5, 6, -2.5, 9, 9, 5), color=(228, 228, 232), shade=0.92),
+    Part("gurney_frame", "body", (-6, 14, -22, 12, 1, 20), color=(150, 150, 158)),
+    Part("gurney_mattress", "body", (-5.5, 13, -21, 11, 1, 18), color=(240, 240, 240)),
+    Part("gurney_pillow", "body", (-4, 12, -20, 8, 1, 4), color=(250, 250, 250)),
+    Part("gurney_rail", "body", (-6, 10, -22, 12, 0.6, 0.6), color=(150, 150, 158)),
+    Part("leg_a", "body", (-5.5, 15, -20, 1, 9, 1), color=(120, 120, 128)),
+    Part("leg_b", "body", (4.5, 15, -20, 1, 9, 1), color=(120, 120, 128)),
+    Part("leg_c", "body", (-5.5, 15, -5, 1, 9, 1), color=(120, 120, 128)),
+    Part("leg_d", "body", (4.5, 15, -5, 1, 9, 1), color=(120, 120, 128)),
+] + fingers("right_hand", -1, length=5, color=(200, 190, 180)) + fingers("left_hand", 1, length=5, color=(200, 190, 180))
+parts[0].face = [(2, 2, (30, 30, 36)), (4, 2, (30, 30, 36))]   # two small eyes above the mask; nothing else
+model("orderly", (0.35, 0.45, -1.35, -1.35, 0.1, 0.9), parts)
+
+# ---- The Scarecrow: a burlap sack for a head with an X for each eye, a crossbar for shoulders, straw at every seam.
+C = {"head": (150, 120, 80), "skin": (150, 120, 80), "body": (80, 60, 40), "arm": (80, 60, 40), "leg": (60, 48, 36), "foot": (40, 32, 24)}
+parts, ct, lr = humanoid((7, 8, 7), (2, 3, 2), (7, 9, 4), (6, 5, 3), (2.5, 8, 2.5), (2.5, 8, 2.5), (2.5, 2, 2.5), (3, 9, 3), (3, 9, 3), (3, 1, 4), C)
+parts += [
+    Part("sack_tie", "head", (-1.5, 0, -1.5, 3, 2, 3), color=(100, 80, 50)),
+    Part("hat", "head", (-5, -9, -5, 10, 1, 10), color=(50, 40, 30)),
+    Part("hat_top", "head", (-3, -12, -3, 6, 3, 6), color=(50, 40, 30)),
+    Part("crossbar", "body", (-11, 1, -0.5, 22, 1, 1), color=(110, 90, 60)),
+    Part("pole", "abdomen", (-0.5, 5, 0.5, 1, 16, 1), color=(110, 90, 60)),
+    Part("straw_neck", "neck", (-2, -1, -2, 4, 2, 4), dilate=0.3, color=(200, 170, 90)),
+    Part("straw_r", "right_hand", (-1.5, 0, -1.5, 3, 4, 3), color=(200, 170, 90)),
+    Part("straw_l", "left_hand", (-1.5, 0, -1.5, 3, 4, 3), color=(200, 170, 90), mirror=True),
+    Part("straw_leg_r", "right_shin", (-2, 7, -2, 4, 3, 4), color=(200, 170, 90)),
+    Part("straw_leg_l", "left_shin", (-2, 7, -2, 4, 3, 4), color=(200, 170, 90), mirror=True),
+    Part("patch", "body", (-3, 3, -2.3, 3, 3, 0.4), color=(60, 40, 30)),
+]
+xeye = []
+for (cx, cy) in ((2, 3), (5, 3)):
+    xeye += [(cx - 1, cy - 1, (30, 20, 16)), (cx + 1, cy - 1, (30, 20, 16)), (cx, cy, (30, 20, 16)), (cx - 1, cy + 1, (30, 20, 16)), (cx + 1, cy + 1, (30, 20, 16))]
+stitchmouth = [(x, 6, (30, 20, 16)) for x in range(1, 7)] + [(x, 5, (30, 20, 16)) for x in (2, 4, 6)] + [(x, 7, (30, 20, 16)) for x in (1, 3, 5)]
+parts[0].face = xeye + stitchmouth
+model("scarecrow", (0.0, 0.0, 0.0, 0.0, 0.0, 1.1), parts)
 
 # ------------------------------------------------------------------ uv packing
 

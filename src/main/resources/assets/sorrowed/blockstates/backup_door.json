@@ -1,6 +1,11 @@
 {
   "variants": {
-    "axis=x": { "model": "sorrowed:block/backup_door" },
-    "axis=z": { "model": "sorrowed:block/backup_door", "y": 90 }
+    "axis=x": {
+      "model": "sorrowed:block/backup_door"
+    },
+    "axis=z": {
+      "model": "sorrowed:block/backup_door",
+      "y": 90
+    }
   }
 }

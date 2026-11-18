@@ -1,8 +1,0 @@
-{
-  "type": "sorrowed:the_unfinished",
-  "generator": {
-    "type": "sorrowed:liminal",
-    "mode": "unfinished",
-    "biome_source": { "type": "minecraft:fixed", "biome": "sorrowed:unfinished" }
-  }
-}

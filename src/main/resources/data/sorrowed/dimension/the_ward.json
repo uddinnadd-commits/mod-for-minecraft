@@ -1,0 +1,11 @@
+{
+  "type": "sorrowed:the_ward",
+  "generator": {
+    "type": "sorrowed:liminal",
+    "mode": "ward",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "sorrowed:ward"
+    }
+  }
+}

@@ -2,6 +2,7 @@ package com.sorrowed.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.sorrowed.entity.ScarecrowEntity;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
@@ -66,9 +67,9 @@ public class SorrowModel<T extends LivingEntity> extends EntityModel<T> {
         float breath = Mth.sin(age * 0.11F);
 
         // Head: look where it is looking, bowed by temperament, drifting a little when still.
-        head.yRot = netHeadYaw * Mth.DEG_TO_RAD + Mth.sin(age * 0.023F) * 0.06F * still;
-        head.xRot = headPitch * Mth.DEG_TO_RAD + style.headBow() + Mth.sin(age * 0.05F) * 0.015F;
-        head.zRot = Mth.sin(age * 0.017F) * 0.02F * still;
+        head.yRot += netHeadYaw * Mth.DEG_TO_RAD + Mth.sin(age * 0.023F) * 0.06F * still;
+        head.xRot += headPitch * Mth.DEG_TO_RAD + style.headBow() + Mth.sin(age * 0.05F) * 0.015F;
+        head.zRot += Mth.sin(age * 0.017F) * 0.02F * still;
 
         // Chest: hunch, and a slow breath that lifts the shoulders.
         body.xRot = style.hunch() + breath * 0.012F;
@@ -125,6 +126,34 @@ public class SorrowModel<T extends LivingEntity> extends EntityModel<T> {
         if (head.hasChild("right_antenna")) {
             head.getChild("right_antenna").zRot += Mth.sin(age * 0.7F) * 0.05F;
             head.getChild("left_antenna").zRot -= Mth.sin(age * 0.63F) * 0.05F;
+        }
+        // The Scarecrow on its pole: arms out along the crossbar, legs straight, only the head moves.
+        if (entity instanceof ScarecrowEntity sc && !sc.isDown()) {
+            rightArm.xRot = 0.0F;
+            leftArm.xRot = 0.0F;
+            rightArm.zRot = 1.45F;
+            leftArm.zRot = -1.45F;
+            if (rightForearm != null) {
+                rightForearm.xRot = 0.0F;
+                leftForearm.xRot = 0.0F;
+            }
+            rightLeg.xRot = 0.0F;
+            leftLeg.xRot = 0.0F;
+            if (rightShin != null) {
+                rightShin.xRot = 0.0F;
+                leftShin.xRot = 0.0F;
+                if (rightFoot != null) {
+                    rightFoot.xRot = 0.0F;
+                    leftFoot.xRot = 0.0F;
+                }
+            }
+            body.xRot = 0.0F;
+            body.y -= 10.0F;   // hung up on the pole, feet off the ground
+            head.y -= 10.0F;
+            rightArm.y -= 10.0F;
+            leftArm.y -= 10.0F;
+            rightLeg.y -= 10.0F;
+            leftLeg.y -= 10.0F;
         }
     }
 

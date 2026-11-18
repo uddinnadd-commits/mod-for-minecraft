@@ -54,8 +54,8 @@ public final class SorrowEvents {
 
     private static final Set<ResourceKey<Level>> OVERWORLD = Set.of(Level.OVERWORLD);
     private static final Set<ResourceKey<Level>> WILD = Set.of(Level.OVERWORLD, Dimensions.HUSH);
-    private static final Set<ResourceKey<Level>> LONELY = Set.of(Level.OVERWORLD, Dimensions.HALLWAY, Dimensions.ARCHIVE, Dimensions.STREET);
-    private static final Set<ResourceKey<Level>> UNFINISHED = Set.of(Dimensions.UNFINISHED);
+    private static final Set<ResourceKey<Level>> LONELY = Set.of(Level.OVERWORLD, Dimensions.HALLWAY, Dimensions.ARCHIVE, Dimensions.STREET, Dimensions.WARD);
+    private static final Set<ResourceKey<Level>> HOME = Set.of(Dimensions.BACKUP);
 
     private static final List<Ev> EVENTS = List.of(
             new Ev("footsteps", 1, null, SorrowEvents::footsteps),
@@ -69,7 +69,7 @@ public final class SorrowEvents {
             new Ev("doorbehind", 3, OVERWORLD, SorrowEvents::doorBehind),
             new Ev("hollowcircle", 3, WILD, SorrowEvents::hollowCircle),
             new Ev("echoclose", 3, WILD, SorrowEvents::echoClose),
-            new Ev("mason", 0, UNFINISHED, SorrowEvents::mason)
+            new Ev("mason", 0, HOME, SorrowEvents::mason)
     );
 
     private static final Map<UUID, Long> NEXT_ALLOWED = new HashMap<>();
@@ -133,8 +133,9 @@ public final class SorrowEvents {
     private static BlockPos groundAt(ServerLevel level, double x, double z, double refY) {
         BlockPos guess = BlockPos.containing(x, refY, z);
         if (!level.hasChunkAt(guess)) return null;
-        if (level.dimension().equals(Dimensions.HALLWAY) || level.dimension().equals(Dimensions.ARCHIVE)) {
-            int floorY = level.dimension().equals(Dimensions.HALLWAY) ? LiminalGenerator.HALL_FLOOR : LiminalGenerator.ARCHIVE_FLOOR;
+        if (level.dimension().equals(Dimensions.HALLWAY) || level.dimension().equals(Dimensions.ARCHIVE) || level.dimension().equals(Dimensions.WARD)) {
+            int floorY = level.dimension().equals(Dimensions.HALLWAY) ? LiminalGenerator.HALL_FLOOR
+                    : level.dimension().equals(Dimensions.WARD) ? LiminalGenerator.WARD_FLOOR : LiminalGenerator.ARCHIVE_FLOOR;
             BlockPos floor = new BlockPos(guess.getX(), floorY + 1, guess.getZ());
             return level.getBlockState(floor).isAir() && level.getBlockState(floor.above()).isAir() ? floor : null;
         }
@@ -286,7 +287,7 @@ public final class SorrowEvents {
         BlockPos base = groundAt(level, p.getX() + back.x * 13.0D, p.getZ() + back.z * 13.0D, p.getY());
         if (base == null) return false;
         Direction.Axis axis = Math.abs(back.x) > Math.abs(back.z) ? Direction.Axis.Z : Direction.Axis.X;
-        GateBuilder.build(level, base, axis, ModBlocks.UNFINISHED_DOOR.get(), level.random);
+        GateBuilder.build(level, base, axis, ModBlocks.BACKUP_DOOR.get(), level.random);
         if (!CutsceneServer.play(p, "door_behind", null)) {
             Scheduler.after(level.getServer(), 30, () -> {
                 if (!p.isRemoved()) ModNetwork.thought(p, Thoughts.f(Thoughts.DOOR_BEHIND));
@@ -329,7 +330,7 @@ public final class SorrowEvents {
         return true;
     }
 
-    /** In the Unfinished: someone building a bridge in the distance. */
+    /** In Alex's world: someone building in the distance. */
     private static boolean mason(ServerPlayer p) {
         ServerLevel level = p.serverLevel();
         if (!level.getEntitiesOfClass(MasonEntity.class, p.getBoundingBox().inflate(120.0D)).isEmpty()) return false;

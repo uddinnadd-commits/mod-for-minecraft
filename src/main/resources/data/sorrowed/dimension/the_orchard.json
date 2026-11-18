@@ -1,0 +1,11 @@
+{
+  "type": "sorrowed:the_orchard",
+  "generator": {
+    "type": "sorrowed:liminal",
+    "mode": "orchard",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "sorrowed:orchard"
+    }
+  }
+}
