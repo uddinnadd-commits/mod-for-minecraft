@@ -381,4 +381,310 @@ drawing(f"{OUT}/gui/drawing_street.png", draw_street, seed=14)
 papers_icon(f"{OUT}/item/papers.png")
 
 tear(f"{OUT}/item/rain_tear.png")
+
+# ---------------------------------------------------------------- the story: screens, the journal, the end
+
+def mcmeta(path, frametime):
+    with open(path + ".mcmeta", "w") as f:
+        f.write('{\n  "animation": {\n    "frametime": %d\n  }\n}\n' % frametime)
+
+def vignette(path, size=256):
+    """White, transparent in the middle and closing in at the edges. The game tints it per world."""
+    px = []
+    for y in range(size):
+        for x in range(size):
+            dx = (x + 0.5) / size * 2 - 1
+            dy = (y + 0.5) / size * 2 - 1
+            d = math.sqrt(dx * dx * 0.92 + dy * dy * 1.08)
+            t = max(0.0, min(1.0, (d - 0.42) / 0.78))
+            a = int(255 * (t * t * (3 - 2 * t)) ** 1.25)
+            px.append((255, 255, 255, a))
+    write_png(path, size, size, px)
+
+def grain(path, size=64):
+    rnd = random.Random(64)
+    px = []
+    for _ in range(size * size):
+        v = max(0, min(255, int(rnd.gauss(128, 46))))
+        px.append((v, v, v, 255))
+    write_png(path, size, size, px)
+
+def arrow(path):
+    """A pencil arrow pointing up, with a dark edge so it reads on anything."""
+    px = [(0, 0, 0, 0)] * 256
+    strokes = [(8, y) for y in range(3, 14)]
+    strokes += [(8 - i, 3 + i) for i in range(1, 5)] + [(8 + i, 3 + i) for i in range(1, 5)]
+    strokes += [(7, 4), (9, 4)]
+    for (x, y) in strokes:
+        for ox in (-1, 0, 1):
+            for oy in (-1, 0, 1):
+                xx, yy = x + ox, y + oy
+                if 0 <= xx < 16 and 0 <= yy < 16 and px[yy * 16 + xx][3] == 0:
+                    px[yy * 16 + xx] = (12, 10, 14, 150)
+    for (x, y) in strokes:
+        px[y * 16 + x] = (236, 226, 198, 255)
+    write_png(path, 16, 16, px)
+
+def screen(path, frames, draw, frametime=None, seed=1):
+    """16x16 frames stacked vertically; the visible glass is x 2..13, y 4..11 (12 by 8)."""
+    rnd = random.Random(seed)
+    px = [(0, 0, 0, 255)] * (16 * 16 * frames)
+    for f in range(frames):
+        def put(x, y, c, f=f):
+            if 0 <= x < 16 and 0 <= y < 16:
+                px[(f * 16 + y) * 16 + x] = (*c, 255)
+        draw(put, f, rnd)
+    write_png(path, 16, 16 * frames, px)
+    if frametime:
+        mcmeta(path, frametime)
+
+def draw_chat(put, f, rnd):
+    for y in range(16):
+        for x in range(16):
+            put(x, y, (14, 20, 34))
+    for x in range(2, 14):
+        put(x, 4, (52, 74, 120))                       # the title bar
+    for (y, n) in ((6, 9), (7, 6), (8, 10), (9, 4)):    # his last few lines
+        for x in range(3, 3 + n):
+            if (x * 7 + y) % 5:
+                put(x, y, (176, 188, 206))
+    for x in range(2, 14):
+        put(x, 10, (30, 40, 60))
+    put(3, 11, (176, 188, 206))
+    if f == 0:
+        put(5, 11, (230, 236, 246))                     # the cursor, blinking
+
+def draw_console(put, f, rnd):
+    for y in range(16):
+        for x in range(16):
+            put(x, y, (4, 10, 6))
+    for (y, n) in ((5, 8), (6, 11), (7, 5), (8, 9)):
+        for x in range(3, 3 + n):
+            if (x * 5 + y * 3) % 4:
+                put(x, y, (90, 230, 120))
+    put(3, 10, (90, 230, 120))
+    if f == 0:
+        put(5, 10, (180, 255, 190))
+
+def draw_snow(put, f, rnd):
+    for y in range(16):
+        for x in range(16):
+            v = rnd.randint(30, 230)
+            put(x, y, (v, v, v))
+    roll = (f * 2) % 8
+    for x in range(2, 14):
+        put(x, 4 + roll, (240, 240, 240))
+
+def draw_clear(put, f, rnd):
+    """The picture that comes through: his world, the sun out."""
+    for y in range(16):
+        for x in range(16):
+            put(x, y, (8, 8, 10))
+    for y in range(4, 9):
+        for x in range(2, 14):
+            k = (y - 4) / 5
+            put(x, y, (int(110 + 90 * k), int(170 + 50 * k), int(240 - 20 * k)))
+    for y in range(9, 12):
+        for x in range(2, 14):
+            put(x, y, (70 + (x % 2) * 8, 150, 60))
+    put(11, 5, (255, 236, 150)); put(12, 5, (255, 236, 150)); put(11, 6, (255, 236, 150)); put(12, 6, (255, 236, 150))
+    for x in range(4, 8):
+        put(x, 9, (150, 104, 62)); put(x, 10, (150, 104, 62))
+    for x in range(5, 7):
+        put(x, 8, (110, 50, 40))
+    put(5, 10, (40, 30, 26))
+
+def draw_laptop(put, f, rnd):
+    for y in range(16):
+        for x in range(16):
+            put(x, y, (8, 8, 14))
+    for x in range(3, 13):
+        put(x, 6, (120, 200, 120))                     # the bar, full
+    for x in range(3, 10):
+        if x % 3:
+            put(x, 8, (200, 200, 200))
+    put(3, 10, (200, 200, 200))
+    if f == 0:
+        put(5, 10, (240, 240, 240))
+
+def title_bg_after(path, W=480, H=270):
+    """The same view, the morning after: the rain gone, the sky coming up gold, the window dark."""
+    rnd = random.Random(43)
+    px = [(0, 0, 0, 255)] * (W * H)
+    def put(x, y, c, a=255):
+        if 0 <= x < W and 0 <= y < H:
+            px[y * W + x] = (*c, a)
+    horizon = 176
+    sun = (366, 170)
+    for y in range(H):
+        for x in range(W):
+            if y < horizon:
+                f = y / horizon
+                c = (int(58 + 190 * f ** 1.6), int(84 + 112 * f ** 1.4), int(140 + 20 * f))
+                g = max(0.0, 1.0 - math.hypot(x - sun[0], (y - sun[1]) * 1.4) / 170.0)
+                c = (min(255, int(c[0] + 70 * g * g)), min(255, int(c[1] + 48 * g * g)), min(255, int(c[2] + 10 * g * g)))
+                band = math.sin(x * 0.013 + y * 0.09) * math.sin(x * 0.004 - y * 0.05)
+                c = (max(0, min(255, int(c[0] + 10 * band))), max(0, min(255, int(c[1] + 6 * band))), max(0, min(255, int(c[2] + 4 * band))))
+            else:
+                n = rnd.randint(-3, 3)
+                c = (max(0, 34 + n), max(0, 50 + n), max(0, 32 + n))
+            put(x, y, c)
+    for y in range(sun[1] - 9, sun[1] + 10):
+        for x in range(sun[0] - 9, sun[0] + 10):
+            if math.hypot(x - sun[0], y - sun[1]) <= 9:
+                put(x, y, (255, 238, 204))
+    for x in range(W):
+        top = int(horizon - 10 - 9 * math.sin(x * 0.011) - 5 * math.sin(x * 0.037 + 1.3))
+        for y in range(top, horizon + 2):
+            put(x, y, (74, 62, 84))
+    for y in range(horizon - 8, horizon + 14):
+        for x in range(W):
+            r, g, b, _ = px[y * W + x]
+            m = 1.0 - abs(y - horizon - 3) / 11.0
+            put(x, y, (min(255, int(r + 60 * m)), min(255, int(g + 42 * m)), min(255, int(b + 26 * m))))
+    for _ in range(2600):
+        x = rnd.randint(0, W - 1)
+        y = rnd.randint(horizon + 4, H - 1)
+        h = 1 + int((y - horizon) / 28)
+        for k in range(h):
+            put(x, y - k, (62, 92, 50))
+    for y in range(192, H):
+        f = (y - 192) / (H - 192)
+        cx = int(309 - f * 120)
+        half = int(2 + f * 16)
+        for x in range(cx - half, cx + half):
+            put(x, y, (96, 86, 74))
+    for y in range(150, 191):
+        for x in range(280, 341):
+            put(x, y, (60, 50, 58))
+    for y in range(118, 151):
+        half = int((y - 118) * 36 / 32)
+        for x in range(310 - half, 311 + half):
+            put(x, y, (46, 38, 46))
+    for y in range(124, 141):
+        for x in range(326, 333):
+            put(x, y, (52, 42, 50))
+    for y in range(172, 191):
+        for x in range(305, 314):
+            put(x, y, (38, 32, 38))
+    for y in range(158, 165):
+        for x in list(range(288, 295)) + list(range(311, 318)):
+            put(x, y, (64, 72, 92))
+    for y in range(120, 192):
+        put(392, y, (52, 44, 48)); put(393, y, (52, 44, 48))
+    for (x0, y0, dx, dy, n) in ((392, 140, -1, -1, 18), (393, 132, 1, -1, 16), (392, 155, -1, -1, 12), (393, 150, 1, -1, 22), (392, 126, -1, -2, 10)):
+        x, y = x0, y0
+        for i in range(n):
+            put(x, y, (52, 44, 48))
+            if i > n - 4:
+                put(x, y - 1, (96, 140, 70)); put(x + 1, y, (96, 140, 70))   # a few new leaves
+            x += dx
+            if i % abs(dy) == 0:
+                y -= 1
+    for x in range(220, 470, 11):
+        for y in range(186, 197):
+            put(x, y, (58, 50, 54))
+    for x in range(220, 470):
+        put(x, 189, (58, 50, 54))
+    write_png(path, W, H, px)
+
+vignette(f"{OUT}/gui/vignette.png")
+grain(f"{OUT}/gui/grain.png")
+arrow(f"{OUT}/gui/arrow.png")
+title_bg_after(f"{OUT}/gui/title_bg_after.png")
+screen(f"{OUT}/block/screen_chat.png", 2, draw_chat, frametime=10, seed=81)
+screen(f"{OUT}/block/screen_console.png", 2, draw_console, frametime=10, seed=82)
+screen(f"{OUT}/block/screen_snow.png", 8, draw_snow, frametime=2, seed=83)
+screen(f"{OUT}/block/screen_clear.png", 1, draw_clear, seed=84)
+screen(f"{OUT}/block/screen_laptop.png", 2, draw_laptop, frametime=12, seed=85)
+
+# ---------------------------------------------------------------- the fight: the sword, the shards, the cracks, the halo
+
+def borrowed_sword(path):
+    """A pale sword with a gold guard, drawn the way vanilla swords are: tip top right, pommel bottom left."""
+    px = [(0, 0, 0, 0)] * 256
+    def put(x, y, c):
+        if 0 <= x < 16 and 0 <= y < 16:
+            px[y * 16 + x] = (*c, 255)
+    body = []
+    for i in range(8):                                   # the blade
+        body.append((13 - i, 2 + i, (250, 246, 228)))
+        body.append((14 - i, 2 + i, (214, 222, 236)))
+    body.append((14, 1, (255, 255, 255)))
+    for k in range(-2, 3):                               # the guard
+        body.append((5 + k, 10 + k, (226, 184, 72)))
+    for (x, y) in ((4, 11), (3, 12), (2, 13)):           # the grip
+        body.append((x, y, (92, 64, 48)))
+    body.append((1, 14, (240, 200, 90)))                  # the pommel
+    filled = {(x, y) for (x, y, _) in body}
+    for (x, y) in list(filled):                          # a dark edge, so it reads on anything
+        for ox, oy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            if (x + ox, y + oy) not in filled:
+                put(x + ox, y + oy, (40, 34, 52))
+    for (x, y, c) in body:
+        put(x, y, c)
+    write_png(path, 16, 16, px)
+
+def memory_shard(path):
+    """A jagged piece of glass with a picture still caught in it."""
+    px = [(0, 0, 0, 0)] * 256
+    poly_pts = [(8, 1), (12, 6), (11, 14), (5, 12), (4, 5)]
+    def inside(x, y):
+        n = len(poly_pts)
+        c = False
+        for i in range(n):
+            x0, y0 = poly_pts[i]
+            x1, y1 = poly_pts[(i + 1) % n]
+            if (y0 > y) != (y1 > y) and x < (x1 - x0) * (y - y0) / (y1 - y0) + x0:
+                c = not c
+        return c
+    cells = [(x, y) for y in range(16) for x in range(16) if inside(x + 0.5, y + 0.5)]
+    cs = set(cells)
+    for (x, y) in cells:
+        k = (y - 1) / 13
+        px[y * 16 + x] = (int(200 - 60 * k), int(236 - 40 * k), int(255 - 20 * k), 235)
+        if (x + 1, y) not in cs or (x, y + 1) not in cs or (x - 1, y) not in cs or (x, y - 1) not in cs:
+            px[y * 16 + x] = (70, 120, 150, 255)
+    for i in range(5):                                   # a highlight
+        x, y = 7 + i // 2, 3 + i
+        if (x, y) in cs:
+            px[y * 16 + x] = (255, 255, 255, 255)
+    write_png(path, 16, 16, px)
+
+def shatterer_cracks(path):
+    """The light through the cracks, mapped onto a player skin's base layer, and two red eyes. Black is no light."""
+    rnd = random.Random(91)
+    W = 64
+    px = [(0, 0, 0, 255)] * (W * W)
+    def put(x, y, c):
+        if 0 <= x < W and 0 <= y < W:
+            px[y * W + x] = (*c, 255)
+    regions = [(0, 8, 32, 16), (16, 20, 40, 32), (40, 20, 54, 32), (32, 52, 46, 64), (0, 20, 16, 32), (16, 52, 32, 64)]
+    for (x0, y0, x1, y1) in regions:
+        for _ in range(max(3, (x1 - x0) * (y1 - y0) // 28)):
+            x = rnd.randint(x0, x1 - 1)
+            y = rnd.randint(y0, y1 - 1)
+            for _ in range(rnd.randint(5, 12)):
+                put(x, y, (255, 214, 196))
+                if rnd.random() < 0.4:
+                    put(x + 1, y, (150, 90, 90))
+                x = max(x0, min(x1 - 1, x + rnd.choice((-1, 0, 1))))
+                y = max(y0, min(y1 - 1, y + rnd.choice((0, 1, 1))))
+    for (x, y) in ((9, 12), (10, 12), (13, 12), (14, 12)):
+        put(x, y, (255, 40, 40))
+    write_png(path, W, W, px)
+
+def halo(path):
+    """A soft band of gold, brightest across the middle; v runs from the inside of the ring to the outside."""
+    px = []
+    for y in range(16):
+        k = max(0.0, 1.0 - abs(y - 7.5) / 8.0) ** 1.4
+        for x in range(16):
+            px.append((255, 240, 196, int(255 * k)))
+    write_png(path, 16, 16, px)
+
+borrowed_sword(f"{OUT}/item/borrowed_sword.png")
+memory_shard(f"{OUT}/item/memory_shard.png")
+shatterer_cracks(f"{OUT}/entity/shatterer_cracks.png")
+halo(f"{OUT}/entity/halo.png")
 print("textures written")

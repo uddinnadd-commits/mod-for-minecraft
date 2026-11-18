@@ -4,6 +4,8 @@ import com.sorrowed.mind.PathHistory;
 import com.sorrowed.mind.Sorrow;
 import com.sorrowed.net.ModNetwork;
 import com.sorrowed.story.Thoughts;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -32,7 +34,7 @@ public class ReflectionEntity extends PathfinderMob {
     private static final EntityDataAccessor<Optional<UUID>> OWNER =
             SynchedEntityData.defineId(ReflectionEntity.class, EntityDataSerializers.OPTIONAL_UUID);
 
-    public static final int DELAY_TICKS = 200;
+    public static final int DELAY_TICKS = 140;
 
     private int age;
     private int stareTicks;
@@ -91,6 +93,9 @@ public class ReflectionEntity extends PathfinderMob {
         this.yBodyRot = s.yaw();
 
         if (age > 40 && this.distanceTo(sp) < 3.5F) {
+            // It caught up with you.
+            sp.hurt(this.damageSources().mobAttack(this), 4.0F);
+            sp.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 120, 0));
             vanish(sp);
             return;
         }

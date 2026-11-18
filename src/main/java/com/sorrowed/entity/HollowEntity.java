@@ -45,9 +45,9 @@ public class HollowEntity extends Monster {
     public static AttributeSupplier.Builder createAttributes() {
         return Monster.createMonsterAttributes()
                 .add(Attributes.MAX_HEALTH, 30.0D)
-                .add(Attributes.MOVEMENT_SPEED, 0.2D)
-                .add(Attributes.ATTACK_DAMAGE, 3.0D)
-                .add(Attributes.FOLLOW_RANGE, 32.0D);
+                .add(Attributes.MOVEMENT_SPEED, 0.27D)
+                .add(Attributes.ATTACK_DAMAGE, 5.0D)
+                .add(Attributes.FOLLOW_RANGE, 40.0D);
     }
 
     /** Spawns on open ground while it is raining, any time of day. */
@@ -57,7 +57,7 @@ public class HollowEntity extends Monster {
                 && Mob.checkMobSpawnRules(type, level, reason, pos, random)
                 && level.getLevel().isRaining()
                 && level.canSeeSky(pos)
-                && random.nextInt(4) == 0;
+                && random.nextInt(2) == 0;
     }
 
     @Override
@@ -106,6 +106,7 @@ public class HollowEntity extends Monster {
         boolean hit = super.doHurtTarget(target);
         if (hit && target instanceof LivingEntity living) {
             living.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 80, 0));
+            living.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 60, 0));
         }
         return hit;
     }

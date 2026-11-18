@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "sorrowed:block/lighthouse_lamp"
+    },
+    "lit=true": {
+      "model": "sorrowed:block/lighthouse_lamp_on"
+    }
+  }
+}

@@ -4,6 +4,8 @@ import com.sorrowed.item.PapersItem;
 import com.sorrowed.mind.Sorrow;
 import com.sorrowed.net.ModNetwork;
 import com.sorrowed.story.Thoughts;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -51,7 +53,7 @@ public class ArchivistEntity extends Monster {
                                      MobSpawnType reason, BlockPos pos, RandomSource random) {
         return level.getDifficulty() != Difficulty.PEACEFUL
                 && Mob.checkMobSpawnRules(type, level, reason, pos, random)
-                && random.nextInt(14) == 0
+                && random.nextInt(9) == 0
                 && level.getEntitiesOfClass(ArchivistEntity.class, new AABB(pos).inflate(64.0D)).isEmpty();
     }
 
@@ -93,10 +95,12 @@ public class ArchivistEntity extends Monster {
         }
 
         if (this.tickCount % 5 == 0) {
-            this.getNavigation().moveTo(p, 1.15D);
+            this.getNavigation().moveTo(p, 1.35D);
         }
         if (this.distanceToSqr(p) < 3.2D && p instanceof ServerPlayer sp) {
             this.level().playSound(null, this.blockPosition(), SoundEvents.BOOK_PAGE_TURN, SoundSource.HOSTILE, 1.0F, 0.6F);
+            sp.hurt(this.damageSources().mobAttack(this), 5.0F);
+            sp.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 160, 0));
             Sorrow.add(sp, 14.0F);
             ModNetwork.thought(sp, Thoughts.f(Thoughts.ARCHIVIST_TOUCH));
             if (!sp.getInventory().add(PapersItem.of("archivist"))) this.spawnAtLocation(PapersItem.of("archivist"));

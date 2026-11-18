@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "sorrowed:block/chat_screen"
+    },
+    "facing=east": {
+      "model": "sorrowed:block/chat_screen",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "sorrowed:block/chat_screen",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "sorrowed:block/chat_screen",
+      "y": 270
+    }
+  }
+}

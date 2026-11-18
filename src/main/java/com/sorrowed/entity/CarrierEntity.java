@@ -3,6 +3,8 @@ package com.sorrowed.entity;
 import com.sorrowed.mind.Sorrow;
 import com.sorrowed.net.ModNetwork;
 import com.sorrowed.story.Thoughts;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -50,7 +52,7 @@ public class CarrierEntity extends Monster {
                                      MobSpawnType reason, BlockPos pos, RandomSource random) {
         return level.getDifficulty() != Difficulty.PEACEFUL
                 && Mob.checkMobSpawnRules(type, level, reason, pos, random)
-                && random.nextInt(14) == 0
+                && random.nextInt(9) == 0
                 && level.getEntitiesOfClass(CarrierEntity.class, new AABB(pos).inflate(64.0D)).isEmpty();
     }
 
@@ -87,7 +89,7 @@ public class CarrierEntity extends Monster {
         if (stare % 20 == 0 && p instanceof ServerPlayer sp) {
             Sorrow.add(sp, 1.5F);
         }
-        if (stare < 100) return;
+        if (stare < 70) return;
 
         stare = 0;
         hops++;
@@ -99,6 +101,9 @@ public class CarrierEntity extends Monster {
             this.getNavigation().stop();
         }
         if (p instanceof ServerPlayer sp) {
+            // The picture comes out of the screen with it.
+            sp.hurt(this.damageSources().mobAttack(this), 3.0F);
+            sp.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 60, 0));
             ModNetwork.thought(sp, Thoughts.f(hops >= 3 ? Thoughts.CARRIER_GONE : Thoughts.CARRIER_MOVED));
         }
         if (hops >= 3) this.discard();

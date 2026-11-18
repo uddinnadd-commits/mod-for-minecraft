@@ -1,0 +1,115 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "#body"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        4
+      ],
+      "to": [
+        14,
+        1,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#body"
+        },
+        "east": {
+          "texture": "#body"
+        },
+        "south": {
+          "texture": "#body"
+        },
+        "west": {
+          "texture": "#body"
+        },
+        "down": {
+          "texture": "#body"
+        },
+        "up": {
+          "texture": "#keys"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        1,
+        11
+      ],
+      "to": [
+        14,
+        10,
+        12
+      ],
+      "rotation": {
+        "origin": [
+          8,
+          1,
+          11.5
+        ],
+        "axis": "x",
+        "angle": 22.5
+      },
+      "faces": {
+        "north": {
+          "texture": "#body"
+        },
+        "east": {
+          "texture": "#body"
+        },
+        "south": {
+          "texture": "#body"
+        },
+        "west": {
+          "texture": "#body"
+        },
+        "up": {
+          "texture": "#body"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        2,
+        10.9
+      ],
+      "to": [
+        13,
+        9,
+        11
+      ],
+      "shade": false,
+      "forge_data": {
+        "block_light": 15,
+        "sky_light": 15
+      },
+      "rotation": {
+        "origin": [
+          8,
+          1,
+          11.5
+        ],
+        "axis": "x",
+        "angle": 22.5
+      },
+      "faces": {
+        "north": {
+          "uv": [
+            3,
+            4,
+            13,
+            11
+          ],
+          "texture": "#screen"
+        }
+      }
+    }
+  ]
+}

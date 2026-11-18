@@ -111,6 +111,16 @@ public final class Papers {
                 + "keeping themselves.\n\n"
                 + "if you see me in here, don't walk toward me. it isn't me. it's the copy from before i knew. it doesn't know yet. "
                 + "please don't be the one that tells it.\n\n- alex");
+        // The page you turn in the archive, and the note he leaves on the dock.
+        text("archive_page", "(the next page)",
+                "you found it. it's the only page i ever wrote on in here.\n\n"
+                + "i was so scared of saying the wrong thing that i said nothing, for months, to the one person who "
+                + "would have known what to say back.\n\n"
+                + "that's all these shelves are. not secrets. just quiet, filed away.\n\n- {friend}");
+        text("goodbye", "(a note, on the dock)",
+                "gone fishing.\n\n"
+                + "the float moves now. i'll tell you if i catch anything. i won't. that was never the point.\n\n"
+                + "thank you for coming back. leave the door open for whoever comes next.\n\n- {friend}");
     }
 
     public static Page get(String id) {

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "sorrowed:block/snow_screen"
+    },
+    "facing=east": {
+      "model": "sorrowed:block/snow_screen",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "sorrowed:block/snow_screen",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "sorrowed:block/snow_screen",
+      "y": 270
+    }
+  }
+}

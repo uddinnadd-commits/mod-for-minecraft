@@ -54,6 +54,7 @@ public class GraveMarkerBlock extends Block {
             } else if (!CutsceneServer.isPlaying(sp)) {
                 ModNetwork.thought(sp, Thoughts.pick(Thoughts.GRAVE, level.random));
             }
+            com.sorrowed.event.StoryEvents.visitGrave(sp, pos);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }

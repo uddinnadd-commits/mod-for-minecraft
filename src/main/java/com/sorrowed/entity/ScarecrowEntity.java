@@ -3,6 +3,8 @@ package com.sorrowed.entity;
 import com.sorrowed.mind.Sorrow;
 import com.sorrowed.net.ModNetwork;
 import com.sorrowed.story.Thoughts;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -51,7 +53,7 @@ public class ScarecrowEntity extends Monster {
                                      MobSpawnType reason, BlockPos pos, RandomSource random) {
         return level.getDifficulty() != Difficulty.PEACEFUL
                 && Mob.checkMobSpawnRules(type, level, reason, pos, random)
-                && random.nextInt(12) == 0
+                && random.nextInt(8) == 0
                 && level.getEntitiesOfClass(ScarecrowEntity.class, new AABB(pos).inflate(48.0D)).isEmpty();
     }
 
@@ -93,7 +95,7 @@ public class ScarecrowEntity extends Monster {
 
         if (!down) {
             this.setDeltaMovement(0.0D, this.getDeltaMovement().y, 0.0D);
-            if (d < 12.0D && !carriesLight(p)) {
+            if (d < 16.0D && !carriesLight(p)) {
                 down = true;
                 this.level().playSound(null, this.blockPosition(), SoundEvents.WOOD_BREAK, SoundSource.HOSTILE, 1.0F, 0.5F);
                 if (p instanceof ServerPlayer sp) ModNetwork.thought(sp, Thoughts.f(Thoughts.SCARECROW_DOWN));
@@ -105,12 +107,14 @@ public class ScarecrowEntity extends Monster {
             this.getNavigation().stop();
             return;
         }
-        if (this.tickCount % 5 == 0) this.getNavigation().moveTo(p, 1.1D);
+        if (this.tickCount % 5 == 0) this.getNavigation().moveTo(p, 1.3D);
         if (this.tickCount % 9 == 0) {
             this.level().playSound(null, this.blockPosition(), SoundEvents.GRASS_STEP, SoundSource.HOSTILE, 0.6F, 0.5F);
         }
 
         if (d < 2.0D && p instanceof ServerPlayer sp) {
+            sp.hurt(this.damageSources().mobAttack(this), 4.0F);
+            sp.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 1));
             ItemStack held = sp.getMainHandItem();
             if (!held.isEmpty()) {
                 ItemStack taken = held.copy();

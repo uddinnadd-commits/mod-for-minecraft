@@ -45,7 +45,7 @@ public final class DimensionHorrors {
     private record Stay(ResourceKey<Level> dim, long since) {}
 
     private static final Map<UUID, Stay> STAYS = new HashMap<>();
-    private static final long LEAVE_AFTER = 20L * 60L * 7L;   // seven minutes
+    private static final long LEAVE_AFTER = 20L * 60L * 5L;   // five minutes
 
     public static void forget(UUID id) {
         STAYS.remove(id);
@@ -68,17 +68,17 @@ public final class DimensionHorrors {
             STAYS.put(p.getUUID(), stay);
         }
         long here = now - stay.since();
-        if (here < 20L * 30L) return;   // half a minute's grace when you arrive
+        if (here < 20L * 20L) return;   // twenty seconds' grace when you arrive
         RandomSource r = level.random;
 
-        // The longer you stay, the closer together they come: about every 90 s at first, every 25 s by the end.
+        // The longer you stay, the closer together they come: about every 60 s at first, every 18 s by the end.
         int minutes = (int) (here / 1200L);
-        int odds = Math.max(25, 90 - minutes * 10);
+        int odds = Math.max(18, 60 - minutes * 8);
         if (r.nextInt(odds) == 0) {
             happen(p, level, dim, r);
         }
 
-        // Past seven minutes, the world wants you gone.
+        // Past five minutes, the world wants you gone.
         if (here > LEAVE_AFTER && here % 600L < 20L) {
             sound(p, SoundEvents.WARDEN_HEARTBEAT, p.position(), 1.0F, 0.8F);
             p.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 140, 0, false, false));

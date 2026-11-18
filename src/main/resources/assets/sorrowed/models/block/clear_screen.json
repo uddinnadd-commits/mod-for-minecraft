@@ -1,0 +1,7 @@
+{
+  "parent": "sorrowed:block/monitor",
+  "textures": {
+    "body": "minecraft:block/dark_oak_planks",
+    "screen": "sorrowed:block/screen_clear"
+  }
+}

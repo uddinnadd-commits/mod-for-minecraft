@@ -59,8 +59,8 @@ public class ServerEvents {
         MinecraftServer server = player.getServer();
         if (server == null) return;
 
-        // It is raining the moment you join.
-        if (SorrowedConfig.ETERNAL_RAIN.get()) {
+        // It is raining the moment you join. (Unless somebody has already finished it.)
+        if (SorrowedConfig.ETERNAL_RAIN.get() && !SorrowedData.get(server.overworld()).ended) {
             server.overworld().setWeatherParameters(0, RAIN_TIME, true, false);
         }
 
@@ -126,8 +126,8 @@ public class ServerEvents {
         SorrowEvents.forget(player.getUUID());
     }
 
-    /** The first time anyone joins, put a grave a few steps from them. */
-    private static void placeGrave(ServerPlayer player) {
+    /** Once anyone has joined, there is a grave a few steps from where they first stood. */
+    public static void placeGrave(ServerPlayer player) {
         ServerLevel level = player.serverLevel();
         if (!level.dimension().equals(Level.OVERWORLD)) return;
         SorrowedData data = SorrowedData.get(level);
@@ -139,12 +139,13 @@ public class ServerEvents {
             if (!level.getBlockState(top.below()).getFluidState().isEmpty()) continue;
             GraveBuilder.build(level, top, level.random);
             data.gravePlaced = true;
+            data.setPos("grave", top);
             data.setDirty();
             return;
         }
     }
 
-    /** Keep the overworld raining (with room for silences and thunder). */
+    /** Keep the overworld raining (with room for silences and thunder), until somebody finishes it. */
     @SubscribeEvent
     public static void onLevelTick(TickEvent.LevelTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
@@ -152,6 +153,7 @@ public class ServerEvents {
         if (!SorrowedConfig.ETERNAL_RAIN.get()) return;
         if (!level.dimension().equals(Level.OVERWORLD)) return;
         if (level.getGameTime() % 20L != 0L) return;
+        if (SorrowedData.get(level).ended) return;
         WeatherControl.tick(level);
     }
 

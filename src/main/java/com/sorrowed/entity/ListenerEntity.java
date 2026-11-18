@@ -34,7 +34,7 @@ public class ListenerEntity extends Monster {
         return Monster.createMonsterAttributes()
                 .add(Attributes.MAX_HEALTH, 40.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.32D)
-                .add(Attributes.ATTACK_DAMAGE, 5.0D)
+                .add(Attributes.ATTACK_DAMAGE, 7.0D)
                 .add(Attributes.FOLLOW_RANGE, 48.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.6D);
     }
@@ -71,12 +71,12 @@ public class ListenerEntity extends Monster {
         }
         idle = 0;
 
-        if (makesNoise(p)) heard = 30;
+        if (makesNoise(p)) heard = 50;
         if (cooldown > 0) cooldown--;
 
         if (heard > 0) {
             heard--;
-            this.getNavigation().moveTo(p, 1.25D);
+            this.getNavigation().moveTo(p, 1.45D);
         } else {
             this.getNavigation().stop();
         }
@@ -87,10 +87,10 @@ public class ListenerEntity extends Monster {
         }
 
         // It only strikes while it can hear you.
-        if (heard > 0 && cooldown == 0 && this.distanceToSqr(p) < 2.8D) {
-            p.hurt(this.damageSources().mobAttack(this), 5.0F);
+        if (heard > 0 && cooldown == 0 && this.distanceToSqr(p) < 3.6D) {
+            p.hurt(this.damageSources().mobAttack(this), 7.0F);
             p.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 60, 0));
-            cooldown = 40;
+            cooldown = 30;
             if (p instanceof ServerPlayer sp) {
                 Sorrow.add(sp, 20.0F);
                 ModNetwork.thought(sp, Thoughts.f(Thoughts.LISTENER_HIT));

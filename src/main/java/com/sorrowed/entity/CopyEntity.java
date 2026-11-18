@@ -52,7 +52,7 @@ public class CopyEntity extends Monster {
                                      MobSpawnType reason, BlockPos pos, RandomSource random) {
         return level.getDifficulty() != Difficulty.PEACEFUL
                 && Mob.checkMobSpawnRules(type, level, reason, pos, random)
-                && random.nextInt(14) == 0
+                && random.nextInt(9) == 0
                 && level.getEntitiesOfClass(CopyEntity.class, new AABB(pos).inflate(96.0D)).isEmpty();
     }
 
@@ -114,6 +114,7 @@ public class CopyEntity extends Monster {
             this.level().playSound(null, this.blockPosition(), SoundEvents.GLASS_BREAK, SoundSource.HOSTILE, 1.0F, 0.5F);
             locked.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 160, 0));
             locked.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 120, 0));
+            locked.hurt(this.damageSources().mobAttack(this), 6.0F);
             Sorrow.add(locked, 15.0F);
             ModNetwork.thought(locked, Thoughts.f(Thoughts.COPY_MET));
             this.discard();
