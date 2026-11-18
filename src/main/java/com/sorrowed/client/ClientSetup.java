@@ -27,6 +27,7 @@ public class ClientSetup {
         event.registerLayerDefinition(ModModels.CARRIER, ModModels::carrierLayer);
         event.registerLayerDefinition(ModModels.ORDERLY, ModModels::orderlyLayer);
         event.registerLayerDefinition(ModModels.SCARECROW, ModModels::scarecrowLayer);
+        event.registerLayerDefinition(ModModels.COPY, ModModels::copyLayer);
     }
 
     @SubscribeEvent
@@ -49,6 +50,8 @@ public class ClientSetup {
                 ctx -> new SorrowMobRenderer<>(ctx, ModModels.ORDERLY, tex("orderly"), 0.6F, ModModels.ORDERLY_STYLE, false));
         event.registerEntityRenderer(ModEntities.SCARECROW.get(),
                 ctx -> new SorrowMobRenderer<>(ctx, ModModels.SCARECROW, tex("scarecrow"), 0.4F, ModModels.SCARECROW_STYLE, false));
+        event.registerEntityRenderer(ModEntities.COPY.get(),
+                ctx -> new SorrowMobRenderer<>(ctx, ModModels.COPY, tex("copy"), 0.4F, ModModels.COPY_STYLE, false));
         event.registerEntityRenderer(ModEntities.REFLECTION.get(), ReflectionRenderer::new);
     }
 
@@ -72,5 +75,6 @@ public class ClientSetup {
         event.register(new ResourceLocation(Sorrowed.MODID, "archive"), new SorrowEffects(false));
         event.register(new ResourceLocation(Sorrowed.MODID, "static"), new SorrowEffects(true));
         event.register(new ResourceLocation(Sorrowed.MODID, "ward"), new SorrowEffects(false));
+        event.register(new ResourceLocation(Sorrowed.MODID, "server"), new SorrowEffects(false));
     }
 }

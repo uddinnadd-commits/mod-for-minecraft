@@ -55,7 +55,8 @@ public final class Sites {
             new Site("stop", -12, -60, 9),
             new Site("mast", 62, 4, 6),
             new Site("orchard", -58, -18, 8),
-            new Site("clinic", 22, 66, 6));
+            new Site("clinic", 22, 66, 6),
+            new Site("server", -36, 60, 5));
 
     private static final Map<Long, BlockState> BLOCKS = new HashMap<>();
     private static boolean built;
@@ -156,6 +157,7 @@ public final class Sites {
                 case "mast": mast(); break;
                 case "orchard": orchard(); break;
                 case "clinic": clinic(); break;
+                case "server": server(); break;
                 default: break;
             }
         }
@@ -322,6 +324,21 @@ public final class Sites {
         frame(0, 0, true, Blocks.STRIPPED_SPRUCE_LOG);
         set(0, 3, 0, lantern(false));
         doorway(0, 0, ModBlocks.ORCHARD_DOOR.get(), true);
+    }
+
+    /** A concrete box with a vent humming on the roof, half sunk in the grass. The server room is inside. */
+    private static void server() {
+        box(-3, -2, -3, 3, -1, 3, Blocks.POLISHED_DEEPSLATE);
+        box(-3, 0, -3, 3, 2, 3, Blocks.GRAY_CONCRETE);
+        air(-2, 0, -2, 2, 2, 2);
+        air(0, 0, -3, 0, 1, -3);
+        box(-4, 3, -4, 4, 3, 4, Blocks.SMOOTH_STONE_SLAB);
+        set(2, 4, 2, Blocks.IRON_BARS); set(2, 5, 2, Blocks.IRON_TRAPDOOR);           // the vent
+        set(-2, 0, 1, Blocks.POLISHED_BLACKSTONE_BRICKS); set(-2, 1, 1, Blocks.VERDANT_FROGLIGHT);
+        set(2, 0, 1, Blocks.POLISHED_BLACKSTONE_BRICKS); set(2, 1, 1, Blocks.POLISHED_BLACKSTONE_BRICKS);
+        set(0, 2, 0, Blocks.SEA_LANTERN);
+        frame(0, 3, true, Blocks.IRON_BLOCK);
+        doorway(0, 3, ModBlocks.SERVER_DOOR.get(), true);
     }
 
     /** A small white building with a red cross. He went in. He did not come out. */

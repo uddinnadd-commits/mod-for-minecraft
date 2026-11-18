@@ -50,6 +50,55 @@ public final class Thoughts {
             "The scarecrow's head is turned. It's turned toward me. It's always turned toward me.",
             "Grandad's orchard. He said he'd never seen it this quiet."
     };
+    public static final String[] AMBIENT_SERVER = {
+            "Every light on every rack is blinking in time with my heartbeat.",
+            "It's warm in here. Something is still working hard.",
+            "If I unplug one of these, does part of the world go dark? Which part?",
+            "The fans sound like breathing. They sound like his breathing."
+    };
+    public static final String[] HORROR_HALLWAY = {
+            "The lights are going out. Toward me.",
+            "That part of the hall was lit a second ago.",
+            "I can hear the bulbs dying one at a time."
+    };
+    public static final String[] HORROR_DROWNED = {
+            "Something looked at me. Something the size of the sea.",
+            "I saw an eye. Down there. Open."
+    };
+    public static final String[] HORROR_ARCHIVE = {
+            "The candles are going out. Nobody is blowing on them.",
+            "It's darker. Someone wants it darker."
+    };
+    public static final String[] HORROR_STATIC = {
+            "The noise is getting into my eyes.",
+            "For a second the static had a face in it. Mine.",
+            "Something tuned in. Something is watching this channel."
+    };
+    public static final String[] HORROR_ORCHARD = {
+            "An apple fell. Right behind me. They don't fall. They're stone.",
+            "Something is walking the row next to this one. Keeping pace."
+    };
+    public static final String[] HORROR_WARD = {
+            "The lights went out down the corridor. One after another. Coming this way.",
+            "Night shift. Someone turned the lights down for the night shift."
+    };
+    public static final String[] HORROR_SERVER = {
+            "Everything stopped. The fans. The lights. Everything is waiting.",
+            "It went quiet. Like the whole world paused to save."
+    };
+    public static final String[] HORROR_HUSH = {
+            "Something brushed past me. It was cold. It was nothing.",
+            "The trees are closer together than they were."
+    };
+    public static final String HORROR_DOOR = "A door slammed. Somewhere behind me. There are no doors here.";
+    public static final String HORROR_NAME = "Something on the shelf behind me said my name. Quietly. Like it was reading it.";
+    public static final String HORROR_WINDOW = "The light in that window went out. While I was looking at it.";
+    public static final String HORROR_SCARECROW = "The scarecrow. That's the one I passed. It's behind me now.";
+    public static final String HORROR_FLATLINE = "The beeping. It's one long beep now.";
+    public static final String HORROR_KNOCK = "Knocking. Three times. On a tree.";
+    public static final String STAYED_TOO_LONG = "I've been here too long. I need to find the way out. Listen for the hum.";
+    public static final String COPY_SEEN = "That's me. Standing there. It moved when I moved.";
+    public static final String COPY_MET = "We touched. One of us is gone now. I don't know which.";
     public static final String[] AMBIENT_WARD = {
             "Visiting hours are over. They've been over for a long time.",
             "That beeping. It's slower than it was.",
@@ -139,6 +188,8 @@ public final class Thoughts {
     // ---- places ------------------------------------------------------------------
     public static final String ENTER_ORCHARD_1 = "The orchard. Grandad's orchard.";
     public static final String ENTER_ORCHARD_2 = "Every tree is dead. Every apple is stone.";
+    public static final String ENTER_SERVER_1 = "Fans. Hundreds of them. And the lights.";
+    public static final String ENTER_SERVER_2 = "This is where it was kept. His world. Ours.";
     public static final String ENTER_WARD_1 = "A hospital. Why is there a hospital.";
     public static final String ENTER_WARD_2 = "There's a bed by the window. It's been made.";
     public static final String ENTER_HUSH_1 = "Why is it so quiet? The rain should be louder.";

@@ -36,6 +36,8 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.ORCHARD_DOOR.get(), new Item.Properties()));
     public static final RegistryObject<Item> WARD_DOOR = ITEMS.register("ward_door",
             () -> new BlockItem(ModBlocks.WARD_DOOR.get(), new Item.Properties()));
+    public static final RegistryObject<Item> SERVER_DOOR = ITEMS.register("server_door",
+            () -> new BlockItem(ModBlocks.SERVER_DOOR.get(), new Item.Properties()));
     public static final RegistryObject<Item> GRAVE_MARKER = ITEMS.register("grave_marker",
             () -> new BlockItem(ModBlocks.GRAVE_MARKER.get(), new Item.Properties()));
 
@@ -57,4 +59,6 @@ public class ModItems {
             () -> new ForgeSpawnEggItem(ModEntities.ORDERLY, 0xF0F0F0, 0x5A8A7A, new Item.Properties()));
     public static final RegistryObject<Item> SCARECROW_SPAWN_EGG = ITEMS.register("scarecrow_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.SCARECROW, 0x8A6A3A, 0x2A2A2A, new Item.Properties()));
+    public static final RegistryObject<Item> COPY_SPAWN_EGG = ITEMS.register("copy_spawn_egg",
+            () -> new ForgeSpawnEggItem(ModEntities.COPY, 0xB8B4B0, 0x101012, new Item.Properties()));
 }

@@ -54,7 +54,7 @@ public final class SorrowEvents {
 
     private static final Set<ResourceKey<Level>> OVERWORLD = Set.of(Level.OVERWORLD);
     private static final Set<ResourceKey<Level>> WILD = Set.of(Level.OVERWORLD, Dimensions.HUSH);
-    private static final Set<ResourceKey<Level>> LONELY = Set.of(Level.OVERWORLD, Dimensions.HALLWAY, Dimensions.ARCHIVE, Dimensions.STREET, Dimensions.WARD);
+    private static final Set<ResourceKey<Level>> LONELY = Set.of(Level.OVERWORLD, Dimensions.HALLWAY, Dimensions.ARCHIVE, Dimensions.STREET, Dimensions.WARD, Dimensions.SERVER);
     private static final Set<ResourceKey<Level>> HOME = Set.of(Dimensions.BACKUP);
 
     private static final List<Ev> EVENTS = List.of(
@@ -133,9 +133,11 @@ public final class SorrowEvents {
     private static BlockPos groundAt(ServerLevel level, double x, double z, double refY) {
         BlockPos guess = BlockPos.containing(x, refY, z);
         if (!level.hasChunkAt(guess)) return null;
-        if (level.dimension().equals(Dimensions.HALLWAY) || level.dimension().equals(Dimensions.ARCHIVE) || level.dimension().equals(Dimensions.WARD)) {
+        if (level.dimension().equals(Dimensions.HALLWAY) || level.dimension().equals(Dimensions.ARCHIVE)
+                || level.dimension().equals(Dimensions.WARD) || level.dimension().equals(Dimensions.SERVER)) {
             int floorY = level.dimension().equals(Dimensions.HALLWAY) ? LiminalGenerator.HALL_FLOOR
-                    : level.dimension().equals(Dimensions.WARD) ? LiminalGenerator.WARD_FLOOR : LiminalGenerator.ARCHIVE_FLOOR;
+                    : level.dimension().equals(Dimensions.WARD) ? LiminalGenerator.WARD_FLOOR
+                    : level.dimension().equals(Dimensions.SERVER) ? LiminalGenerator.SERVER_FLOOR : LiminalGenerator.ARCHIVE_FLOOR;
             BlockPos floor = new BlockPos(guess.getX(), floorY + 1, guess.getZ());
             return level.getBlockState(floor).isAir() && level.getBlockState(floor.above()).isAir() ? floor : null;
         }

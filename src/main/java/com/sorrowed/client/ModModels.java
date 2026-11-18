@@ -31,6 +31,7 @@ public final class ModModels {
     public static final ModelLayerLocation CARRIER = layer("carrier");
     public static final ModelLayerLocation ORDERLY = layer("orderly");
     public static final ModelLayerLocation SCARECROW = layer("scarecrow");
+    public static final ModelLayerLocation COPY = layer("copy");
 
     // headBow, hunch, rightArmRest, leftArmRest, armSway, walk
     public static final SorrowModel.Style ECHO_STYLE = new SorrowModel.Style(0.25F, 0.0F, 0.0F, 0.0F, 0.60F, 0.60F);
@@ -42,6 +43,7 @@ public final class ModModels {
     public static final SorrowModel.Style CARRIER_STYLE = new SorrowModel.Style(0.0F, 0.05F, 0.0F, 0.0F, 0.50F, 0.80F);
     public static final SorrowModel.Style ORDERLY_STYLE = new SorrowModel.Style(0.35F, 0.45F, -1.35F, -1.35F, 0.10F, 0.90F);
     public static final SorrowModel.Style SCARECROW_STYLE = new SorrowModel.Style(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.10F);
+    public static final SorrowModel.Style COPY_STYLE = new SorrowModel.Style(0.0F, 0.0F, 0.0F, 0.0F, 0.20F, 1.0F);
 
     public static LayerDefinition echoLayer() {
         MeshDefinition mesh = new MeshDefinition();
@@ -332,6 +334,30 @@ public final class ModModels {
         PartDefinition strawlegr = rightshin.addOrReplaceChild("straw_leg_r", CubeListBuilder.create().texOffs(12, 28).addBox(-2.0F, 7.0F, -2.0F, 4.0F, 3.0F, 4.0F), PartPose.ZERO);
         PartDefinition strawlegl = leftshin.addOrReplaceChild("straw_leg_l", CubeListBuilder.create().texOffs(28, 28).mirror().addBox(-2.0F, 7.0F, -2.0F, 4.0F, 3.0F, 4.0F), PartPose.ZERO);
         PartDefinition patch = body.addOrReplaceChild("patch", CubeListBuilder.create().texOffs(12, 35).addBox(-3.0F, 3.0F, -2.30F, 3.0F, 3.0F, 0.40F), PartPose.ZERO);
+        return LayerDefinition.create(mesh, 128, 128);
+    }
+
+    public static LayerDefinition copyLayer() {
+        MeshDefinition mesh = new MeshDefinition();
+        PartDefinition root = mesh.getRoot();
+        PartDefinition head = root.addOrReplaceChild("head", CubeListBuilder.create().texOffs(0, 0).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F), PartPose.offset(0.0F, -1.0F, 0.0F));
+        PartDefinition body = root.addOrReplaceChild("body", CubeListBuilder.create().texOffs(36, 0).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 7.0F, 4.0F), PartPose.ZERO);
+        PartDefinition neck = body.addOrReplaceChild("neck", CubeListBuilder.create().texOffs(32, 26).addBox(-1.0F, -1.0F, -1.0F, 2.0F, 1.0F, 2.0F), PartPose.ZERO);
+        PartDefinition abdomen = body.addOrReplaceChild("abdomen", CubeListBuilder.create().texOffs(32, 16).addBox(-4.0F, 7.0F, -2.0F, 8.0F, 5.0F, 4.0F), PartPose.ZERO);
+        PartDefinition rightarm = root.addOrReplaceChild("right_arm", CubeListBuilder.create().texOffs(60, 0).addBox(-2.0F, -1.0F, -2.0F, 4.0F, 6.0F, 4.0F), PartPose.offset(-6.0F, 1.0F, 0.0F));
+        PartDefinition rightforearm = rightarm.addOrReplaceChild("right_forearm", CubeListBuilder.create().texOffs(76, 0).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F), PartPose.offset(0.0F, 5.0F, 0.0F));
+        PartDefinition righthand = rightforearm.addOrReplaceChild("right_hand", CubeListBuilder.create().texOffs(88, 16).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 1.0F, 4.0F), PartPose.offset(0.0F, 6.0F, 0.0F));
+        PartDefinition leftarm = root.addOrReplaceChild("left_arm", CubeListBuilder.create().texOffs(92, 0).mirror().addBox(-2.0F, -1.0F, -2.0F, 4.0F, 6.0F, 4.0F), PartPose.offset(6.0F, 1.0F, 0.0F));
+        PartDefinition leftforearm = leftarm.addOrReplaceChild("left_forearm", CubeListBuilder.create().texOffs(108, 0).mirror().addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F), PartPose.offset(0.0F, 5.0F, 0.0F));
+        PartDefinition lefthand = leftforearm.addOrReplaceChild("left_hand", CubeListBuilder.create().texOffs(104, 16).mirror().addBox(-2.0F, 0.0F, -2.0F, 4.0F, 1.0F, 4.0F), PartPose.offset(0.0F, 6.0F, 0.0F));
+        PartDefinition rightleg = root.addOrReplaceChild("right_leg", CubeListBuilder.create().texOffs(0, 16).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F), PartPose.offset(-2.50F, 12.0F, 0.0F));
+        PartDefinition rightshin = rightleg.addOrReplaceChild("right_shin", CubeListBuilder.create().texOffs(56, 16).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 5.0F, 4.0F), PartPose.offset(0.0F, 6.0F, 0.0F));
+        PartDefinition rightfoot = rightshin.addOrReplaceChild("right_foot", CubeListBuilder.create().texOffs(0, 26).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 1.0F, 4.0F), PartPose.offset(0.0F, 5.0F, 0.0F));
+        PartDefinition leftleg = root.addOrReplaceChild("left_leg", CubeListBuilder.create().texOffs(16, 16).mirror().addBox(-2.0F, 0.0F, -2.0F, 4.0F, 6.0F, 4.0F), PartPose.offset(2.50F, 12.0F, 0.0F));
+        PartDefinition leftshin = leftleg.addOrReplaceChild("left_shin", CubeListBuilder.create().texOffs(72, 16).mirror().addBox(-2.0F, 0.0F, -2.0F, 4.0F, 5.0F, 4.0F), PartPose.offset(0.0F, 6.0F, 0.0F));
+        PartDefinition leftfoot = leftshin.addOrReplaceChild("left_foot", CubeListBuilder.create().texOffs(16, 26).mirror().addBox(-2.0F, 0.0F, -2.0F, 4.0F, 1.0F, 4.0F), PartPose.offset(0.0F, 5.0F, 0.0F));
+        PartDefinition seam = body.addOrReplaceChild("seam", CubeListBuilder.create().texOffs(32, 0).addBox(-0.25F, 0.0F, -2.20F, 0.50F, 12.0F, 0.30F), PartPose.ZERO);
+        PartDefinition glitch = head.addOrReplaceChild("glitch", CubeListBuilder.create().texOffs(40, 26).addBox(-4.50F, -6.0F, -4.60F, 9.0F, 1.0F, 0.40F), PartPose.ZERO);
         return LayerDefinition.create(mesh, 128, 128);
     }
 

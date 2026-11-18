@@ -5,6 +5,7 @@ import com.sorrowed.cutscene.CutsceneServer;
 import com.sorrowed.net.ModNetwork;
 import com.sorrowed.entity.ArchivistEntity;
 import com.sorrowed.entity.CarrierEntity;
+import com.sorrowed.entity.CopyEntity;
 import com.sorrowed.entity.EchoEntity;
 import com.sorrowed.entity.HollowEntity;
 import com.sorrowed.entity.ListenerEntity;
@@ -54,6 +55,8 @@ public final class SorrowSystem {
             d += 0.5F;
         } else if (dim.equals(Dimensions.WARD)) {
             d += 0.9F;
+        } else if (dim.equals(Dimensions.SERVER)) {
+            d += 0.7F;
         } else if (dim.equals(Dimensions.ARCHIVE)) {
             d += 0.5F;
         } else if (dim.equals(Dimensions.STREET)) {
@@ -72,6 +75,7 @@ public final class SorrowSystem {
         if (!level.getEntitiesOfClass(CarrierEntity.class, box).isEmpty()) d += 0.6F;
         if (!level.getEntitiesOfClass(OrderlyEntity.class, box).isEmpty()) d += 1.0F;
         if (!level.getEntitiesOfClass(ScarecrowEntity.class, box).isEmpty()) d += 0.7F;
+        if (!level.getEntitiesOfClass(CopyEntity.class, box).isEmpty()) d += 1.0F;
         if (nearGrave(level, p.blockPosition())) d -= 1.5F;
         if (p.isSleeping()) d -= 1.5F;
 

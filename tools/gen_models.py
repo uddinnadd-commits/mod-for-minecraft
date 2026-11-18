@@ -252,6 +252,16 @@ stitchmouth = [(x, 6, (30, 20, 16)) for x in range(1, 7)] + [(x, 5, (30, 20, 16)
 parts[0].face = xeye + stitchmouth
 model("scarecrow", (0.0, 0.0, 0.0, 0.0, 0.0, 1.1), parts)
 
+# ---- The Copy: a player-shaped figure the grey of an unloaded skin, no face but a black smear where one should be.
+C = {"head": (176, 172, 168), "skin": (168, 164, 160), "body": (140, 138, 136), "arm": (150, 148, 146), "leg": (110, 108, 108), "foot": (80, 78, 78)}
+parts, ct, lr = humanoid((8, 8, 8), (2, 1, 2), (8, 7, 4), (8, 5, 4), (4, 6, 4), (4, 6, 4), (4, 1, 4), (4, 6, 4), (4, 5, 4), (4, 1, 4), C)
+parts += [
+    Part("seam", "body", (-0.25, 0, -2.2, 0.5, 12, 0.3), color=(60, 58, 58)),
+    Part("glitch", "head", (-4.5, -6, -4.6, 9, 1, 0.4), color=(30, 220, 200), alpha=180),
+]
+parts[0].face = [(x, y, (12, 12, 14)) for x in range(1, 7) for y in range(2, 7) if (x + y) % 5 != 0]
+model("copy", (0.0, 0.0, 0.0, 0.0, 0.2, 1.0), parts)
+
 # ------------------------------------------------------------------ uv packing
 
 def footprint(p):

@@ -98,6 +98,21 @@ public final class Papers {
                 + "please don't come looking for me in here.\n\n- alex");
     }
 
+    static {
+        text("server_log", "latest.log (printed)",
+                "[19:02:11] alex joined the game\n[19:02:40] <alex> testing\n[19:40:03] <alex> ok it works\n"
+                + "[23:58:12] <alex> are you on\n[23:58:50] <alex> its fine\n[00:14:31] alex left the game\n"
+                + "[00:14:31] saving world\n[00:14:32] saving world\n[00:14:32] saving world\n"
+                + "[00:14:33] alex joined the game\n[00:14:33] alex joined the game\n[00:14:33] alex joined the game\n\n"
+                + "(the rest of the sheet is that last line, over and over, until the printer ran out)");
+        text("server_readme", "readme.txt",
+                "if this box is still on, don't turn it off. the world only stays the way it is while something is running it.\n\n"
+                + "i made a backup every night. i don't know which one is the real one anymore. i think the backups started "
+                + "keeping themselves.\n\n"
+                + "if you see me in here, don't walk toward me. it isn't me. it's the copy from before i knew. it doesn't know yet. "
+                + "please don't be the one that tells it.\n\n- alex");
+    }
+
     public static Page get(String id) {
         return PAGES.get(id);
     }

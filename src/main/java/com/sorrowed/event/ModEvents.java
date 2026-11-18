@@ -3,6 +3,7 @@ package com.sorrowed.event;
 import com.sorrowed.Sorrowed;
 import com.sorrowed.entity.ArchivistEntity;
 import com.sorrowed.entity.CarrierEntity;
+import com.sorrowed.entity.CopyEntity;
 import com.sorrowed.entity.EchoEntity;
 import com.sorrowed.entity.HollowEntity;
 import com.sorrowed.entity.ListenerEntity;
@@ -37,6 +38,7 @@ public class ModEvents {
         event.put(ModEntities.CARRIER.get(), CarrierEntity.createAttributes().build());
         event.put(ModEntities.ORDERLY.get(), OrderlyEntity.createAttributes().build());
         event.put(ModEntities.SCARECROW.get(), ScarecrowEntity.createAttributes().build());
+        event.put(ModEntities.COPY.get(), CopyEntity.createAttributes().build());
     }
 
     @SubscribeEvent
@@ -62,6 +64,9 @@ public class ModEvents {
         event.register(ModEntities.SCARECROW.get(), SpawnPlacements.Type.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, ScarecrowEntity::checkSpawn,
                 SpawnPlacementRegisterEvent.Operation.OR);
+        event.register(ModEntities.COPY.get(), SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, CopyEntity::checkSpawn,
+                SpawnPlacementRegisterEvent.Operation.OR);
     }
 
     @SubscribeEvent
@@ -80,6 +85,7 @@ public class ModEvents {
             event.accept(ModItems.STATIC_DOOR.get());
             event.accept(ModItems.ORCHARD_DOOR.get());
             event.accept(ModItems.WARD_DOOR.get());
+            event.accept(ModItems.SERVER_DOOR.get());
             event.accept(ModItems.GRAVE_MARKER.get());
         }
         if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
@@ -92,6 +98,7 @@ public class ModEvents {
             event.accept(ModItems.CARRIER_SPAWN_EGG.get());
             event.accept(ModItems.ORDERLY_SPAWN_EGG.get());
             event.accept(ModItems.SCARECROW_SPAWN_EGG.get());
+            event.accept(ModItems.COPY_SPAWN_EGG.get());
         }
     }
 }

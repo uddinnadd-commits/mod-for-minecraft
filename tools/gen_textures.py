@@ -89,6 +89,7 @@ door(f"{OUT}/block/street_door.png", (10, 12, 30), (255, 170, 60), 17)
 door(f"{OUT}/block/static_door.png", (120, 120, 124), (240, 240, 240), 18)
 door(f"{OUT}/block/orchard_door.png", (70, 60, 40), (190, 170, 110), 19)
 door(f"{OUT}/block/ward_door.png", (160, 190, 180), (240, 255, 250), 20)
+door(f"{OUT}/block/server_door.png", (8, 20, 14), (60, 255, 120), 21)
 
 # Entity textures are generated with the geometry by tools/gen_models.py.
 

@@ -29,4 +29,6 @@ public class Dimensions {
     public static final ResourceKey<Level> ORCHARD = key("the_orchard");
     /** The hospital. One corridor, the lamps half out, and an empty bed being pushed past. */
     public static final ResourceKey<Level> WARD = key("the_ward");
+    /** Where his world was kept. The racks are still running. Something in them is still running. */
+    public static final ResourceKey<Level> SERVER = key("the_server");
 }

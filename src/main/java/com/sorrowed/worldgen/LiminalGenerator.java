@@ -83,10 +83,12 @@ public class LiminalGenerator extends ChunkGenerator {
     public static final int ORCHARD_GROUND = 64;
     public static final int WARD_FLOOR = 64;
     public static final int WARD_CEIL = 70;
+    public static final int SERVER_FLOOR = 64;
+    public static final int SERVER_CEIL = 72;
     public static final int DROWN_SEA = 40;
 
     private enum Mode {
-        BACKUP, HALLWAY, DROWNED, ARCHIVE, STREET, STATIC, ORCHARD, WARD;
+        BACKUP, HALLWAY, DROWNED, ARCHIVE, STREET, STATIC, ORCHARD, WARD, SERVER;
 
         static Mode of(String name) {
             for (Mode m : values()) {
@@ -149,8 +151,13 @@ public class LiminalGenerator extends ChunkGenerator {
             case STATIC: return STATIC_GROUND + 90;
             case ORCHARD: return ORCHARD_GROUND + 12;
             case WARD: return WARD_CEIL;
+            case SERVER: return SERVER_CEIL;
             default: return backupHeight(x, z) + 26;
         }
+    }
+
+    private int columnTopWithExits(int x, int z) {
+        return Math.max(columnTop(x, z), Exits.top(mode, x, z));
     }
 
     @Override
@@ -167,7 +174,7 @@ public class LiminalGenerator extends ChunkGenerator {
                 int x = minX + lx;
                 int z = minZ + lz;
                 int lo = MIN_Y;
-                int hi = columnTop(x, z);
+                int hi = columnTopWithExits(x, z);
                 for (int y = lo; y <= hi; y++) {
                     BlockState state = stateAt(x, y, z);
                     if (state == null || state.isAir()) continue;
@@ -191,6 +198,7 @@ public class LiminalGenerator extends ChunkGenerator {
             case STATIC: return STATIC_GROUND;
             case ORCHARD: return ORCHARD_GROUND;
             case WARD: return WARD_CEIL;
+            case SERVER: return SERVER_CEIL;
             default: return backupHeight(x, z);
         }
     }
@@ -217,6 +225,10 @@ public class LiminalGenerator extends ChunkGenerator {
     // ------------------------------------------------------------------ blocks
 
     private BlockState stateAt(int x, int y, int z) {
+        if (kind != Mode.BACKUP) {
+            BlockState exit = Exits.state(mode, x, y, z);
+            if (exit != null) return exit.isAir() ? null : exit;
+        }
         switch (kind) {
             case HALLWAY: return hallwayState(x, y, z);
             case DROWNED: return drownedState(x, y, z);
@@ -226,6 +238,7 @@ public class LiminalGenerator extends ChunkGenerator {
             case STATIC: return staticState(x, y, z);
             case ORCHARD: return orchardState(x, y, z);
             case WARD: return wardState(x, y, z);
+            case SERVER: return serverState(x, y, z);
             default: return backupState(x, y, z);
         }
     }
@@ -249,13 +262,14 @@ public class LiminalGenerator extends ChunkGenerator {
         return Math.floorMod(mix(cx, cz, salt), 3L) != 0L;
     }
 
-    private enum Room { PLAIN, LIVING, BEDROOM, KITCHEN, WRONG }
+    private enum Room { PLAIN, LIVING, BEDROOM, KITCHEN, WRONG, POOL }
 
     private static Room roomOf(int cx, int cz) {
         if (chance(cx, cz, 31, 17)) return Room.LIVING;
         if (chance(cx, cz, 32, 13)) return Room.BEDROOM;
         if (chance(cx, cz, 33, 11)) return Room.KITCHEN;
         if (chance(cx, cz, 34, 41)) return Room.WRONG;
+        if (chance(cx, cz, 35, 23)) return Room.POOL;
         return Room.PLAIN;
     }
 
@@ -265,15 +279,25 @@ public class LiminalGenerator extends ChunkGenerator {
         int cx = x >> 4;
         int cz = z >> 4;
         Room room = roomOf(cx, cz);
+        int lx = x & 15;
+        int lz = z & 15;
         if (y <= HALL_FLOOR) {
+            if (room == Room.POOL) {
+                // A pool room: white tile, a foot of still water, and the lights reflected in it.
+                boolean rim = lx <= 2 || lx >= 14 || lz <= 2 || lz >= 14;
+                if (y == HALL_FLOOR && !rim) return Blocks.WATER.defaultBlockState();
+                return ((lx + lz) % 2 == 0 ? Blocks.WHITE_CONCRETE : Blocks.SMOOTH_QUARTZ).defaultBlockState();
+            }
             return (room == Room.WRONG ? Blocks.BLACK_CONCRETE : Blocks.BROWN_TERRACOTTA).defaultBlockState();
         }
 
-        int lx = x & 15;
-        int lz = z & 15;
         if (y == HALL_CEIL) {
             boolean light = (lx % 8 == 3 || lx % 8 == 4) && (lz % 8 == 3 || lz % 8 == 4);
             if (room == Room.WRONG) return (light ? Blocks.BLACK_CONCRETE : Blocks.SMOOTH_SANDSTONE).defaultBlockState();
+            // Some of the panels have gone out, in patches, so the dark comes in pools.
+            boolean dead = light && chance(x >> 3, z >> 3, 36, 4);
+            if (dead) return Blocks.REDSTONE_LAMP.defaultBlockState();
+            if (room == Room.POOL) return (light ? Blocks.SEA_LANTERN : Blocks.WHITE_CONCRETE).defaultBlockState();
             return (light ? Blocks.GLOWSTONE : Blocks.SMOOTH_SANDSTONE).defaultBlockState();
         }
         if (y > HALL_CEIL) return null;
@@ -284,6 +308,7 @@ public class LiminalGenerator extends ChunkGenerator {
         if (pillar) return Blocks.CUT_SANDSTONE.defaultBlockState();
         if (wallW || wallN) {
             if (room == Room.WRONG) return Blocks.BLACK_CONCRETE.defaultBlockState();
+            if (room == Room.POOL) return Blocks.WHITE_CONCRETE.defaultBlockState();
             return (y == HALL_FLOOR + 1 ? Blocks.SPRUCE_PLANKS : Blocks.SMOOTH_SANDSTONE).defaultBlockState();
         }
         switch (room) {
@@ -406,6 +431,28 @@ public class LiminalGenerator extends ChunkGenerator {
         if (floor >= DROWN_SEA) return null;
 
         int up = y - floor;
+        int ccx = x >> 4;
+        int ccz = z >> 4;
+        // Ribs: something enormous died here, and its bones are still arched over the seabed.
+        if (chance(ccx, ccz, 29, 40) && floor < DROWN_SEA - 14) {
+            int llx = x & 15;
+            int dz = (z & 15) - 8;
+            if (llx >= 1 && llx <= 14 && llx % 3 == 1 && up >= 0) {
+                double r = Math.sqrt(dz * dz + up * up);
+                if (Math.abs(r - 7.0D) < 0.7D) return Blocks.BONE_BLOCK.defaultBlockState();
+            }
+            if (dz == 0 && up == 0) return Blocks.BONE_BLOCK.defaultBlockState();   // the spine
+        }
+        // A room, sunk: four walls with the roof gone and the door still shut.
+        if (chance(ccx, ccz, 30, 30) && floor < DROWN_SEA - 6 && up >= 1 && up <= 3) {
+            int llx = x & 15;
+            int llz = z & 15;
+            boolean wall = (llx == 4 || llx == 11) && llz >= 4 && llz <= 11 || (llz == 4 || llz == 11) && llx >= 4 && llx <= 11;
+            if (wall && !(up == 3 && chance(x, z, 31, 3))) {
+                if (llz == 4 && llx == 7 && up <= 2) return Blocks.DARK_OAK_PLANKS.defaultBlockState();
+                return (chance(x, z * 3L + up, 32, 3) ? Blocks.MOSSY_COBBLESTONE : Blocks.OAK_PLANKS).defaultBlockState();
+            }
+        }
         int lx = x & 15;
         int lz = z & 15;
 
@@ -519,10 +566,17 @@ public class LiminalGenerator extends ChunkGenerator {
         int cx = x >> 4;
         int cz = z >> 4;
         boolean reading = chance(cx, cz, 51, 7);
+        boolean burnt = !reading && chance(cx, cz, 59, 9);
+        // The pit: a square hole in the floor with a ladder going down into the dark. It goes a long way.
+        if (!reading && chance(cx, cz, 60, 37) && lx >= 6 && lx <= 9 && lz >= 6 && lz <= 9 && y <= ARCHIVE_FLOOR && y > MIN_Y + 1) {
+            if (lz == 6 && lx == 7) return Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING, Direction.SOUTH);
+            if (lz == 6) return Blocks.STONE.defaultBlockState();
+            return null;
+        }
 
         if (y == ARCHIVE_FLOOR) {
             // Parquet with a runner down each aisle.
-            if (!reading && (lx == 6 || lx == 7 || lx == 14 || lx == 15)) return Blocks.RED_CARPET.defaultBlockState();
+            if (!reading && (lx == 6 || lx == 7 || lx == 14 || lx == 15)) return (burnt ? Blocks.BLACK_CARPET : Blocks.RED_CARPET).defaultBlockState();
             return ((lx + lz) % 2 == 0 ? Blocks.DARK_OAK_PLANKS : Blocks.SPRUCE_PLANKS).defaultBlockState();
         }
         if (y == ARCHIVE_CEIL) {
@@ -533,7 +587,7 @@ public class LiminalGenerator extends ChunkGenerator {
         int up = y - ARCHIVE_FLOOR;
         // Hanging lanterns, few and far between. The light is the colour of old paper.
         if (y == ARCHIVE_CEIL - 1 && lx % 8 == 6 && lz % 8 == 2) {
-            return Blocks.LANTERN.defaultBlockState().setValue(LanternBlock.HANGING, true);
+            return (burnt ? Blocks.SOUL_LANTERN : Blocks.LANTERN).defaultBlockState().setValue(LanternBlock.HANGING, true);
         }
         // Pillars at the chunk corners, floor to ceiling.
         if (lx == 0 && lz == 0) return Blocks.STRIPPED_DARK_OAK_LOG.defaultBlockState();
@@ -568,7 +622,11 @@ public class LiminalGenerator extends ChunkGenerator {
         if (shelfRow) {
             boolean gap = (lz % 8 == 6 || lz % 8 == 7) && chance(cx * 2L + (lx == 3 ? 0 : 1), cz * 2L + lz / 8, 54, 2);
             if (!gap) {
-                if (up <= 6) return Blocks.BOOKSHELF.defaultBlockState();
+                if (up <= 6) {
+                    // In the burnt aisles half the shelves are char.
+                    if (burnt && chance(x, z * 7L + up, 61, 2)) return Blocks.POLISHED_BLACKSTONE.defaultBlockState();
+                    return Blocks.BOOKSHELF.defaultBlockState();
+                }
                 if (up == 7) {
                     if (lz % 8 == 2 && chance(x, z, 55, 2)) {
                         return Blocks.CANDLE.defaultBlockState().setValue(CandleBlock.LIT, true);
@@ -602,6 +660,16 @@ public class LiminalGenerator extends ChunkGenerator {
 
         // The road runs east-west, with a dashed line and a kerb either side.
         if (pz <= 6) {
+            // A car left in the road, one lot in thirteen, lights on, nobody in it.
+            if (chance(x >> 4, Math.floorDiv(z, BLOCK), 66, 13) && pz >= 2 && pz <= 4 && (x & 15) >= 4 && (x & 15) <= 9) {
+                int clx = x & 15;
+                if (up == 1) {
+                    if (clx == 9) return Blocks.PEARLESCENT_FROGLIGHT.defaultBlockState();
+                    if (clx == 4) return Blocks.REDSTONE_LAMP.defaultBlockState();
+                    return Blocks.BLACK_CONCRETE.defaultBlockState();
+                }
+                if (up == 2 && clx >= 5 && clx <= 8) return (clx == 5 || clx == 8 ? Blocks.BLACK_CONCRETE : Blocks.BLACK_STAINED_GLASS).defaultBlockState();
+            }
             if (up > 0) return null;
             // Puddles: a still source block sunk into the road, holding the streetlight.
             if (pz >= 1 && pz <= 5 && chance(x >> 2, z >> 1, 63, 9) && chance(x, z, 64, 2)) return Blocks.WATER.defaultBlockState();
@@ -632,6 +700,21 @@ public class LiminalGenerator extends ChunkGenerator {
         return lawn(cx, cz, lx, hz, up);
     }
 
+    /** A swing frame, two chains, a seat, and a roundabout that does not turn. */
+    private static BlockState playground(int lx, int hz, int up) {
+        if (hz < 0 || hz > 8 || lx < 3 || lx > 12) return null;
+        if (hz == 2) {
+            if ((lx == 4 || lx == 11) && up >= 1 && up <= 3) return Blocks.DARK_OAK_FENCE.defaultBlockState();
+            if (lx >= 4 && lx <= 11 && up == 4) return Blocks.DARK_OAK_SLAB.defaultBlockState();
+            if ((lx == 6 || lx == 9) && (up == 2 || up == 3)) return Blocks.CHAIN.defaultBlockState();
+            if ((lx == 6 || lx == 9) && up == 1) return Blocks.DARK_OAK_PRESSURE_PLATE.defaultBlockState();
+        }
+        if (hz >= 5 && hz <= 7 && lx >= 6 && lx <= 8 && up == 1) {
+            return (lx == 7 && hz == 6 ? Blocks.IRON_BARS : Blocks.SMOOTH_STONE_SLAB).defaultBlockState();
+        }
+        return null;
+    }
+
     private static BlockState lawn(int cx, int cz, int lx, int hz, int up) {
         // The lawn stays grass; one lot in three has a spruce near the fence.
         if (lx == 1 && hz == 4 && chance(cx, cz, 61, 3)) {
@@ -656,6 +739,8 @@ public class LiminalGenerator extends ChunkGenerator {
     private static BlockState house(int cx, int cz, int lx, int hz, int up, boolean north) {
         if (lx < 3 || lx > 12 || hz < 0 || hz > 8) return null;
         boolean lit = chance(cx, cz, 62, 7);
+        // One lot in nine has no house: a playground nobody plays in.
+        if (chance(cx, cz, 65, 9)) return playground(lx, hz, up);
         boolean wallX = lx == 3 || lx == 12;
         boolean wallZ = hz == 0 || hz == 8;
         boolean cornerPost = wallX && wallZ;
@@ -670,7 +755,8 @@ public class LiminalGenerator extends ChunkGenerator {
                     return Blocks.OAK_DOOR.defaultBlockState()
                             .setValue(DoorBlock.FACING, front)
                             .setValue(DoorBlock.HINGE, DoorHingeSide.LEFT)
-                            .setValue(DoorBlock.HALF, up == 1 ? DoubleBlockHalf.LOWER : DoubleBlockHalf.UPPER);
+                            .setValue(DoorBlock.HALF, up == 1 ? DoubleBlockHalf.LOWER : DoubleBlockHalf.UPPER)
+                            .setValue(DoorBlock.OPEN, lit);   // the house with the light on has its door open
                 }
                 // Windows: two on the front, one on each side, at eye height.
                 boolean window = (up == 2 || up == 3)
@@ -734,6 +820,23 @@ public class LiminalGenerator extends ChunkGenerator {
             return Blocks.IRON_BARS.defaultBlockState();
         }
 
+        // The test card: bars of colour standing in the noise, one chunk in fifty.
+        if (chance(cx, cz, 79, 50) && lz == 8 && lx >= 1 && lx <= 14 && up >= 1 && up <= 9) {
+            Block[] bars = {Blocks.WHITE_CONCRETE, Blocks.YELLOW_CONCRETE, Blocks.CYAN_CONCRETE, Blocks.LIME_CONCRETE,
+                    Blocks.MAGENTA_CONCRETE, Blocks.RED_CONCRETE, Blocks.BLUE_CONCRETE};
+            if (up <= 2) return Blocks.BLACK_CONCRETE.defaultBlockState();
+            return bars[(lx - 1) / 2].defaultBlockState();
+        }
+        // A living room, with no house around it: carpet, a sofa, the set on, facing nobody.
+        if (chance(cx, cz, 80, 35) && lx >= 4 && lx <= 11 && lz >= 4 && lz <= 11) {
+            if (up == 1 && lz == 10 && lx >= 6 && lx <= 9) return Blocks.RED_NETHER_BRICK_STAIRS.defaultBlockState().setValue(StairBlock.FACING, Direction.SOUTH);
+            if (lz == 5 && lx == 7) {
+                if (up == 1) return Blocks.DARK_OAK_SLAB.defaultBlockState();
+                if (up == 2) return Blocks.SEA_LANTERN.defaultBlockState();
+            }
+            if (up == 1) return Blocks.RED_CARPET.defaultBlockState();
+            return null;
+        }
         // Ghost houses: the outline of a house that is not loaded in, one chunk in forty.
         if (chance(cx, cz, 77, 40) && lx >= 4 && lx <= 11 && lz >= 4 && lz <= 11 && up >= 1 && up <= 5) {
             boolean edge = lx == 4 || lx == 11 || lz == 4 || lz == 11;
@@ -772,6 +875,26 @@ public class LiminalGenerator extends ChunkGenerator {
         int row = Math.floorDiv(x, 8);
         int col = Math.floorDiv(z, 6);
 
+        // The barn: a long dark ruin, one in forty-five, the trees cut away around it.
+        int bcx = x >> 4;
+        int bcz = z >> 4;
+        if (chance(bcx, bcz, 86, 45)) {
+            int lx = x & 15;
+            int lz = z & 15;
+            if (lx >= 2 && lx <= 13 && lz >= 3 && lz <= 12) {
+                boolean wall = lx == 2 || lx == 13 || lz == 3 || lz == 12;
+                boolean door = lz == 3 && lx >= 7 && lx <= 8 && up <= 3;
+                if (wall && !door && up <= 5) {
+                    if (up >= 3 && chance(x, z * 5L + up, 87, 4)) return null;   // boards missing
+                    return ((lx + up) % 4 == 0 ? Blocks.DARK_OAK_LOG : Blocks.DARK_OAK_PLANKS).defaultBlockState();
+                }
+                if (up == 6 && lx >= 3 && lx <= 12 && !chance(x, z, 88, 3)) return Blocks.DARK_OAK_SLAB.defaultBlockState();
+                if (up == 1 && lx >= 10 && lz >= 9 && lz <= 11) return Blocks.HAY_BLOCK.defaultBlockState();
+                if (lx == 5 && lz == 10 && up >= 1 && up <= 3) return Blocks.OAK_FENCE.defaultBlockState();
+                if (lx == 5 && lz == 10 && up == 4) return Blocks.CARVED_PUMPKIN.defaultBlockState();
+                return null;
+            }
+        }
         // The trees: the same dead tree every 8 by 6, trunk four high, four bare branches, no leaves.
         if (rx == 0 && rz == 0) {
             if (up <= 4) return Blocks.STRIPPED_SPRUCE_LOG.defaultBlockState();
@@ -815,7 +938,8 @@ public class LiminalGenerator extends ChunkGenerator {
                 return (dead ? Blocks.REDSTONE_LAMP.defaultBlockState()
                         : Blocks.REDSTONE_LAMP.defaultBlockState().setValue(RedstoneLampBlock.LIT, true));
             }
-            if (!corridor && lx == 8 && (pz == 6 || pz == 25)) return Blocks.SEA_LANTERN.defaultBlockState();
+            boolean darkRoom = chance(x >> 4, z >> 5, 97, 4);
+            if (!corridor && lx == 8 && (pz == 6 || pz == 25) && !darkRoom) return Blocks.SEA_LANTERN.defaultBlockState();
             return Blocks.WHITE_CONCRETE.defaultBlockState();
         }
         if (y > WARD_CEIL) return null;
@@ -823,14 +947,22 @@ public class LiminalGenerator extends ChunkGenerator {
 
         // The corridor walls, with a door into a room every 16 blocks on each side.
         if (pz == 12 || pz == 19) {
-            boolean door = lx == 8 && up <= 1;
-            if (door) return null;
+            boolean door = lx == 8 && up >= 1 && up <= 2;
+            if (door) {
+                // Some rooms are barred from the corridor side.
+                return chance(x >> 4, z >> 5, 98, 6) ? Blocks.IRON_BARS.defaultBlockState() : null;
+            }
             if (up == 1 && lx == 4 && chance(x >> 4, z >> 5, 92, 2)) return Blocks.IRON_BARS.defaultBlockState();   // a window into the room
             return (up == 2 ? Blocks.QUARTZ_BLOCK : Blocks.WHITE_CONCRETE).defaultBlockState();
         }
         if (corridor) {
             // A gurney left in the corridor, now and then. A trail of something on the floor.
             if (up == 1 && pz == 14 && lx >= 6 && lx <= 7 && chance(x >> 4, z >> 5, 93, 5)) return Blocks.WHITE_WOOL.defaultBlockState();
+            // The nurses' station: a counter, a lamp, nobody behind it.
+            if (chance(x >> 4, z >> 5, 99, 7) && pz == 13 && lx >= 2 && lx <= 5) {
+                if (up == 1) return Blocks.QUARTZ_BLOCK.defaultBlockState();
+                if (up == 2 && lx == 3) return Blocks.LANTERN.defaultBlockState();
+            }
             return null;
         }
         // The rooms: walls between every 16 blocks, beds inside, curtains, a chair.
@@ -839,15 +971,64 @@ public class LiminalGenerator extends ChunkGenerator {
         int depth = north ? 11 - pz : pz - 20;   // 0 at the corridor wall, 11 at the back
         if (depth >= 11) return (up == 1 && lx == 8 ? Blocks.IRON_BARS : Blocks.WHITE_CONCRETE).defaultBlockState();   // back wall with a barred window
         if (depth < 0) return null;
-        if (up == 0) {
+        if (up == 1) {
             if (depth == 8 && (lx == 3 || lx == 4)) return Blocks.WHITE_WOOL.defaultBlockState();            // the bed
             if (depth == 8 && lx == 11 && chance(x >> 4, z >> 5, 94, 2)) return Blocks.WHITE_WOOL.defaultBlockState();
-            if (depth == 6 && lx == 6) return Blocks.SPRUCE_STAIRS.defaultBlockState().setValue(StairBlock.FACING, Direction.WEST);
+            if (depth == 5 && lx == 9) return Blocks.SPRUCE_STAIRS.defaultBlockState().setValue(StairBlock.FACING, Direction.WEST);
             if (depth == 9 && lx == 2) return Blocks.FLOWER_POT.defaultBlockState();
+            if (depth == 9 && lx == 5 && chance(x >> 4, z >> 5, 96, 3)) return Blocks.REDSTONE_TORCH.defaultBlockState();   // the monitor light
         }
-        if (up == 1 && depth == 8 && lx == 3) return Blocks.QUARTZ_SLAB.defaultBlockState();                // the pillow
-        if (up <= 2 && depth >= 5 && depth <= 9 && lx == 6 && chance(x >> 4, z >> 5, 95, 2)) return Blocks.LIGHT_GRAY_WOOL.defaultBlockState();   // the curtain
-        if (up == 1 && depth == 9 && lx == 5 && chance(x >> 4, z >> 5, 96, 3)) return Blocks.REDSTONE_TORCH.defaultBlockState();   // the monitor light
+        if (up == 2 && depth == 8 && lx == 3) return Blocks.QUARTZ_SLAB.defaultBlockState();                // the pillow
+        if (up >= 1 && up <= 3 && depth >= 5 && depth <= 9 && lx == 6 && chance(x >> 4, z >> 5, 95, 2)) return Blocks.LIGHT_GRAY_WOOL.defaultBlockState();   // the curtain
+        return null;
+    }
+
+    // ----------------------------------------------------------------- server
+
+    /**
+     * Where his world was kept. Rows of racks under a low ceiling, cold light every few metres,
+     * cables along the floor, and the noise of the fans. Every rack has a few lights on it.
+     */
+    private static BlockState serverState(int x, int y, int z) {
+        if (y == MIN_Y) return Blocks.BEDROCK.defaultBlockState();
+        if (y < SERVER_FLOOR - 1) return Blocks.STONE.defaultBlockState();
+        int px = Math.floorMod(x, 6);
+        int pz = Math.floorMod(z, 48);
+        boolean crossAisle = pz <= 3;
+        boolean rack = (px == 1 || px == 2) && !crossAisle;
+        if (y == SERVER_FLOOR - 1) return Blocks.DEEPSLATE_TILES.defaultBlockState();
+        if (y == SERVER_FLOOR) {
+            // Raised floor tiles; perforated (grates) in front of the racks, where the cold air comes up.
+            if (!crossAisle && (px == 0 || px == 3)) return Blocks.IRON_TRAPDOOR.defaultBlockState();
+            return ((x + z) % 2 == 0 ? Blocks.POLISHED_DEEPSLATE : Blocks.DEEPSLATE_TILES).defaultBlockState();
+        }
+        if (y == SERVER_CEIL) {
+            if (px == 4 && Math.floorMod(z, 8) == 4 && !chance(x >> 3, z >> 3, 111, 3)) return Blocks.SEA_LANTERN.defaultBlockState();
+            return Blocks.GRAY_CONCRETE.defaultBlockState();
+        }
+        if (y > SERVER_CEIL) return null;
+        int up = y - SERVER_FLOOR;
+
+        if (rack) {
+            if (Math.floorMod(z, 48) == 25) return null;   // a gap in the middle of each row, to slip through
+            if (up <= 5) {
+                // Blinking lights: a few lit faces on each rack. Lime and red, mostly dark.
+                long h = mix(x, z * 13L + up, 112);
+                if ((h & 15) == 0) return Blocks.VERDANT_FROGLIGHT.defaultBlockState();
+                if ((h & 31) == 1) return Blocks.REDSTONE_LAMP.defaultBlockState().setValue(RedstoneLampBlock.LIT, true);
+                if ((h & 63) == 2) return Blocks.SEA_LANTERN.defaultBlockState();
+                return (up == 0 || up == 5 ? Blocks.POLISHED_BLACKSTONE : Blocks.POLISHED_BLACKSTONE_BRICKS).defaultBlockState();
+            }
+            if (up == 6) return Blocks.IRON_BARS.defaultBlockState();   // the cable tray
+            return null;
+        }
+        // Cables along the floor in the hot aisle.
+        if (up == 1 && px == 5 && Math.floorMod(z, 3) != 0 && !crossAisle) return Blocks.BLACK_CARPET.defaultBlockState();
+        // A terminal at the end of a row now and then, the screen still on.
+        if (crossAisle && pz == 3 && px == 4 && chance(x >> 3, z >> 5, 113, 5)) {
+            if (up == 1) return Blocks.IRON_BLOCK.defaultBlockState();
+            if (up == 2) return Blocks.BLACK_STAINED_GLASS.defaultBlockState();
+        }
         return null;
     }
 }

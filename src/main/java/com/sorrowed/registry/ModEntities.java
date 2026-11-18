@@ -3,6 +3,7 @@ package com.sorrowed.registry;
 import com.sorrowed.Sorrowed;
 import com.sorrowed.entity.ArchivistEntity;
 import com.sorrowed.entity.CarrierEntity;
+import com.sorrowed.entity.CopyEntity;
 import com.sorrowed.entity.EchoEntity;
 import com.sorrowed.entity.HollowEntity;
 import com.sorrowed.entity.ListenerEntity;
@@ -60,4 +61,8 @@ public class ModEntities {
     public static final RegistryObject<EntityType<ScarecrowEntity>> SCARECROW = ENTITIES.register("scarecrow",
             () -> EntityType.Builder.<ScarecrowEntity>of(ScarecrowEntity::new, MobCategory.MONSTER)
                     .sized(0.7F, 2.6F).clientTrackingRange(12).build("scarecrow"));
+
+    public static final RegistryObject<EntityType<CopyEntity>> COPY = ENTITIES.register("copy",
+            () -> EntityType.Builder.<CopyEntity>of(CopyEntity::new, MobCategory.MONSTER)
+                    .sized(0.6F, 1.8F).clientTrackingRange(12).build("copy"));
 }

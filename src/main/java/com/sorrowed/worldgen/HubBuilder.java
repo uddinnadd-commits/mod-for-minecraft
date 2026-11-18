@@ -48,6 +48,8 @@ public final class HubBuilder {
                 fillChest(dest, gate.offset(3, 0, 2), "ward_papers", Letters.wardNote(), Letters.wardLast());
             } else if (key.equals(Dimensions.ORCHARD)) {
                 fillChest(dest, gate.offset(3, 0, 3), "orchard_papers", Letters.orchardNote());
+            } else if (key.equals(Dimensions.SERVER)) {
+                fillChest(dest, gate.offset(3, 0, 1), "server_papers", Letters.serverLog(), Letters.serverReadme());
             }
             return front(gate);
         }
@@ -67,6 +69,7 @@ public final class HubBuilder {
         if (key.equals(Dimensions.STATIC)) return ModBlocks.STATIC_DOOR.get();
         if (key.equals(Dimensions.ORCHARD)) return ModBlocks.ORCHARD_DOOR.get();
         if (key.equals(Dimensions.WARD)) return ModBlocks.WARD_DOOR.get();
+        if (key.equals(Dimensions.SERVER)) return ModBlocks.SERVER_DOOR.get();
         return null;
     }
 
@@ -76,6 +79,7 @@ public final class HubBuilder {
         if (level.dimension().equals(Dimensions.HALLWAY)) return LiminalGenerator.HALL_FLOOR + 1;
         if (level.dimension().equals(Dimensions.ARCHIVE)) return LiminalGenerator.ARCHIVE_FLOOR + 1;
         if (level.dimension().equals(Dimensions.WARD)) return LiminalGenerator.WARD_FLOOR + 1;
+        if (level.dimension().equals(Dimensions.SERVER)) return LiminalGenerator.SERVER_FLOOR + 1;
         SorrowedData data = SorrowedData.get(level);
         Integer y = data.getY(key);
         if (y == null) {

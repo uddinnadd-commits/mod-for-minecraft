@@ -6,6 +6,7 @@ import com.sorrowed.SorrowedData;
 import com.sorrowed.cutscene.CutsceneServer;
 import com.sorrowed.entity.EchoEntity;
 import com.sorrowed.entity.ListenerEntity;
+import com.sorrowed.mind.DimensionHorrors;
 import com.sorrowed.mind.PathHistory;
 import com.sorrowed.mind.Scheduler;
 import com.sorrowed.mind.Sorrow;
@@ -120,6 +121,7 @@ public class ServerEvents {
         PathHistory.clear(player.getUUID());
         CutsceneServer.forget(player.getUUID());
         LAST_AMBIENT.remove(player.getUUID());
+        DimensionHorrors.forget(player.getUUID());
         Sorrow.forget(player.getUUID());
         SorrowEvents.forget(player.getUUID());
     }
@@ -219,6 +221,9 @@ public class ServerEvents {
         } else if (to.equals(Dimensions.WARD)) {
             ModNetwork.thought(player, Thoughts.ENTER_WARD_1);
             ModNetwork.thought(player, Thoughts.ENTER_WARD_2);
+        } else if (to.equals(Dimensions.SERVER)) {
+            ModNetwork.thought(player, Thoughts.ENTER_SERVER_1);
+            ModNetwork.thought(player, Thoughts.ENTER_SERVER_2);
         }
     }
 
@@ -234,6 +239,7 @@ public class ServerEvents {
 
         if (t % 20 == 0) {
             SorrowSystem.tick(player);
+            DimensionHorrors.tick(player);
         }
 
         if (t % 200 == 0) {
@@ -273,6 +279,7 @@ public class ServerEvents {
         else if (dim.equals(Dimensions.STATIC)) pool = Thoughts.AMBIENT_STATIC;
         else if (dim.equals(Dimensions.ORCHARD)) pool = Thoughts.AMBIENT_ORCHARD;
         else if (dim.equals(Dimensions.WARD)) pool = Thoughts.AMBIENT_WARD;
+        else if (dim.equals(Dimensions.SERVER)) pool = Thoughts.AMBIENT_SERVER;
         else if (level.isNight() && random.nextBoolean()) pool = Thoughts.AMBIENT_NIGHT;
         else pool = Thoughts.AMBIENT_OVERWORLD;
         return pool[random.nextInt(pool.length)];

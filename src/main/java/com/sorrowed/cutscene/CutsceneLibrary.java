@@ -137,6 +137,18 @@ public final class CutsceneLibrary {
                 .cue(180, "minecraft:block.note_block.bit", 0.5F, 1.9F)
                 .build());
 
+        // The Server: along the row, the lights blinking past, then turning to find something at the end of it.
+        add(Cutscene.builder("arrive_the_server", 280).blendOut(30).fade(14, 0, 0)
+                .key(0, 0, 0.5, 1.4, 0, 0, 66, 0)
+                .key(140, 0, -9, 1.4, 0, 0, 58, 0)
+                .key(200, 0, -9, 1.4, 25, 2, 50, 0)
+                .key(250, 0, 0, 1.62, 0, P, 70, 0)
+                .caption(15, "Fans. Hundreds of them. And the lights.")
+                .caption(100, "This is where it was kept. His world. Ours.")
+                .caption(190, "There's someone at the end of the row. They're standing exactly like me.")
+                .cue(0, "minecraft:block.beacon.ambient", 0.8F, 0.5F)
+                .build());
+
         // The grave (anchored on the stone): circle it once.
         add(Cutscene.builder("grave", 300).blendOut(30).fade(8, 0, 0)
                 .orbit(0, 235, 4.5, 2.4, 30, 250, 0.8, 55, 18)

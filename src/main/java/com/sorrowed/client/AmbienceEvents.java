@@ -1,7 +1,9 @@
 package com.sorrowed.client;
 
 import com.sorrowed.registry.Dimensions;
+import com.sorrowed.worldgen.Exits;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
@@ -30,6 +32,11 @@ public final class AmbienceEvents {
                 cue(SoundEvents.WOODEN_DOOR_OPEN, 0.3F, 0.3F, 0.5F, 900),
                 cue(SoundEvents.WOOD_HIT, 0.4F, 0.5F, 0.7F, 600),
                 cue(SoundEvents.GRASS_STEP, 0.3F, 0.5F, 0.7F, 700)};
+        if (dim.equals(Dimensions.SERVER)) return new Cue[] {
+                cue(SoundEvents.MINECART_INSIDE, 0.15F, 0.3F, 0.4F, 120),
+                cue(SoundEvents.COMPARATOR_CLICK, 0.4F, 1.2F, 1.8F, 160),
+                cue(SoundEvents.STONE_BUTTON_CLICK_ON, 0.3F, 1.6F, 2.0F, 300),
+                cue(SoundEvents.BEACON_AMBIENT, 0.4F, 0.5F, 0.7F, 400)};
         if (dim.equals(Dimensions.WARD)) return new Cue[] {
                 cue(SoundEvents.NOTE_BLOCK_BIT.value(), 0.25F, 1.8F, 1.9F, 70),
                 cue(SoundEvents.BEACON_AMBIENT, 0.3F, 0.6F, 0.8F, 400),
@@ -68,10 +75,26 @@ public final class AmbienceEvents {
         return null;
     }
 
+    private static String modeOf(ResourceKey<Level> dim) {
+        if (!dim.location().getNamespace().equals("sorrowed")) return null;
+        String path = dim.location().getPath();
+        return path.startsWith("the_") ? path.substring(4) : null;
+    }
+
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null || mc.isPaused()) return;
         ResourceKey<Level> dim = mc.level.dimension();
+
+        // The way out hums. Every few seconds the nearest exit makes a low sound you can follow.
+        String mode = modeOf(dim);
+        if (mode != null && !"backup".equals(mode) && !"hush".equals(mode) && mc.level.getGameTime() % 80L == 0L) {
+            BlockPos exit = Exits.nearest(mode, mc.player.getX(), mc.player.getZ());
+            if (exit != null && exit.distToCenterSqr(mc.player.position()) < 90.0D * 90.0D) {
+                mc.level.playLocalSound(exit.getX() + 0.5D, exit.getY() + 1.0D, exit.getZ() + 0.5D,
+                        SoundEvents.BEACON_AMBIENT, SoundSource.AMBIENT, 5.0F, 0.55F, false);
+            }
+        }
         Cue[] cues = cuesFor(dim);
         if (cues == null) return;
         RandomSource r = mc.level.random;

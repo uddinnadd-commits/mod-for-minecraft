@@ -32,6 +32,8 @@ public class ModBlocks {
             () -> new DoorwayBlock(Dimensions.ORCHARD, Dimensions.BACKUP));
     public static final RegistryObject<Block> WARD_DOOR = BLOCKS.register("ward_door",
             () -> new DoorwayBlock(Dimensions.WARD, Dimensions.BACKUP));
+    public static final RegistryObject<Block> SERVER_DOOR = BLOCKS.register("server_door",
+            () -> new DoorwayBlock(Dimensions.SERVER, Dimensions.BACKUP));
 
     public static final RegistryObject<Block> GRAVE_MARKER = BLOCKS.register("grave_marker",
             GraveMarkerBlock::new);

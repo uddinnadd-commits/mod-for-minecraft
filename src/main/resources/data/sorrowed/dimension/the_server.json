@@ -1,0 +1,11 @@
+{
+  "type": "sorrowed:the_server",
+  "generator": {
+    "type": "sorrowed:liminal",
+    "mode": "server",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "sorrowed:server"
+    }
+  }
+}

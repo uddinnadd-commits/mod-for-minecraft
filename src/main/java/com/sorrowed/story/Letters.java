@@ -51,6 +51,14 @@ public final class Letters {
         return PapersItem.of("ward_2");
     }
 
+    public static ItemStack serverLog() {
+        return PapersItem.of("server_log");
+    }
+
+    public static ItemStack serverReadme() {
+        return PapersItem.of("server_readme");
+    }
+
     /** The sheets given on first join, in reading order, plus the drawing folded in with them. */
     public static ItemStack[] welcome() {
         return new ItemStack[] {

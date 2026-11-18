@@ -51,6 +51,10 @@ public class AtmosphereEvents {
             event.setNearPlaneDistance(8.0F);
             event.setFarPlaneDistance(44.0F);
             event.setCanceled(true);
+        } else if (dim.equals(Dimensions.SERVER) && type == FogType.NONE) {
+            event.setNearPlaneDistance(4.0F);
+            event.setFarPlaneDistance(40.0F);
+            event.setCanceled(true);
         } else if (dim.equals(Dimensions.WARD) && type == FogType.NONE) {
             event.setNearPlaneDistance(10.0F);
             event.setFarPlaneDistance(56.0F);
@@ -86,6 +90,8 @@ public class AtmosphereEvents {
             set(event, 0.56F, 0.57F, 0.55F);
         } else if (dim.equals(Dimensions.WARD)) {
             set(event, 0.80F, 0.86F, 0.82F);
+        } else if (dim.equals(Dimensions.SERVER)) {
+            set(event, 0.02F, 0.04F, 0.06F);
         } else if (dim.equals(Dimensions.STATIC)) {
             // Flicker between greys, never quite the same twice.
             long t = mc.level.getGameTime();

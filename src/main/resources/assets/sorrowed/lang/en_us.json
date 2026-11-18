@@ -29,5 +29,8 @@
   "item.sorrowed.orderly_spawn_egg": "The Orderly Spawn Egg",
   "item.sorrowed.scarecrow_spawn_egg": "The Scarecrow Spawn Egg",
   "entity.sorrowed.orderly": "The Orderly",
-  "entity.sorrowed.scarecrow": "The Scarecrow"
+  "entity.sorrowed.scarecrow": "The Scarecrow",
+  "block.sorrowed.server_door": "Server Doorway",
+  "item.sorrowed.copy_spawn_egg": "The Copy Spawn Egg",
+  "entity.sorrowed.copy": "The Copy"
 }
