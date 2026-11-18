@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.SoundType;
 
 /**
  * He is still trying to finish it. He walks in a straight line and lays a plank bridge under his
- * own feet, across the gaps in the Unfinished. Being near him is the only calm thing left.
+ * own feet, out across the meadow in Alex's world. Being near him is the only calm thing left.
  * Hurt him and he stops, says one thing, and leaves you a Rain Tear.
  */
 public class MasonEntity extends PathfinderMob {
