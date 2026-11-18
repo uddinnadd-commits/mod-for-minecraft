@@ -4,12 +4,15 @@ import com.sorrowed.Sorrowed;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
+import java.util.Optional;
+
 public class ModNetwork {
-    private static final String PROTOCOL = "5";
+    private static final String PROTOCOL = "6";
 
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(Sorrowed.MODID, "main"),
@@ -26,6 +29,32 @@ public class ModNetwork {
                 DistortPacket::encode, DistortPacket::decode, DistortPacket::handle);
         CHANNEL.registerMessage(4, StaticPacket.class,
                 StaticPacket::encode, StaticPacket::decode, StaticPacket::handle);
+        CHANNEL.registerMessage(5, ObjectivesPacket.class,
+                ObjectivesPacket::encode, ObjectivesPacket::decode, ObjectivesPacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(6, OpenPacket.class,
+                OpenPacket::encode, OpenPacket::decode, OpenPacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(7, ReplyPacket.class,
+                ReplyPacket::encode, ReplyPacket::decode, ReplyPacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_SERVER));
+    }
+
+    public static void objectives(ServerPlayer player, ObjectivesPacket packet) {
+        CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), packet);
+    }
+
+    public static void open(ServerPlayer player, String what) {
+        CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new OpenPacket(what));
+    }
+
+    public static void ending(ServerPlayer player) {
+        open(player, "ending");
+    }
+
+    /** Client side: send what was typed into one of the screens. */
+    public static void reply(String what, String text) {
+        CHANNEL.sendToServer(new ReplyPacket(what, text));
     }
 
     public static void distort(ServerPlayer player, int in, int hold, int out) {

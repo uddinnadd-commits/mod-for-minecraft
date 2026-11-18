@@ -3,7 +3,9 @@ package com.sorrowed.registry;
 import com.sorrowed.Sorrowed;
 import com.sorrowed.block.DoorwayBlock;
 import com.sorrowed.block.GraveMarkerBlock;
+import com.sorrowed.block.LighthouseLampBlock;
 import com.sorrowed.block.LoosePapersBlock;
+import com.sorrowed.block.ScreenBlock;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.DeferredRegister;
@@ -40,4 +42,18 @@ public class ModBlocks {
             GraveMarkerBlock::new);
     public static final RegistryObject<Block> LOOSE_PAPERS = BLOCKS.register("loose_papers",
             LoosePapersBlock::new);
+
+    // The things left on in each world: what the objectives are about.
+    public static final RegistryObject<Block> CHAT_SCREEN = BLOCKS.register("chat_screen",
+            () -> new ScreenBlock("chat", 7));
+    public static final RegistryObject<Block> CONSOLE_SCREEN = BLOCKS.register("console_screen",
+            () -> new ScreenBlock("console", 7));
+    public static final RegistryObject<Block> SNOW_SCREEN = BLOCKS.register("snow_screen",
+            () -> new ScreenBlock("snow", 6));
+    public static final RegistryObject<Block> CLEAR_SCREEN = BLOCKS.register("clear_screen",
+            () -> new ScreenBlock("clear", 10));
+    public static final RegistryObject<Block> LAPTOP = BLOCKS.register("laptop",
+            () -> new ScreenBlock("laptop", 5));
+    public static final RegistryObject<Block> LIGHTHOUSE_LAMP = BLOCKS.register("lighthouse_lamp",
+            LighthouseLampBlock::new);
 }

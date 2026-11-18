@@ -51,6 +51,8 @@ public final class HubBuilder {
             } else if (key.equals(Dimensions.SERVER)) {
                 fillChest(dest, gate.offset(3, 0, 1), "server_papers", Letters.serverLog(), Letters.serverReadme());
             }
+            // The one thing in this world that is his to find.
+            MemorySites.ensure(dest);
             return front(gate);
         }
         return Vec3.atBottomCenterOf(dest.getSharedSpawnPos());

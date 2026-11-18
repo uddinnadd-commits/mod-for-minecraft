@@ -19,6 +19,7 @@ public final class WeatherControl {
     }
 
     public static void thunder(ServerLevel level, int ticks) {
+        if (com.sorrowed.SorrowedData.get(level).ended) return;   // it stopped raining for good
         thunderUntil = level.getGameTime() + ticks;
         level.setWeatherParameters(0, RAIN_TIME, true, true);
     }

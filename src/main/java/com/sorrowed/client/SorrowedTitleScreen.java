@@ -27,6 +27,7 @@ import java.util.Random;
  */
 public class SorrowedTitleScreen extends Screen {
     private static final ResourceLocation BG = new ResourceLocation(Sorrowed.MODID, "textures/gui/title_bg.png");
+    private static final ResourceLocation BG_AFTER = new ResourceLocation(Sorrowed.MODID, "textures/gui/title_bg_after.png");
     private static final ResourceLocation FIGURE = new ResourceLocation(Sorrowed.MODID, "textures/gui/title_figure.png");
     private static final int BG_W = 480;
     private static final int BG_H = 270;
@@ -42,11 +43,21 @@ public class SorrowedTitleScreen extends Screen {
             "someone is standing in the field. it isn't me",
     };
 
+    /** Once you have seen it end: morning, and nobody in the field. */
+    private static final String[] AFTER = {
+            "thank you for coming back",
+            "it stopped raining",
+            "leave the door open for whoever comes next",
+            "the float moves now",
+            "it's the day after",
+    };
+
     /** How many times the menu has been opened this session. The figure walks closer each time. */
     private static int visits;
 
     private final long opened = Util.getMillis();
     private final String line;
+    private final boolean after = EndingMemory.ended();
     private long nextFlash;
     private long flashAt = -1L;
     private int ticks;
@@ -55,7 +66,8 @@ public class SorrowedTitleScreen extends Screen {
         super(Component.literal("sorrowed"));
         visits++;
         Random r = new Random(System.nanoTime());
-        this.line = LINES[r.nextInt(LINES.length)];
+        String[] pool = EndingMemory.ended() ? AFTER : LINES;
+        this.line = pool[r.nextInt(pool.length)];
         this.nextFlash = opened + 9000L + r.nextInt(14000);
     }
 
@@ -84,6 +96,7 @@ public class SorrowedTitleScreen extends Screen {
     @Override
     public void tick() {
         ticks++;
+        if (after) return;   // it stopped raining
         Minecraft mc = Minecraft.getInstance();
         // The rain, quietly, always.
         if (ticks % 6 == 0) {
@@ -115,35 +128,44 @@ public class SorrowedTitleScreen extends Screen {
         g.pose().pushPose();
         g.pose().translate(ox, oy, 0.0F);
         g.pose().scale(cover, cover, 1.0F);
-        g.blit(BG, 0, 0, 0, 0, BG_W, BG_H, BG_W, BG_H);
+        g.blit(after ? BG_AFTER : BG, 0, 0, 0, 0, BG_W, BG_H, BG_W, BG_H);
 
-        // The lit window flickers.
-        float flick = 0.75F + 0.25F * Mth.sin(t * 7.3F) * Mth.sin(t * 2.1F);
-        int wa = (int) (110 * flick);
-        g.fill(311, 158, 317, 164, (wa << 24) | 0xFFD070);
+        if (!after) {
+            // The lit window flickers.
+            float flick = 0.75F + 0.25F * Mth.sin(t * 7.3F) * Mth.sin(t * 2.1F);
+            int wa = (int) (110 * flick);
+            g.fill(311, 158, 317, 164, (wa << 24) | 0xFFD070);
 
-        // The figure in the field. Further away on the first visit; closer every time after.
-        int step = Math.min(visits - 1, 6);
-        float fs = 0.55F + step * 0.22F;
-        float fx = 140.0F + step * 18.0F;
-        float fy = 196.0F + step * 9.0F;
-        g.pose().pushPose();
-        g.pose().translate(fx, fy - 32.0F * fs, 0.0F);
-        g.pose().scale(fs, fs, 1.0F);
-        g.blit(FIGURE, 0, 0, 0, 0, 16, 32, 16, 32);
-        g.pose().popPose();
+            // The figure in the field. Further away on the first visit; closer every time after.
+            int step = Math.min(visits - 1, 6);
+            float fs = 0.55F + step * 0.22F;
+            float fx = 140.0F + step * 18.0F;
+            float fy = 196.0F + step * 9.0F;
+            g.pose().pushPose();
+            g.pose().translate(fx, fy - 32.0F * fs, 0.0F);
+            g.pose().scale(fs, fs, 1.0F);
+            g.blit(FIGURE, 0, 0, 0, 0, 16, 32, 16, 32);
+            g.pose().popPose();
+        } else {
+            // Light coming up over the hills, breathing very slowly.
+            float glow = 0.5F + 0.5F * Mth.sin(t * 0.4F);
+            for (int i = 0; i < 6; i++) {
+                int a = (int) ((10 + 6 * glow) * (6 - i) / 6.0F);
+                g.fill(0, 150 + i * 5, BG_W, 155 + i * 5, (a << 24) | 0xFFC890);
+            }
+        }
         g.pose().popPose();
 
         // Darken toward the left, where the words are.
         for (int i = 0; i < 24; i++) {
-            int a = (int) (150 * (1.0F - i / 24.0F));
+            int a = (int) ((after ? 110 : 150) * (1.0F - i / 24.0F));
             g.fill(i * (w / 48), 0, (i + 1) * (w / 48), h, (a << 24));
         }
 
-        rain(g, w, h, t);
+        if (!after) rain(g, w, h, t);
 
         // Lightning: the whole screen goes white and fades.
-        if (flashAt > 0L) {
+        if (!after && flashAt > 0L) {
             float since = (now - flashAt) / 1000.0F;
             if (since < 0.9F) {
                 float a = since < 0.08F ? 0.8F : since < 0.16F ? 0.15F : since < 0.24F ? 0.6F : 0.6F * (1.0F - (since - 0.24F) / 0.66F);
@@ -189,15 +211,16 @@ public class SorrowedTitleScreen extends Screen {
         int cx = 0;
         for (int i = 0; i < word.length(); i++) {
             String ch = String.valueOf(word.charAt(i));
-            // Each letter sits a little crooked, and now and then one slips.
-            float jitter = Mth.sin(t * 1.3F + i * 1.7F) * 0.4F;
-            boolean slip = Mth.sin(t * 0.9F + i * 3.1F) > 0.985F;
+            // Each letter sits a little crooked, and now and then one slips. Not any more, once it's over.
+            float jitter = Mth.sin(t * 1.3F + i * 1.7F) * (after ? 0.2F : 0.4F);
+            boolean slip = !after && Mth.sin(t * 0.9F + i * 3.1F) > 0.985F;
             int color = slip ? 0xFF6A1A1A : 0xFFD8D4CC;
             g.drawString(f, ch, cx, (int) jitter + (slip ? 1 : 0), color, false);
             cx += f.width(ch);
         }
         g.pose().popPose();
-        g.drawString(f, "a world someone left open", x + 2, y + (int) (f.lineHeight * scale) + 4, 0xFF6E7684, false);
+        g.drawString(f, after ? "a world someone left open. the door's still open." : "a world someone left open",
+                x + 2, y + (int) (f.lineHeight * scale) + 4, 0xFF6E7684, false);
     }
 
     /** A button that is just a word, which brightens and gains a dash when you point at it. */

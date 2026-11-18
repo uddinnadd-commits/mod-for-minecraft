@@ -262,6 +262,17 @@ public class LiminalGenerator extends ChunkGenerator {
         return Math.floorMod(mix(a, b, salt), (long) n) == 0L;
     }
 
+    /** For MemorySites: a hallway room with a dry floor and the lights on. */
+    static boolean ordinaryHallwayRoom(int cx, int cz) {
+        Room r = roomOf(cx, cz);
+        return r != Room.POOL && r != Room.WRONG;
+    }
+
+    /** For MemorySites: the street lot holds a house rather than a playground. */
+    static boolean streetLotHasHouse(int cx, int cz) {
+        return !chance(cx, cz, 65, 9);
+    }
+
     // ---------------------------------------------------------------- hallway
 
     private static boolean hasWall(int cx, int cz, int salt) {

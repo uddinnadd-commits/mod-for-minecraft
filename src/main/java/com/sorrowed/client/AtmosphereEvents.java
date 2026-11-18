@@ -81,7 +81,12 @@ public class AtmosphereEvents {
         } else if (dim.equals(Dimensions.DROWNED)) {
             set(event, 0.02F, 0.18F, 0.20F);
         } else if (dim.equals(Dimensions.BACKUP)) {
-            set(event, 1.0F, 0.96F, 0.85F);
+            if (ClientStory.stage != ClientStory.PLAYING) {
+                // The day after: the light has gone gold.
+                set(event, 1.0F, 0.84F, 0.62F);
+            } else {
+                set(event, 1.0F, 0.96F, 0.85F);
+            }
         } else if (dim.equals(Dimensions.ARCHIVE)) {
             set(event, 0.16F, 0.12F, 0.07F);
         } else if (dim.equals(Dimensions.STREET)) {

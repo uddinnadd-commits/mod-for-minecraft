@@ -10,11 +10,36 @@ It is raining the moment you join. It never stops. This was your friend's world,
 - **Taken**: a little after the opening, the picture you are looking at comes apart (the frame is sliced into bands that slide and smear, the colours split, the edges draw in, it goes dark) and when it settles you are standing in Alex's world. Every doorway works the same way from then on.
 - **A grave** a few steps from the first player on first join.
 
+## The story: one thing in every world, then him
+Alex left a list. There is **one objective in every dimension**, eleven in all, each built near where you arrive (`story/Objectives.java`, `worldgen/MemorySites.java`) and tracked per player (it survives death):
+
+| World | Objective | What happens |
+|---|---|---|
+| Home (overworld) | visit his grave | stand at the stone in the rain; a candle is left lit |
+| The Backup | go back to the places you shared | stand at the pond, in the dirt house, up the treehouse, by the campfire |
+| The Hallway | answer him | a desk with the chat still open: type a reply to his last messages |
+| The Drowned Hall | light the lighthouse | climb to the dark lamp on the seabed lighthouse; it lights and two beams turn through the water |
+| The Hush | touch every stone | count the eight standing stones (each lights up); then there is a ninth |
+| The Archive | turn the page | the book left open on the blank page has writing on the next one |
+| The Street | turn off the light in his window | his house has the light on and the door open; the switch is inside |
+| The Static | find the signal | keep still by the television under the mast until the picture loads |
+| The Orchard | find where he sat | the one living tree, and his laptop finishing the copy of his world |
+| The Server | see who's online | the console types `list`: two players online, you and him |
+| The Ward | sit with bed four | room four, the bed by the window; the lamp that never worked comes on |
+
+When all eleven are done, the Backup turns to "the day after" (gold light, petals drifting) and **he is sitting at the end of the dock at the pond**. Walk up to him: a last cutscene, his last words, the screen goes white, and his letter writes itself out over the credits music. You wake by his grave at home, and **the rain stops for good** (world-wide). The title screen changes too: morning, nobody in the field.
+
+**New UI.** Press **J** (or *Journal* on the pause menu) for the journal: his list on one page, crossed out in pencil as you go, and the chosen world's note, the way there and your progress on the other. A small note in the top-left shows the current world's objective with a pencil arrow and distance (`objectiveHud = false` hides it). Faint light rises from whatever you are looking for. Finishing something writes it large across the screen and crosses it out. The hallway, server and orchard screens open as an old monitor (scanlines, cursor, typing).
+
+**Visuals.** Every world has its own colour at the edges of the view and a little film grain; the vignette closes in as Sorrow rises and beats with your heart past 80 (`screenEffects`). Dust, ash, marine snow, rain, noise and sparks drift around you per world (`ambientParticles`).
+
+Testing (op): `/sorrowed story status`, `/sorrowed story complete <id|all>`, `/sorrowed story reset`.
+
 ## The title screen
-The main menu is his house across a field at night, in the rain, one window lit and flickering (`client/SorrowedTitleScreen.java`). The painting pans slowly, rain falls across it, lightning whites it out now and then with thunder behind. Somebody is standing in the field. **Every time you come back to the menu they are standing a little closer.** The title is written crooked, letters slipping now and then, and one of his lines types itself out at the bottom. The buttons are just words: singleplayer, multiplayer, mods, options, quit. Turn it off with `titleScreen = false`.
+The main menu is his house across a field at night, in the rain, one window lit and flickering (`client/SorrowedTitleScreen.java`). The painting pans slowly, rain falls across it, lightning whites it out now and then with thunder behind. Somebody is standing in the field. **Every time you come back to the menu they are standing a little closer.** The title is written crooked, letters slipping now and then, and one of his lines types itself out at the bottom. The buttons are just words: singleplayer, multiplayer, mods, options, quit. Once you have seen the story end, the menu is the same view the morning after: no rain, the window dark, nobody in the field. Turn it off with `titleScreen = false`.
 
 ## The psychological layer: Sorrow
-Every player has a hidden **Sorrow** value (0-100). There is no meter and no vignette on screen; you only ever see its effects. Rain on open sky, night, the Hush, the Hallway, the Drowned Hall and nearby Hollows/Listeners raise it. Shelter, graves, Alex's world, sleeping and the Mason lower it.
+Every player has a hidden **Sorrow** value (0-100). There is no meter on screen; you see it in its effects, and in how far the dark comes in at the edges of the view. Rain on open sky, night, the Hush, the Hallway, the Drowned Hall and nearby Hollows/Listeners raise it. Shelter, graves, Alex's world, sleeping and the Mason lower it.
 
 | Tier | Sorrow | What changes |
 |---|---|---|

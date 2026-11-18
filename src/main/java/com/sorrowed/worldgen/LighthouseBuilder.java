@@ -70,7 +70,7 @@ public final class LighthouseBuilder {
                 }
             }
         }
-        BuildUtil.set(level, o.offset(0, 21, 0), Blocks.REDSTONE_LAMP.defaultBlockState());
+        BuildUtil.set(level, o.offset(0, 21, 0), com.sorrowed.registry.ModBlocks.LIGHTHOUSE_LAMP.get().defaultBlockState());
         for (int x = -2; x <= 2; x++) {
             for (int z = -2; z <= 2; z++) {
                 BuildUtil.set(level, o.offset(x, 23, z), brick);

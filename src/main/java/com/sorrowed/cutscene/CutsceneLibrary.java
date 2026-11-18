@@ -180,5 +180,28 @@ public final class CutsceneLibrary {
                 .cue(0, "minecraft:entity.warden.heartbeat", 1.0F, 0.9F)
                 .cue(60, "minecraft:entity.elder_guardian.curse", 0.5F, 0.7F)
                 .build());
+
+        // The end (anchored on him, at the end of the dock, facing the water). Over his shoulder,
+        // round the front of him, his face, the water, and up over the pond into the white.
+        add(Cutscene.builder("goodbye", 900).blendOut(0).fade(24, 0, 0)
+                .key(0, 3.6, 0.9, 1.9, -90, 16, 60, 0)
+                .orbit(60, 420, 3.4, 1.7, 90, -60, 1.0, 58, 16)
+                .key(520, -2.0, 0.3, 1.3, 90, 6, 48, 0)
+                .key(600, -2.1, 0.3, 1.3, 90, 6, 46, 0)
+                .key(690, 0.7, -1.2, 1.35, -70, 14, 62, 0)
+                .key(780, 2.5, -3.5, 4.0, -55, 24, 64, 0)
+                .key(900, 6.0, -8.0, 9.0, -40, 32, 66, 0)
+                .caption(30, "...{friend}?")
+                .caption(100, "hey. you took so long.")
+                .caption(190, "i'm sorry i made you look in all of them. i couldn't say it, so i built it.")
+                .caption(360, "look. the float's moving. it's never done that.")
+                .caption(490, "it's the day after. it was always going to be.")
+                .caption(615, "go home. it stopped raining.")
+                .caption(715, "leave the door open for whoever comes next.")
+                .cue(0, "minecraft:block.water.ambient", 0.6F, 0.8F)
+                .cue(470, "minecraft:entity.fishing_bobber.splash", 0.9F, 1.0F)
+                .cue(520, "minecraft:entity.fishing_bobber.splash", 0.5F, 1.2F)
+                .cue(760, "minecraft:block.amethyst_block.resonate", 0.8F, 0.5F)
+                .build());
     }
 }

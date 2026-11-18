@@ -33,5 +33,14 @@
   "block.sorrowed.server_door": "Server Doorway",
   "item.sorrowed.copy_spawn_egg": "The Copy Spawn Egg",
   "entity.sorrowed.copy": "The Copy",
-  "block.sorrowed.loose_papers": "Loose Papers"
+  "block.sorrowed.loose_papers": "Loose Papers",
+  "block.sorrowed.chat_screen": "Old Monitor",
+  "block.sorrowed.console_screen": "Console",
+  "block.sorrowed.snow_screen": "Television",
+  "block.sorrowed.clear_screen": "Television",
+  "block.sorrowed.laptop": "His Laptop",
+  "block.sorrowed.lighthouse_lamp": "Lighthouse Lamp",
+  "entity.sorrowed.friend": "Him",
+  "key.categories.sorrowed": "Sorrowed",
+  "key.sorrowed.journal": "Journal"
 }

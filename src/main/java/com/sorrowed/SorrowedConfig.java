@@ -13,6 +13,9 @@ public class SorrowedConfig {
     public static final ForgeConfigSpec.BooleanValue CUTSCENES;
     public static final ForgeConfigSpec.IntValue AMBIENT_MINUTES;
     public static final ForgeConfigSpec.BooleanValue TITLE_SCREEN;
+    public static final ForgeConfigSpec.BooleanValue OBJECTIVE_HUD;
+    public static final ForgeConfigSpec.BooleanValue SCREEN_EFFECTS;
+    public static final ForgeConfigSpec.BooleanValue AMBIENT_PARTICLES;
 
     static {
         ForgeConfigSpec.Builder b = new ForgeConfigSpec.Builder();
@@ -34,6 +37,12 @@ public class SorrowedConfig {
                 .defineInRange("ambientThoughtMinutes", 8, 1, 120);
         TITLE_SCREEN = b.comment("Replace the main menu with his house in the rain (client side).")
                 .define("titleScreen", true);
+        OBJECTIVE_HUD = b.comment("Show the objective for the world you are in, top left, with an arrow toward it (client side).")
+                .define("objectiveHud", true);
+        SCREEN_EFFECTS = b.comment("Vignette, film grain and per-world colour over the view (client side).")
+                .define("screenEffects", true);
+        AMBIENT_PARTICLES = b.comment("Dust, ash, petals and the like drifting around you in each world (client side).")
+                .define("ambientParticles", true);
         SPEC = b.build();
     }
 

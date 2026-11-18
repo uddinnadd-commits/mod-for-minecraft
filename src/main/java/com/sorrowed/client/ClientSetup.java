@@ -1,12 +1,14 @@
 package com.sorrowed.client;
 
 import com.sorrowed.Sorrowed;
+import com.sorrowed.registry.ModBlockEntities;
 import com.sorrowed.registry.ModEntities;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterDimensionSpecialEffectsEvent;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -53,13 +55,20 @@ public class ClientSetup {
         event.registerEntityRenderer(ModEntities.COPY.get(),
                 ctx -> new SorrowMobRenderer<>(ctx, ModModels.COPY, tex("copy"), 0.4F, ModModels.COPY_STYLE, false));
         event.registerEntityRenderer(ModEntities.REFLECTION.get(), ReflectionRenderer::new);
+        event.registerEntityRenderer(ModEntities.FRIEND.get(), FriendRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.LIGHTHOUSE_LAMP.get(), LighthouseBeamRenderer::new);
     }
 
     @SubscribeEvent
     public static void overlays(RegisterGuiOverlaysEvent event) {
-        // Order matters: static, then letterbox/fades, then the typewriter text, then the distortion over all of it.
+        // The look of each world sits with the vanilla vignette, under the hotbar.
+        event.registerAbove(VanillaGuiOverlay.VIGNETTE.id(), "screen_effects", (gui, graphics, partialTick, width, height) ->
+                ScreenEffects.render(graphics, width, height));
+        // Order matters: static, the objective, then letterbox/fades, then the typewriter text, then the distortion over all of it.
         event.registerAboveAll("static", (gui, graphics, partialTick, width, height) ->
                 StaticOverlay.render(graphics, width, height));
+        event.registerAboveAll("objective", (gui, graphics, partialTick, width, height) ->
+                ObjectiveHud.render(graphics, width, height));
         event.registerAboveAll("cutscene", (gui, graphics, partialTick, width, height) ->
                 CutsceneOverlay.render(graphics, width, height));
         event.registerAboveAll("thoughts", (gui, graphics, partialTick, width, height) ->

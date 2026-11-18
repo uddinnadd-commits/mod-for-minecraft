@@ -5,6 +5,7 @@ import com.sorrowed.entity.ArchivistEntity;
 import com.sorrowed.entity.CarrierEntity;
 import com.sorrowed.entity.CopyEntity;
 import com.sorrowed.entity.EchoEntity;
+import com.sorrowed.entity.FriendEntity;
 import com.sorrowed.entity.HollowEntity;
 import com.sorrowed.entity.ListenerEntity;
 import com.sorrowed.entity.MasonEntity;
@@ -65,4 +66,9 @@ public class ModEntities {
     public static final RegistryObject<EntityType<CopyEntity>> COPY = ENTITIES.register("copy",
             () -> EntityType.Builder.<CopyEntity>of(CopyEntity::new, MobCategory.MONSTER)
                     .sized(0.6F, 1.8F).clientTrackingRange(12).build("copy"));
+
+    /** Him. Only ever at the pond, and only once everything is done. */
+    public static final RegistryObject<EntityType<FriendEntity>> FRIEND = ENTITIES.register("friend",
+            () -> EntityType.Builder.<FriendEntity>of(FriendEntity::new, MobCategory.MISC)
+                    .sized(0.6F, 1.8F).clientTrackingRange(10).build("friend"));
 }

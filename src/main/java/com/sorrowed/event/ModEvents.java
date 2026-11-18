@@ -5,6 +5,7 @@ import com.sorrowed.entity.ArchivistEntity;
 import com.sorrowed.entity.CarrierEntity;
 import com.sorrowed.entity.CopyEntity;
 import com.sorrowed.entity.EchoEntity;
+import com.sorrowed.entity.FriendEntity;
 import com.sorrowed.entity.HollowEntity;
 import com.sorrowed.entity.ListenerEntity;
 import com.sorrowed.entity.MasonEntity;
@@ -39,6 +40,7 @@ public class ModEvents {
         event.put(ModEntities.ORDERLY.get(), OrderlyEntity.createAttributes().build());
         event.put(ModEntities.SCARECROW.get(), ScarecrowEntity.createAttributes().build());
         event.put(ModEntities.COPY.get(), CopyEntity.createAttributes().build());
+        event.put(ModEntities.FRIEND.get(), FriendEntity.createAttributes().build());
     }
 
     @SubscribeEvent

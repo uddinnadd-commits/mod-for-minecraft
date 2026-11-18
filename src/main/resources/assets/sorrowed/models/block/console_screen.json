@@ -1,0 +1,7 @@
+{
+  "parent": "sorrowed:block/monitor",
+  "textures": {
+    "body": "minecraft:block/gray_concrete",
+    "screen": "sorrowed:block/screen_console"
+  }
+}
