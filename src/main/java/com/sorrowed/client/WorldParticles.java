@@ -52,7 +52,11 @@ public final class WorldParticles {
     private static void ambient(ClientLevel level, Player p, RandomSource r) {
         ResourceKey<Level> dim = level.dimension();
         if (dim.equals(Dimensions.BACKUP)) {
-            if (ClientStory.stage != ClientStory.PLAYING) {
+            if (ClientStory.stage == ClientStory.FIGHTING) {
+                // Embers and ash, coming up out of the ground.
+                for (int i = 0; i < 2; i++) around(level, p, r, ParticleTypes.ASH, 14.0D, 0.0D, 8.0D, 0.0D, 0.02D, 0.0D);
+                if (r.nextInt(3) == 0) around(level, p, r, ParticleTypes.CRIMSON_SPORE, 10.0D, 0.0D, 5.0D, 0.0D, 0.0D, 0.0D);
+            } else if (ClientStory.stage != ClientStory.PLAYING) {
                 // The day after: petals coming down on the wind.
                 for (int i = 0; i < 2; i++) around(level, p, r, ParticleTypes.CHERRY_LEAVES, 16.0D, 4.0D, 12.0D, 0.0D, 0.0D, 0.0D);
             } else if (r.nextInt(2) == 0) {

@@ -42,5 +42,9 @@
   "block.sorrowed.lighthouse_lamp": "Lighthouse Lamp",
   "entity.sorrowed.friend": "Him",
   "key.categories.sorrowed": "Sorrowed",
-  "key.sorrowed.journal": "Journal"
+  "key.sorrowed.journal": "Journal",
+  "entity.sorrowed.memory_shatterer": "The Memory Shatterer",
+  "entity.sorrowed.memory_shard": "Memory Shard",
+  "item.sorrowed.borrowed_sword": "Borrowed Sword",
+  "item.sorrowed.memory_shard": "Memory Shard"
 }

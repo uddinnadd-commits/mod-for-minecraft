@@ -181,27 +181,68 @@ public final class CutsceneLibrary {
                 .cue(60, "minecraft:entity.elder_guardian.curse", 0.5F, 0.7F)
                 .build());
 
-        // The end (anchored on him, at the end of the dock, facing the water). Over his shoulder,
-        // round the front of him, his face, the water, and up over the pond into the white.
-        add(Cutscene.builder("goodbye", 900).blendOut(0).fade(24, 0, 0)
+        // The twist (anchored on him, at the end of the dock, facing the water). Over his shoulder,
+        // round to his face while he talks, and then he will not let you finish: the camera backs
+        // away as he comes apart and rises, looks up at him, and up again at something falling.
+        add(Cutscene.builder("twist", 480).blendOut(40).fade(24, 0, 0)
                 .key(0, 3.6, 0.9, 1.9, -90, 16, 60, 0)
-                .orbit(60, 420, 3.4, 1.7, 90, -60, 1.0, 58, 16)
-                .key(520, -2.0, 0.3, 1.3, 90, 6, 48, 0)
-                .key(600, -2.1, 0.3, 1.3, 90, 6, 46, 0)
-                .key(690, 0.7, -1.2, 1.35, -70, 14, 62, 0)
-                .key(780, 2.5, -3.5, 4.0, -55, 24, 64, 0)
-                .key(900, 6.0, -8.0, 9.0, -40, 32, 66, 0)
-                .caption(30, "...{friend}?")
-                .caption(100, "hey. you took so long.")
-                .caption(190, "i'm sorry i made you look in all of them. i couldn't say it, so i built it.")
-                .caption(360, "look. the float's moving. it's never done that.")
-                .caption(490, "it's the day after. it was always going to be.")
-                .caption(615, "go home. it stopped raining.")
-                .caption(715, "leave the door open for whoever comes next.")
+                .orbit(50, 250, 3.4, 1.7, 90, -60, 1.0, 58, 12)
+                .key(285, -3.0, 1.75, 1.7, 120, 11, 56, 0)
+                .key(300, -3.1, 1.8, 1.75, 121, 9, 58, 4)
+                .key(340, -6.5, 4.0, 2.6, 122, -6, 64, -2)
+                .key(392, -8.0, 5.5, 1.4, 124, -16, 70, 0)
+                .key(430, -8.0, 5.5, 1.5, 124, -58, 72, 0)
+                .key(480, -8.0, 5.5, 1.6, 124, -62, 72, 0)
+                .caption(25, "...{friend}?")
+                .caption(80, "hey. you took so long.")
+                .caption(150, "i'm sorry i made you look in all of them.")
+                .caption(215, "but you can't take them. they're all i've got left.")
+                .caption(292, "if you finish this, i'm gone.")
+                .caption(345, "SO STAY.")
+                .caption(418, "...something's falling out of the sky?")
                 .cue(0, "minecraft:block.water.ambient", 0.6F, 0.8F)
-                .cue(470, "minecraft:entity.fishing_bobber.splash", 0.9F, 1.0F)
-                .cue(520, "minecraft:entity.fishing_bobber.splash", 0.5F, 1.2F)
-                .cue(760, "minecraft:block.amethyst_block.resonate", 0.8F, 0.5F)
+                .cue(270, "minecraft:entity.warden.heartbeat", 1.0F, 0.8F)
+                .cue(345, "minecraft:entity.wither.spawn", 0.7F, 0.6F)
+                .build());
+
+        // Trying again: no talking this time.
+        add(Cutscene.builder("rematch", 170).blendOut(36).fade(12, 0, 0)
+                .key(0, -3.0, 1.6, 1.7, 118, 8, 60, 0)
+                .key(70, -6.5, 4.0, 2.4, 122, -4, 64, 0)
+                .key(125, -7.0, 4.5, 1.6, 123, -48, 70, 0)
+                .key(170, -7.0, 4.5, 1.6, 123, -55, 70, 0)
+                .caption(8, "you came back.")
+                .caption(60, "STAY.")
+                .caption(110, "...it fell again. out of the sky.")
+                .cue(40, "minecraft:entity.wither.spawn", 0.6F, 0.7F)
+                .build());
+
+        // After (anchored on the end of the dock). From the shore, looking up: he comes down out of
+        // the sky with a halo and lands on the dock. In to his face, out to the water where the
+        // float is finally moving, back to him, and then up over the pond into the white.
+        add(Cutscene.builder("farewell", 760).blendOut(0).fade(20, 0, 0)
+                .key(0, 6.0, -1.0, 1.6, -90, -68, 62, 0)
+                .key(170, 6.0, -1.0, 1.6, -90, -8, 58, 0)
+                .key(240, 2.6, -0.4, 1.6, -90, 0, 54, 0)
+                .key(330, 2.4, -0.2, 1.6, -92, 1, 52, 0)
+                .key(390, 0.9, 1.4, 1.8, -100, 22, 60, 0)
+                .key(480, 1.0, 1.4, 1.8, -100, 20, 60, 0)
+                .key(540, 2.4, 0.6, 1.7, -80, 2, 50, 0)
+                .key(640, 2.4, 0.6, 1.7, -80, 2, 46, 0)
+                .key(700, 4.0, 2.0, 4.0, -60, 25, 60, 0)
+                .key(760, 8.0, 5.0, 10.0, -45, 40, 66, 0)
+                .caption(40, "...look up.")
+                .caption(185, "that wasn't me. that was everything i wouldn't let go of.")
+                .caption(280, "you broke it. thank you.")
+                .caption(360, "look. the float's moving. it's never done that.")
+                .caption(470, "it's the day after now. it was always going to be.")
+                .caption(560, "go home. it stopped raining.")
+                .caption(640, "leave the door open for whoever comes next.")
+                .cue(0, "minecraft:block.beacon.ambient", 0.8F, 1.2F)
+                .cue(170, "minecraft:block.amethyst_block.resonate", 0.8F, 0.6F)
+                .cue(380, "minecraft:entity.fishing_bobber.splash", 0.9F, 1.0F)
+                .cue(420, "minecraft:entity.fishing_bobber.splash", 0.5F, 1.2F)
+                .cue(700, "minecraft:block.amethyst_block.resonate", 0.8F, 0.5F)
                 .build());
     }
 }

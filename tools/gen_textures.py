@@ -597,4 +597,94 @@ screen(f"{OUT}/block/screen_console.png", 2, draw_console, frametime=10, seed=82
 screen(f"{OUT}/block/screen_snow.png", 8, draw_snow, frametime=2, seed=83)
 screen(f"{OUT}/block/screen_clear.png", 1, draw_clear, seed=84)
 screen(f"{OUT}/block/screen_laptop.png", 2, draw_laptop, frametime=12, seed=85)
+
+# ---------------------------------------------------------------- the fight: the sword, the shards, the cracks, the halo
+
+def borrowed_sword(path):
+    """A pale sword with a gold guard, drawn the way vanilla swords are: tip top right, pommel bottom left."""
+    px = [(0, 0, 0, 0)] * 256
+    def put(x, y, c):
+        if 0 <= x < 16 and 0 <= y < 16:
+            px[y * 16 + x] = (*c, 255)
+    body = []
+    for i in range(8):                                   # the blade
+        body.append((13 - i, 2 + i, (250, 246, 228)))
+        body.append((14 - i, 2 + i, (214, 222, 236)))
+    body.append((14, 1, (255, 255, 255)))
+    for k in range(-2, 3):                               # the guard
+        body.append((5 + k, 10 + k, (226, 184, 72)))
+    for (x, y) in ((4, 11), (3, 12), (2, 13)):           # the grip
+        body.append((x, y, (92, 64, 48)))
+    body.append((1, 14, (240, 200, 90)))                  # the pommel
+    filled = {(x, y) for (x, y, _) in body}
+    for (x, y) in list(filled):                          # a dark edge, so it reads on anything
+        for ox, oy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            if (x + ox, y + oy) not in filled:
+                put(x + ox, y + oy, (40, 34, 52))
+    for (x, y, c) in body:
+        put(x, y, c)
+    write_png(path, 16, 16, px)
+
+def memory_shard(path):
+    """A jagged piece of glass with a picture still caught in it."""
+    px = [(0, 0, 0, 0)] * 256
+    poly_pts = [(8, 1), (12, 6), (11, 14), (5, 12), (4, 5)]
+    def inside(x, y):
+        n = len(poly_pts)
+        c = False
+        for i in range(n):
+            x0, y0 = poly_pts[i]
+            x1, y1 = poly_pts[(i + 1) % n]
+            if (y0 > y) != (y1 > y) and x < (x1 - x0) * (y - y0) / (y1 - y0) + x0:
+                c = not c
+        return c
+    cells = [(x, y) for y in range(16) for x in range(16) if inside(x + 0.5, y + 0.5)]
+    cs = set(cells)
+    for (x, y) in cells:
+        k = (y - 1) / 13
+        px[y * 16 + x] = (int(200 - 60 * k), int(236 - 40 * k), int(255 - 20 * k), 235)
+        if (x + 1, y) not in cs or (x, y + 1) not in cs or (x - 1, y) not in cs or (x, y - 1) not in cs:
+            px[y * 16 + x] = (70, 120, 150, 255)
+    for i in range(5):                                   # a highlight
+        x, y = 7 + i // 2, 3 + i
+        if (x, y) in cs:
+            px[y * 16 + x] = (255, 255, 255, 255)
+    write_png(path, 16, 16, px)
+
+def shatterer_cracks(path):
+    """The light through the cracks, mapped onto a player skin's base layer, and two red eyes. Black is no light."""
+    rnd = random.Random(91)
+    W = 64
+    px = [(0, 0, 0, 255)] * (W * W)
+    def put(x, y, c):
+        if 0 <= x < W and 0 <= y < W:
+            px[y * W + x] = (*c, 255)
+    regions = [(0, 8, 32, 16), (16, 20, 40, 32), (40, 20, 54, 32), (32, 52, 46, 64), (0, 20, 16, 32), (16, 52, 32, 64)]
+    for (x0, y0, x1, y1) in regions:
+        for _ in range(max(2, (x1 - x0) * (y1 - y0) // 60)):
+            x = rnd.randint(x0, x1 - 1)
+            y = rnd.randint(y0, y1 - 1)
+            for _ in range(rnd.randint(4, 9)):
+                put(x, y, (255, 214, 196))
+                if rnd.random() < 0.4:
+                    put(x + 1, y, (150, 90, 90))
+                x = max(x0, min(x1 - 1, x + rnd.choice((-1, 0, 1))))
+                y = max(y0, min(y1 - 1, y + rnd.choice((0, 1, 1))))
+    for (x, y) in ((9, 12), (10, 12), (13, 12), (14, 12)):
+        put(x, y, (255, 40, 40))
+    write_png(path, W, W, px)
+
+def halo(path):
+    """A soft band of gold, brightest across the middle; v runs from the inside of the ring to the outside."""
+    px = []
+    for y in range(16):
+        k = max(0.0, 1.0 - abs(y - 7.5) / 8.0) ** 1.4
+        for x in range(16):
+            px.append((255, 240, 196, int(255 * k)))
+    write_png(path, 16, 16, px)
+
+borrowed_sword(f"{OUT}/item/borrowed_sword.png")
+memory_shard(f"{OUT}/item/memory_shard.png")
+shatterer_cracks(f"{OUT}/entity/shatterer_cracks.png")
+halo(f"{OUT}/entity/halo.png")
 print("textures written")

@@ -41,6 +41,7 @@ public class ModEvents {
         event.put(ModEntities.SCARECROW.get(), ScarecrowEntity.createAttributes().build());
         event.put(ModEntities.COPY.get(), CopyEntity.createAttributes().build());
         event.put(ModEntities.FRIEND.get(), FriendEntity.createAttributes().build());
+        event.put(ModEntities.MEMORY_SHATTERER.get(), com.sorrowed.entity.MemoryShattererEntity.createAttributes().build());
     }
 
     @SubscribeEvent

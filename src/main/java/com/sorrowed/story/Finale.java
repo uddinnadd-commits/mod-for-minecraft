@@ -2,6 +2,7 @@ package com.sorrowed.story;
 
 import com.sorrowed.SorrowedConfig;
 import com.sorrowed.SorrowedData;
+import com.sorrowed.cutscene.Cutscene;
 import com.sorrowed.cutscene.CutsceneLibrary;
 import com.sorrowed.cutscene.CutsceneServer;
 import com.sorrowed.entity.FriendEntity;
@@ -18,6 +19,8 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -29,8 +32,9 @@ import java.util.UUID;
 
 /**
  * The end. Once every objective is done the Backup starts to move, and he is sitting at the end
- * of the dock. Walk up to him and you get to say goodbye; after that the screen goes white, you
- * wake up at home, and it has stopped raining.
+ * of the dock. Walk up to him and he starts to say goodbye, and then turns ({@link BossFight}).
+ * Beat what he turns into and he comes back down out of the sky, himself, with a halo; after that
+ * the screen goes white, you wake up at home, and it has stopped raining.
  */
 public final class Finale {
     private Finale() {}
@@ -41,13 +45,13 @@ public final class Finale {
     /** Where the float sits on the water, a little way out from him. */
     private static final Vec3 FLOAT = new Vec3(-20.5D, Sites.GROUND + 0.95D, -33.0D);
 
-    /** He speaks in the fallback (no cutscenes) and in the cutscene captions alike. */
+    /** He speaks in the fallback (no cutscenes) and in the cutscene captions alike: himself again, after. */
     public static final String[] LINES = {
-            "...{friend}?",
-            "hey. you took so long.",
-            "i'm sorry i made you look in all of them. i couldn't say it, so i built it.",
+            "...look up.",
+            "that wasn't me. that was everything i wouldn't let go of.",
+            "you broke it. thank you.",
             "look. the float's moving. it's never done that.",
-            "it's the day after. it was always going to be.",
+            "it's the day after now. it was always going to be.",
             "go home. it stopped raining.",
             "leave the door open for whoever comes next.",
     };
@@ -70,10 +74,11 @@ public final class Finale {
         });
     }
 
-    /** True if anyone in this level still has him to meet. */
+    /** True if anyone in this level still has him to meet, or to say goodbye to. */
     public static boolean anyoneWaiting(ServerLevel level) {
         for (ServerPlayer p : level.players()) {
-            if (Progress.stage(p) == Progress.READY) return true;
+            int stage = Progress.stage(p);
+            if (stage == Progress.READY || stage == Progress.FAREWELL) return true;
         }
         return false;
     }
@@ -100,47 +105,64 @@ public final class Finale {
         return him;
     }
 
-    /** You reach him. */
+    /** You reach him. He starts to say goodbye, and then he will not let you finish it. */
     public static void meet(ServerPlayer p, FriendEntity him) {
         if (Progress.stage(p) != Progress.READY || MEETING.contains(p.getUUID())) return;
-        if (CutsceneServer.isPlaying(p)) return;
-        MinecraftServer server = p.getServer();
-        if (server == null) return;
+        if (CutsceneServer.isPlaying(p) || him.isHalo()) return;
         MEETING.add(p.getUUID());
         Sorrow.set(p, 0);
-        if (SorrowedConfig.CUTSCENES.get() && CutsceneLibrary.get("goodbye") != null) {
-            int duration = CutsceneLibrary.get("goodbye").duration();
-            boolean played = CutsceneServer.play(p, "goodbye", SEAT, null);
-            if (played) {
-                // The float, moving for the first time.
-                ServerLevel level = p.serverLevel();
-                for (int t : new int[] {470, 520, 600}) {
-                    Scheduler.after(server, t, () -> level.sendParticles(ParticleTypes.SPLASH,
-                            FLOAT.x, FLOAT.y, FLOAT.z, 14, 0.15D, 0.05D, 0.15D, 0.1D));
-                }
-                // The white comes up over the last shot; the cutscene ends underneath it.
-                Scheduler.after(server, duration - 50, () -> {
-                    if (!p.isRemoved()) end(p);
-                });
-                return;
+        BossFight.begin(p, him);
+    }
+
+    /** After the fight: he comes down out of the sky, himself again, with a halo, and says it properly. */
+    public static void farewell(ServerPlayer p) {
+        if (Progress.stage(p) != Progress.FAREWELL) return;
+        MinecraftServer server = p.getServer();
+        if (server == null) return;
+        ServerLevel level = p.serverLevel();
+        if (level.dimension().equals(Dimensions.BACKUP)) {
+            for (FriendEntity f : level.getEntitiesOfClass(FriendEntity.class, new AABB(BlockPos.containing(SEAT)).inflate(8.0D))) {
+                f.discard();
             }
+            FriendEntity angel = ModEntities.FRIEND.get().create(level);
+            if (angel != null) {
+                angel.setHalo(true);
+                angel.moveTo(SEAT.x, SEAT.y, SEAT.z, 90.0F, 0.0F);
+                angel.setYHeadRot(90.0F);
+                angel.setYBodyRot(90.0F);
+                level.addFreshEntity(angel);
+            }
+            level.playSound(null, BlockPos.containing(SEAT), SoundEvents.BEACON_ACTIVATE, SoundSource.AMBIENT, 2.0F, 0.6F);
+        }
+        Cutscene scene = CutsceneLibrary.get("farewell");
+        if (SorrowedConfig.CUTSCENES.get() && scene != null && CutsceneServer.play(p, "farewell", SEAT, null)) {
+            // The float, moving for the first time.
+            for (int t : new int[] {380, 420, 470}) {
+                Scheduler.after(server, t, () -> level.sendParticles(ParticleTypes.SPLASH,
+                        FLOAT.x, FLOAT.y, FLOAT.z, 14, 0.15D, 0.05D, 0.15D, 0.1D));
+            }
+            // The white comes up over the last shot; the cutscene ends underneath it.
+            Scheduler.after(server, scene.duration() - 50, () -> {
+                if (!p.isRemoved()) end(p);
+            });
+            return;
         }
         // No cutscenes: the same words, one after another, where you stand.
         for (int i = 0; i < LINES.length; i++) {
             String line = Thoughts.f(LINES[i]);
-            Scheduler.after(server, 20 + i * 110, () -> {
+            Scheduler.after(server, 60 + i * 110, () -> {
                 if (!p.isRemoved()) ModNetwork.thought(p, line);
             });
         }
-        Scheduler.after(server, 40 + LINES.length * 110, () -> {
+        Scheduler.after(server, 80 + LINES.length * 110, () -> {
             if (!p.isRemoved()) end(p);
         });
     }
 
     /** The screen goes white and the rain stops. You go home once you have read his letter. */
-    private static void end(ServerPlayer p) {
+    public static void end(ServerPlayer p) {
         MEETING.remove(p.getUUID());
-        if (Progress.stage(p) != Progress.READY) return;
+        if (Progress.stage(p) != Progress.FAREWELL) return;
         MinecraftServer server = p.getServer();
         if (server == null) return;
         Progress.setStage(p, Progress.ENDED);

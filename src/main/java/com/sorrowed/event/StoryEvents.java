@@ -5,10 +5,12 @@ import com.sorrowed.SorrowedData;
 import com.sorrowed.block.LighthouseLampBlock;
 import com.sorrowed.block.ScreenBlock;
 import com.sorrowed.entity.FriendEntity;
+import com.sorrowed.item.BorrowedSwordItem;
 import com.sorrowed.mind.Scheduler;
 import com.sorrowed.net.ModNetwork;
 import com.sorrowed.registry.Dimensions;
 import com.sorrowed.registry.ModBlocks;
+import com.sorrowed.story.BossFight;
 import com.sorrowed.story.Finale;
 import com.sorrowed.story.Objectives;
 import com.sorrowed.story.Progress;
@@ -31,13 +33,17 @@ import net.minecraft.world.level.block.LeverBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -49,6 +55,7 @@ import java.util.UUID;
 public class StoryEvents {
     private static final Map<UUID, Integer> HOLD = new HashMap<>();
     private static final Map<UUID, Vec3> LAST_POS = new HashMap<>();
+    private static final Set<UUID> FELL = new HashSet<>();
 
     private static final String[] COUNT = {
             "One.", "Two.", "Three.", "Four.", "Five.", "Six.", "Seven.", "Eight. That's all of them."
@@ -65,25 +72,51 @@ public class StoryEvents {
     @SubscribeEvent
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer p)) return;
+        // A fight cut off by a crash or a stopped server starts again from the dock.
+        if (Progress.stage(p) == Progress.FIGHTING) Progress.setStage(p, Progress.READY);
         arrived(p);
         if (Progress.allDone(p) && Progress.stage(p) == Progress.PLAYING) Finale.ready(p);
+        if (Progress.stage(p) == Progress.FAREWELL) Finale.end(p);
     }
 
     @SubscribeEvent
     public static void onDimensionChange(PlayerEvent.PlayerChangedDimensionEvent event) {
-        if (event.getEntity() instanceof ServerPlayer p) arrived(p);
+        if (!(event.getEntity() instanceof ServerPlayer p)) return;
+        BossFight.reset(p);
+        arrived(p);
     }
 
     @SubscribeEvent
     public static void onRespawn(PlayerEvent.PlayerRespawnEvent event) {
-        if (event.getEntity() instanceof ServerPlayer p) arrived(p);
+        if (!(event.getEntity() instanceof ServerPlayer p)) return;
+        arrived(p);
+        if (FELL.remove(p.getUUID())) {
+            ModNetwork.thought(p, "It's still there. He's still there, at the pond. I can try again.");
+        }
+    }
+
+    /** Dying in the fight ends it; the sword goes back without being dropped. */
+    @SubscribeEvent
+    public static void onDeath(LivingDeathEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer p) || !BossFight.isFighting(p)) return;
+        BossFight.reset(p);
+        FELL.add(p.getUUID());
+    }
+
+    @SubscribeEvent
+    public static void onDrops(LivingDropsEvent event) {
+        if (event.getEntity() instanceof ServerPlayer) {
+            event.getDrops().removeIf(e -> e.getItem().getItem() instanceof BorrowedSwordItem);
+        }
     }
 
     @SubscribeEvent
     public static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         UUID id = event.getEntity().getUUID();
+        if (event.getEntity() instanceof ServerPlayer p) BossFight.reset(p);
         HOLD.remove(id);
         LAST_POS.remove(id);
+        FELL.remove(id);
         Finale.forget(id);
     }
 
@@ -103,6 +136,10 @@ public class StoryEvents {
         int stage = Progress.stage(p);
         if (stage == Progress.READY) {
             Finale.tick(p);
+            return;
+        }
+        if (stage == Progress.FIGHTING) {
+            if (!p.serverLevel().dimension().equals(Dimensions.BACKUP)) BossFight.reset(p);
             return;
         }
         if (stage != Progress.PLAYING) return;

@@ -21,7 +21,13 @@ public class AtmosphereEvents {
         ResourceKey<Level> dim = mc.level.dimension();
         FogType type = event.getType();
 
-        if (dim.equals(Dimensions.HUSH) && type == FogType.NONE) {
+        if (dim.equals(Dimensions.BACKUP) && ClientStory.stage == ClientStory.FIGHTING && type == FogType.NONE) {
+            // The fight: his world goes dark, and the dark breathes.
+            float t = (mc.level.getGameTime() + (float) event.getPartialTick()) * 0.08F;
+            event.setNearPlaneDistance(0.0F);
+            event.setFarPlaneDistance(38.0F + (float) Math.sin(t) * 5.0F);
+            event.setCanceled(true);
+        } else if (dim.equals(Dimensions.HUSH) && type == FogType.NONE) {
             event.setNearPlaneDistance(0.0F);
             event.setFarPlaneDistance(40.0F);
             event.setCanceled(true);
@@ -81,7 +87,9 @@ public class AtmosphereEvents {
         } else if (dim.equals(Dimensions.DROWNED)) {
             set(event, 0.02F, 0.18F, 0.20F);
         } else if (dim.equals(Dimensions.BACKUP)) {
-            if (ClientStory.stage != ClientStory.PLAYING) {
+            if (ClientStory.stage == ClientStory.FIGHTING) {
+                set(event, 0.07F, 0.01F, 0.03F);
+            } else if (ClientStory.stage != ClientStory.PLAYING) {
                 // The day after: the light has gone gold.
                 set(event, 1.0F, 0.84F, 0.62F);
             } else {

@@ -9,6 +9,8 @@ import com.sorrowed.entity.FriendEntity;
 import com.sorrowed.entity.HollowEntity;
 import com.sorrowed.entity.ListenerEntity;
 import com.sorrowed.entity.MasonEntity;
+import com.sorrowed.entity.MemoryShardEntity;
+import com.sorrowed.entity.MemoryShattererEntity;
 import com.sorrowed.entity.NeighbourEntity;
 import com.sorrowed.entity.OrderlyEntity;
 import com.sorrowed.entity.ScarecrowEntity;
@@ -71,4 +73,13 @@ public class ModEntities {
     public static final RegistryObject<EntityType<FriendEntity>> FRIEND = ENTITIES.register("friend",
             () -> EntityType.Builder.<FriendEntity>of(FriendEntity::new, MobCategory.MISC)
                     .sized(0.6F, 1.8F).clientTrackingRange(10).build("friend"));
+
+    /** What he becomes when you try to finish it. */
+    public static final RegistryObject<EntityType<MemoryShattererEntity>> MEMORY_SHATTERER = ENTITIES.register("memory_shatterer",
+            () -> EntityType.Builder.<MemoryShattererEntity>of(MemoryShattererEntity::new, MobCategory.MONSTER)
+                    .sized(1.2F, 3.4F).fireImmune().clientTrackingRange(16).updateInterval(2).build("memory_shatterer"));
+
+    public static final RegistryObject<EntityType<MemoryShardEntity>> MEMORY_SHARD = ENTITIES.register("memory_shard",
+            () -> EntityType.Builder.<MemoryShardEntity>of(MemoryShardEntity::new, MobCategory.MISC)
+                    .sized(0.4F, 0.4F).clientTrackingRange(8).updateInterval(10).build("memory_shard"));
 }

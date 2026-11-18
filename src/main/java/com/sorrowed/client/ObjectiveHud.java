@@ -38,7 +38,8 @@ public final class ObjectiveHud {
         if (player == null || mc.level == null || mc.options.hideGui || !ClientStory.synced) return;
         if (!SorrowedConfig.OBJECTIVE_HUD.get()) return;
         if (CutsceneClient.isActive() || DistortionOverlay.active() || mc.screen instanceof JournalScreen) return;
-        if (ClientStory.stage == ClientStory.ENDED) return;
+        if (ClientStory.stage == ClientStory.ENDED || ClientStory.stage == ClientStory.FIGHTING
+                || ClientStory.stage == ClientStory.FAREWELL) return;
 
         String place;
         String task;

@@ -23,6 +23,10 @@ public final class Progress {
     /** Everything is done. He is waiting at the pond. */
     public static final int READY = 1;
     public static final int ENDED = 2;
+    /** He turned into the Memory Shatterer and you are fighting it. Never saved: a fight that is cut off goes back to READY. */
+    public static final int FIGHTING = 3;
+    /** You won. He comes back down, with a halo, to say goodbye properly. */
+    public static final int FAREWELL = 4;
 
     private static final String PERSIST = "PlayerPersisted";
     private static final String KEY = "sorrowed_story";
@@ -63,6 +67,19 @@ public final class Progress {
     public static void setStage(ServerPlayer p, int stage) {
         CompoundTag s = read(p);
         s.putInt("stage", stage);
+        write(p, s);
+    }
+
+    /** One-off story flags, such as having seen him turn once already. */
+    public static boolean flag(ServerPlayer p, String name) {
+        return read(p).getCompound("flags").getBoolean(name);
+    }
+
+    public static void setFlag(ServerPlayer p, String name) {
+        CompoundTag s = read(p);
+        CompoundTag flags = s.getCompound("flags");
+        flags.putBoolean(name, true);
+        s.put("flags", flags);
         write(p, s);
     }
 

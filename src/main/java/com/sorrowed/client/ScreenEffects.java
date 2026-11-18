@@ -47,6 +47,7 @@ public final class ScreenEffects {
     private static float[] look(ResourceKey<Level> dim) {
         boolean after = ClientStory.stage != ClientStory.PLAYING;
         if (dim.equals(Dimensions.BACKUP)) {
+            if (ClientStory.stage == ClientStory.FIGHTING) return new float[] {0.30F, 0.0F, 0.04F, 0.62F, 0.09F};
             return after ? new float[] {1.0F, 0.80F, 0.55F, 0.30F, 0.025F} : new float[] {1.0F, 0.96F, 0.86F, 0.22F, 0.02F};
         }
         if (dim.equals(Dimensions.HUSH)) return new float[] {0.0F, 0.02F, 0.06F, 0.62F, 0.07F};

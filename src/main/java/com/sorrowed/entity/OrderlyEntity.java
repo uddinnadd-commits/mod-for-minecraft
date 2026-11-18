@@ -54,7 +54,7 @@ public class OrderlyEntity extends Monster {
                                      MobSpawnType reason, BlockPos pos, RandomSource random) {
         return level.getDifficulty() != Difficulty.PEACEFUL
                 && Mob.checkMobSpawnRules(type, level, reason, pos, random)
-                && random.nextInt(16) == 0
+                && random.nextInt(10) == 0
                 && level.getEntitiesOfClass(OrderlyEntity.class, new AABB(pos).inflate(96.0D)).isEmpty();
     }
 
@@ -96,7 +96,8 @@ public class OrderlyEntity extends Monster {
         }
 
         if (d < 2.2D && p instanceof ServerPlayer sp && this.level() instanceof ServerLevel sl) {
-            // Back to bed.
+            // Back to bed, and not gently.
+            sp.hurt(this.damageSources().mobAttack(this), 4.0F);
             sp.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 80, 0));
             sp.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 1));
             Vec3 bed = HubBuilder.arrival(sl, Dimensions.WARD);

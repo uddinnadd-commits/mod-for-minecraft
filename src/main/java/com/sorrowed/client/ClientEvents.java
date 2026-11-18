@@ -28,6 +28,7 @@ public class ClientEvents {
         DistortionOverlay.clear();
         StaticOverlay.clear();
         ScreenEffects.clear();
+        BossClient.clear();
         ClientStory.clear();
         ClientState.sorrow = 0;
     }
@@ -40,6 +41,7 @@ public class ClientEvents {
             StaticOverlay.tick();
             AmbienceEvents.tick();
             WorldParticles.tick();
+            BossClient.tick();
             Minecraft mc = Minecraft.getInstance();
             while (KeyBindings.JOURNAL.consumeClick()) {
                 if (mc.screen == null && mc.player != null && !CutsceneClient.isActive()) JournalScreen.open();

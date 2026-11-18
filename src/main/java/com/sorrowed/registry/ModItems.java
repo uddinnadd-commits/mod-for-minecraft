@@ -1,6 +1,7 @@
 package com.sorrowed.registry;
 
 import com.sorrowed.Sorrowed;
+import com.sorrowed.item.BorrowedSwordItem;
 import com.sorrowed.item.PapersItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -17,6 +18,11 @@ public class ModItems {
             () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> PAPERS = ITEMS.register("papers",
             () -> new PapersItem(new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<Item> BORROWED_SWORD = ITEMS.register("borrowed_sword",
+            () -> new BorrowedSwordItem(new Item.Properties().stacksTo(1).fireResistant()));
+    /** What the Memory Shatterer throws. Only ever seen in flight. */
+    public static final RegistryObject<Item> MEMORY_SHARD = ITEMS.register("memory_shard",
+            () -> new Item(new Item.Properties()));
 
     public static final RegistryObject<Item> HUSH_DOOR = ITEMS.register("hush_door",
             () -> new BlockItem(ModBlocks.HUSH_DOOR.get(), new Item.Properties()));

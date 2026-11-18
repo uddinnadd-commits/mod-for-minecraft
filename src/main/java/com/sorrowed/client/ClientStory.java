@@ -15,6 +15,8 @@ public final class ClientStory {
     public static final int PLAYING = 0;
     public static final int READY = 1;
     public static final int ENDED = 2;
+    public static final int FIGHTING = 3;
+    public static final int FAREWELL = 4;
 
     private static final int N = Objectives.ALL.size();
 
@@ -79,10 +81,14 @@ public final class ClientStory {
         return mc.level == null ? null : Objectives.in(mc.level.dimension());
     }
 
-    /** "chat", "console", "laptop", "ending" or "page:&lt;id&gt;", from the server. */
+    /** "chat", "console", "laptop", "ending", "boss:..." or "page:&lt;id&gt;", from the server. */
     public static void open(String what) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
+        if (what.startsWith("boss:")) {
+            BossClient.command(what.substring(5));
+            return;
+        }
         switch (what) {
             case "chat", "console", "laptop" -> mc.setScreen(new TerminalScreen(what));
             case "ending" -> mc.setScreen(new EndingScreen());

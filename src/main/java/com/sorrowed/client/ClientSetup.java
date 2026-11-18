@@ -3,6 +3,7 @@ package com.sorrowed.client;
 import com.sorrowed.Sorrowed;
 import com.sorrowed.registry.ModBlockEntities;
 import com.sorrowed.registry.ModEntities;
+import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -56,6 +57,8 @@ public class ClientSetup {
                 ctx -> new SorrowMobRenderer<>(ctx, ModModels.COPY, tex("copy"), 0.4F, ModModels.COPY_STYLE, false));
         event.registerEntityRenderer(ModEntities.REFLECTION.get(), ReflectionRenderer::new);
         event.registerEntityRenderer(ModEntities.FRIEND.get(), FriendRenderer::new);
+        event.registerEntityRenderer(ModEntities.MEMORY_SHATTERER.get(), ShattererRenderer::new);
+        event.registerEntityRenderer(ModEntities.MEMORY_SHARD.get(), ctx -> new ThrownItemRenderer<>(ctx, 1.4F, true));
         event.registerBlockEntityRenderer(ModBlockEntities.LIGHTHOUSE_LAMP.get(), LighthouseBeamRenderer::new);
     }
 
@@ -69,6 +72,8 @@ public class ClientSetup {
                 StaticOverlay.render(graphics, width, height));
         event.registerAboveAll("objective", (gui, graphics, partialTick, width, height) ->
                 ObjectiveHud.render(graphics, width, height));
+        event.registerAboveAll("boss", (gui, graphics, partialTick, width, height) ->
+                BossClient.render(graphics, width, height));
         event.registerAboveAll("cutscene", (gui, graphics, partialTick, width, height) ->
                 CutsceneOverlay.render(graphics, width, height));
         event.registerAboveAll("thoughts", (gui, graphics, partialTick, width, height) ->

@@ -2,6 +2,8 @@ package com.sorrowed.entity;
 
 import com.sorrowed.mind.Sorrow;
 import com.sorrowed.registry.ModItems;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import com.sorrowed.net.ModNetwork;
 import com.sorrowed.story.Thoughts;
@@ -66,9 +68,9 @@ public class EchoEntity extends PathfinderMob {
         }
         lonely = 0;
 
-        // The silence brings them closer.
+        // The silence brings them closer, quickly.
         if (!this.level().isRaining() && this.tickCount % 10 == 0) {
-            this.getNavigation().moveTo(nearest, 0.6D);
+            this.getNavigation().moveTo(nearest, 0.95D);
         }
 
         if (nearest instanceof ServerPlayer sp) {
@@ -78,6 +80,9 @@ public class EchoEntity extends PathfinderMob {
                 ModNetwork.thought(sp, Thoughts.f(Thoughts.ECHO_SEEN));
             }
             if (dist < 4.0D) {
+                // It does not just fade any more. It goes through you first.
+                sp.hurt(this.damageSources().mobAttack(this), 4.0F);
+                sp.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 80, 0));
                 vanish(sp);
             }
         }

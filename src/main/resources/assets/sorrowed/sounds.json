@@ -1,0 +1,10 @@
+{
+  "music.memory_shatterer": {
+    "sounds": [
+      {
+        "name": "sorrowed:music/memory_shatterer",
+        "stream": true
+      }
+    ]
+  }
+}
