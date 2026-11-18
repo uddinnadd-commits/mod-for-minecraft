@@ -1,0 +1,11 @@
+{
+  "type": "sorrowed:the_archive",
+  "generator": {
+    "type": "sorrowed:liminal",
+    "mode": "archive",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "sorrowed:archive"
+    }
+  }
+}

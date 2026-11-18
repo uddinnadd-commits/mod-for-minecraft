@@ -1,0 +1,11 @@
+{
+  "type": "sorrowed:the_drowned",
+  "generator": {
+    "type": "sorrowed:liminal",
+    "mode": "drowned",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "sorrowed:drowned"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "sorrowed:block/doorway_pane",
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "pane": "sorrowed:block/backup_door"
+  }
+}

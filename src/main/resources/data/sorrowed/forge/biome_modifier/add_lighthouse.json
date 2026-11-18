@@ -1,0 +1,6 @@
+{
+  "type": "forge:add_features",
+  "biomes": "sorrowed:hush",
+  "features": "sorrowed:lighthouse",
+  "step": "surface_structures"
+}

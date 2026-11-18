@@ -1,0 +1,6 @@
+{
+  "type": "forge:add_features",
+  "biomes": "sorrowed:hush",
+  "features": "sorrowed:bus_stop",
+  "step": "surface_structures"
+}

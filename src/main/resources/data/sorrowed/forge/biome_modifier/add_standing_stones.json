@@ -1,0 +1,6 @@
+{
+  "type": "forge:add_features",
+  "biomes": "sorrowed:hush",
+  "features": "sorrowed:standing_stones",
+  "step": "surface_structures"
+}

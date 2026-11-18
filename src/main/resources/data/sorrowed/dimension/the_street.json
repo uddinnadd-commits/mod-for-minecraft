@@ -1,0 +1,11 @@
+{
+  "type": "sorrowed:the_street",
+  "generator": {
+    "type": "sorrowed:liminal",
+    "mode": "street",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "sorrowed:street"
+    }
+  }
+}
