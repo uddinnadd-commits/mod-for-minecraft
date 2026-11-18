@@ -53,7 +53,7 @@ public final class Finale {
             "look. the float's moving. it's never done that.",
             "it's the day after now. it was always going to be.",
             "go home. it stopped raining.",
-            "leave the door open for whoever comes next.",
+            "leave the door open.",
     };
 
     private static final Set<UUID> MEETING = new HashSet<>();
@@ -137,7 +137,7 @@ public final class Finale {
         Cutscene scene = CutsceneLibrary.get("farewell");
         if (SorrowedConfig.CUTSCENES.get() && scene != null && CutsceneServer.play(p, "farewell", SEAT, null)) {
             // The float, moving for the first time.
-            for (int t : new int[] {380, 420, 470}) {
+            for (int t : new int[] {430, 470, 520}) {
                 Scheduler.after(server, t, () -> level.sendParticles(ParticleTypes.SPLASH,
                         FLOAT.x, FLOAT.y, FLOAT.z, 14, 0.15D, 0.05D, 0.15D, 0.1D));
             }

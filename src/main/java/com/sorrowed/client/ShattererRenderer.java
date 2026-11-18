@@ -75,7 +75,7 @@ public class ShattererRenderer extends MobRenderer<MemoryShattererEntity, Shatte
             float k = e.deathTime / (float) MemoryShattererEntity.DEATH_TICKS * 0.25F;
             pose.translate((r.nextFloat() - 0.5F) * k, (r.nextFloat() - 0.5F) * k, (r.nextFloat() - 0.5F) * k);
         }
-        this.model.tint = e.shielded() && e.forming() <= 0 && e.deathTime <= 0 ? 0.55F : 0.32F;
+        this.model.tint = e.shielded() && e.forming() <= 0 && e.deathTime <= 0 ? 0.6F : 0.42F;
         super.render(e, yaw, partialTick, pose, buffers, LightTexture.FULL_BRIGHT);
         pose.popPose();
         orbit(e, partialTick, pose, buffers);
@@ -104,7 +104,7 @@ public class ShattererRenderer extends MobRenderer<MemoryShattererEntity, Shatte
 
     /** His model, tinted, posed like something hanging from strings. */
     public static final class Model extends PlayerModel<MemoryShattererEntity> {
-        float tint = 0.32F;
+        float tint = 0.42F;
         float ghostR = 1.0F;
         float ghostG = 1.0F;
         float ghostB = 1.0F;

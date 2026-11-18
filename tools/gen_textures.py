@@ -661,10 +661,10 @@ def shatterer_cracks(path):
             px[y * W + x] = (*c, 255)
     regions = [(0, 8, 32, 16), (16, 20, 40, 32), (40, 20, 54, 32), (32, 52, 46, 64), (0, 20, 16, 32), (16, 52, 32, 64)]
     for (x0, y0, x1, y1) in regions:
-        for _ in range(max(2, (x1 - x0) * (y1 - y0) // 60)):
+        for _ in range(max(3, (x1 - x0) * (y1 - y0) // 28)):
             x = rnd.randint(x0, x1 - 1)
             y = rnd.randint(y0, y1 - 1)
-            for _ in range(rnd.randint(4, 9)):
+            for _ in range(rnd.randint(5, 12)):
                 put(x, y, (255, 214, 196))
                 if rnd.random() < 0.4:
                     put(x + 1, y, (150, 90, 90))

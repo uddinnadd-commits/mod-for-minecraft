@@ -57,7 +57,7 @@ public class MemoryShattererEntity extends Monster {
     public static final int DEATH_TICKS = 80;
     public static final String FRAGMENT_TAG = "sorrowed_fragment";
     private static final float[] SPEED = {0.20F, 0.24F, 0.28F, 0.34F};
-    private static final float[] MELEE = {5.0F, 6.0F, 7.0F, 8.0F};
+    private static final float[] MELEE = {4.0F, 5.0F, 6.0F, 7.0F};
     private static final DustParticleOptions MARK = new DustParticleOptions(new Vector3f(0.85F, 0.08F, 0.12F), 1.4F);
 
     private static final EntityDataAccessor<Integer> DATA_STAGE =
@@ -275,6 +275,7 @@ public class MemoryShattererEntity extends Monster {
 
     private void wake() {
         this.entityData.set(DATA_SHIELDED, false);
+        meleeCd = 40;   // a breath to get your bearings
         this.playSound(SoundEvents.WARDEN_ROAR, 2.5F, 0.6F);
         tell("boss:stage:0");
     }
@@ -413,7 +414,7 @@ public class MemoryShattererEntity extends Monster {
         double flat = Math.sqrt(aim.x * aim.x + aim.z * aim.z);
         for (int i = 0; i < n; i++) {
             double a = base + Math.toRadians((i - (n - 1) / 2.0D) * 9.0D);
-            MemoryShardEntity shard = new MemoryShardEntity(level, this, 4.0F + s, false);
+            MemoryShardEntity shard = new MemoryShardEntity(level, this, 3.0F + s, false);
             shard.setPos(from.x, from.y, from.z);
             shard.shoot(Math.cos(a) * flat, aim.y, Math.sin(a) * flat, 0.95F, 0.0F);
             level.addFreshEntity(shard);
@@ -449,7 +450,7 @@ public class MemoryShattererEntity extends Monster {
         Scheduler.after(server, 22, () -> {
             if (!this.isAlive() || this.isRemoved()) return;
             for (Vec3 spot : spots) {
-                MemoryShardEntity shard = new MemoryShardEntity(level, this, 5.0F + s, true);
+                MemoryShardEntity shard = new MemoryShardEntity(level, this, 4.0F + s, true);
                 shard.setPos(spot.x, spot.y + 14.0D, spot.z);
                 shard.setDeltaMovement(0.0D, -1.1D, 0.0D);
                 level.addFreshEntity(shard);
@@ -469,8 +470,9 @@ public class MemoryShattererEntity extends Monster {
             return;
         }
         double ground = groundY(this.getX(), this.getZ());
-        if (this.getY() > ground + 0.5D && slam < 44) {
-            this.setDeltaMovement(0.0D, -1.4D, 0.0D);
+        double drop = Math.min(1.4D, this.getY() - (ground + 0.2D));
+        if (drop > 0.25D && slam < 44) {
+            this.setDeltaMovement(0.0D, -drop, 0.0D);
             return;
         }
         slam = 0;
@@ -490,7 +492,7 @@ public class MemoryShattererEntity extends Monster {
             ModNetwork.open(p, "boss:shake:0.8");
             if (p.distanceTo(this) > r) continue;
             if (!p.onGround() && p.getY() > groundY(p.getX(), p.getZ()) + 0.35D) continue;   // jumped it
-            p.hurt(this.damageSources().mobAttack(this), 7.0F + stage());
+            p.hurt(this.damageSources().mobAttack(this), 6.0F + stage());
             Vec3 away = p.position().subtract(this.position()).multiply(1.0D, 0.0D, 1.0D);
             away = away.lengthSqr() < 1.0E-4D ? new Vec3(1.0D, 0.0D, 0.0D) : away.normalize();
             p.setDeltaMovement(away.x * 1.4D, 0.55D, away.z * 1.4D);

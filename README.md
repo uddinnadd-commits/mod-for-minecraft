@@ -27,7 +27,20 @@ Alex left a list. There is **one objective in every dimension**, eleven in all, 
 | The Server | see who's online | the console types `list`: two players online, you and him |
 | The Ward | sit with bed four | room four, the bed by the window; the lamp that never worked comes on |
 
-When all eleven are done, the Backup turns to "the day after" (gold light, petals drifting) and **he is sitting at the end of the dock at the pond**. Walk up to him: a last cutscene, his last words, the screen goes white, and his letter writes itself out over the credits music. You wake by his grave at home, and **the rain stops for good** (world-wide). The title screen changes too: morning, nobody in the field.
+When all eleven are done, the Backup turns to "the day after" (gold light, petals drifting) and **he is sitting at the end of the dock at the pond**. Walk up to him and he starts to say goodbye.
+
+**Then the twist.** He won't let you finish it: mid-cutscene he comes apart into **The Memory Shatterer** (`entity/MemoryShattererEntity.java`), his own shape at twice his size, dark, cracked through with light, ghosts of him slipping off in red and cyan, pieces of him circling. A **sword falls out of the sky** into your hand (the *Borrowed Sword*: it's only lent, never drops, and every hit with it heals you a little). His world goes dark, and an original synthesized amen-break drum & bass track plays for the whole fight (`tools/gen_music.py`).
+
+| Stage | Name | What it adds |
+|---|---|---|
+| I | remembering | it floats at you and swings after a wind-up; it blinks behind you if you keep away |
+| II | forgetting | fans of glass shards thrown at you |
+| III | shattering | marked spots on the ground, then shards falling out of the dark onto them; it rises and slams the ground (jump to dodge); two faceless Unsaid join in |
+| IV | the last memory | faster, and a ring of shards with a pulse of darkness every few seconds |
+
+It has its own health bar (name, four segments, stage label). No single hit can carry it past a stage, it can't be hurt while it changes, and only the sword hurts it properly (anything else does about a third). Die, or leave his world, and he's back on the dock, waiting for you to try again (a shorter scene the second time).
+
+**Beat it** and the dark lifts, the sword goes back up, and **he comes down out of the sky with a halo**, himself again, to say goodbye properly. Then the screen goes white, and his letter writes itself out over the credits music. You wake by his grave at home, and **the rain stops for good** (world-wide). The title screen changes too: morning, nobody in the field.
 
 **New UI.** Press **J** (or *Journal* on the pause menu) for the journal: his list on one page, crossed out in pencil as you go, and the chosen world's note, the way there and your progress on the other. A small note in the top-left shows the current world's objective with a pencil arrow and distance (`objectiveHud = false` hides it). Faint light rises from whatever you are looking for. Finishing something writes it large across the screen and crosses it out. The hallway, server and orchard screens open as an old monitor (scanlines, cursor, typing).
 
@@ -52,9 +65,11 @@ Events roll every 10 seconds per player with a cooldown. Test with `/sorrowed so
 ## Entities: new names, custom bodies, one gimmick each
 Registry ids are unchanged (`sorrowed:echo` etc.); only the display names changed. Ten have jointed models (`client/ModModels.java`, generated together with their textures by `tools/gen_models.py`: elbows, knees, feet, necks, hoods, coats, with shaded faces) and one animation class that bends the joints as they walk, breathes, and lets the head drift when they stand still; the Afterwalker wears your skin on a player-shaped body.
 
+**They are meaner now.** Every one of them hurts you when it reaches you, not just your Sorrow: Vigil walks at you faster and goes through you (damage, darkness); the Unsaid is quicker, hits harder, darkens your sight and spawns twice as often; Hark hits harder, hears you for longer and reaches further; the Afterwalker follows only 7 seconds behind and hurts when it catches up; the Archivist, Neighbour, Carrier, Orderly, Scarecrow and the Copy all strike when they reach you, and most of them spawn more often. In every world the horrors start after 20 seconds instead of 30, come faster, and the world wants you gone after 5 minutes instead of 7.
+
 | Name | Id | Body | Gimmick |
 |---|---|---|---|
-| **Vigil** | echo | thin, 2.3 blocks, head bowed, arms to the knees, see-through | Keeps its distance in the rain. **When the rain stops it walks straight at you.** Never attacks; fades on arrival (+Sorrow) and **leaves one Rain Tear** where it stood. |
+| **Vigil** | echo | thin, 2.3 blocks, head bowed, arms to the knees, see-through | Keeps its distance in the rain. **When the rain stops it walks straight at you.** When it arrives it goes through you (damage, Darkness), fades (+Sorrow) and **leaves one Rain Tear** where it stood. |
 | **The Unsaid** | hollow | hooded, head hung to one side, no face, ribs showing through the rags, fingers that reach the ground | Spawns on open ground only in rain, rarely. **Won't attack anyone holding a lantern**, and **puts out every torch and lantern it passes**. |
 | **Hark** | listener | huge round head, eyes sewn shut, a mouth that is a black slot, torn ears, long fingers | Blind. **Only moves toward noise** (sprinting, jumping, swinging, using items, **breaking blocks nearby**). Crouching keeps you quiet, unless you are hurt: **it can hear your heart**. |
 | **Afterwalker** | reflection | your own skin, translucent | **Walks the exact path you walked, 10 seconds behind.** Stop and it catches up. Stare for 3s or let it near and it's gone. |
@@ -75,6 +90,8 @@ A real camera system: the camera swaps to an invisible armor stand and follows k
 - **grave**: first time you touch a grave marker. Circles the stone, then lowers Sorrow.
 - **door_behind**: the camera turns you around to see the gate that wasn't there.
 - **breakdown**: Sorrow hits 100. The camera drops and rolls, fades to black, and Sorrow resets to 55.
+- **twist / rematch**: at the pond. He talks, then comes apart into the Memory Shatterer while the camera backs away and looks up at the sword falling. The rematch is the short version.
+- **farewell**: after the fight. He comes down out of the sky with a halo, says goodbye, and the camera rises over the pond into the white.
 Turn off with `cutscenes = false`.
 
 ## Typewriter text is now rare
